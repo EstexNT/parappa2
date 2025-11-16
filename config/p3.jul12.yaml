@@ -324,7 +324,7 @@ segments:
         - [0x298F14, lit4, main/drawctrl]
         - [0x298F38, lit4, main/effect]
         - [0x298F40, lit4, main/mbar]
-        - [0x298F44, lit4, main/main]
+        - [0x298F44, .lit4, main/main]
 
         - [0x298F4C, .lit4, menu/menu_mdl]
         - [0x298F60, lit4, menu/menusub]

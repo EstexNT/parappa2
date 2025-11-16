@@ -520,10 +520,9 @@ int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
     return ret;
 }
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/main", SpHatChangeSub);
-void SpHatChangeSub(void);
-#else // TODO: fix rodata
+INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A00);
+INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A18);
+
 static void SpHatChangeSub(void) {
     PADD *pad_pp;
 
@@ -548,7 +547,7 @@ static void SpHatChangeSub(void) {
     PR_SCOPE
     int           rt2t_r1[3] = { 0xb6, 0xb7, 0xb8 };
     int           rt2t_r2[3] = { 0xb9, 0xba, 0xbb };
-    int           rt2t_r3[3] = { 0xbc, 0xbc, 0xbe };
+    int           rt2t_r3[3] = { 0xbc, 0xbd, 0xbe };
     int           rt2t_r4[3] = { 0xbf, 0xc0, 0xc1 };
     RT2TRANS_STR  rt2trans_str[4] = {
         { .num = 3, .data_pp = rt2t_r1},
@@ -566,7 +565,6 @@ static void SpHatChangeSub(void) {
     }
     PR_SCOPEEND
 }
-#endif
 
 extern char D_003996C0[]; /* sdata - "DEBUG" */
 
@@ -730,15 +728,6 @@ void logoDispOne(SPR_PRIM *sprm_pp, TIM2_DAT *tmd_pp) {
         MtcWait(1);
     }
 }
-
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A00);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A18);
-
-// From SpHatChangeSub
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A38);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A48);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A58);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A68);
 
 static void uramenFileSearchTask(void *x) {
     printf("file search in\n");
@@ -904,18 +893,13 @@ void titleDisp(int firstf) {
     }
 }
 
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393AD0);
-
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/main", urawazaKeyCheck);
-#else /* .sdata migration required */
 int urawazaKeyCheck(void) {
     PADD *pad_pp;
     int change_tbl[17] = {
-        1, 3, 5, 7,
-        0, 10, 12, 14,
+        1,  3,  5,  7,
+        0,  10, 12, 14,
         16, 15, 13, 11,
-        9, 8, 6, 4, 2,
+        9,  8,  6,  4,  2,
     };
     int   ud_d, ret;
     float pos;
@@ -928,9 +912,9 @@ int urawazaKeyCheck(void) {
     } else {
         if (pad_pp->ana[PAD_ANA_RY] <  (128 - 64) || pad_pp->ana[PAD_ANA_RX] >= (64 + 128) ||
             pad_pp->ana[PAD_ANA_RY] >= (64 + 128) || pad_pp->ana[PAD_ANA_RX] <  (128 - 64)) {
-            int a0 = pad_pp->ana[PAD_ANA_RX] - 128;
-            int s0 = pad_pp->ana[PAD_ANA_RY] - 128;
-            pos = atan2(-a0, s0);
+            int rx = pad_pp->ana[PAD_ANA_RX] - 128;
+            int ry = pad_pp->ana[PAD_ANA_RY] - 128;
+            pos = atan2(-rx, ry);
             pos = (pos + 3.1415927f);
             pos = (pos * 17.0f) / 6.2831855f;
             ud_d = pos;
@@ -953,7 +937,6 @@ int urawazaKeyCheck(void) {
 
     return ret;
 }
-#endif
 
 extern char D_003996D0[]; /* sdata - "ura:%d" */
 

@@ -2386,6 +2386,9 @@ sceMcDelete                         = 0x00164bd0; // type:func
 // sce/ee/gcc/src/newlib/libm/math/sf_sin.c
 sinf                                = 0x001654a0; // type:func
 
+// sce/ee/gcc/src/newlib/libm/math/w_atan2.c
+atan2                               = 0x00165618; // type:func
+
 // sce/ee/gcc/src/newlib/libm/math/wf_atan2.c
 atan2f                              = 0x00165730; // type:func
 
@@ -2412,6 +2415,7 @@ __DTOR_LIST__                       = 0x0017a950;
 dpadd                               = 0x0016b0e8; // type:func
 dpsub                               = 0x0016b140; // type:func
 dpcmp                               = 0x0016b6d0; // type:func
+litodp                              = 0x0016b720; // type:func
 dptofp                              = 0x0016b978; // type:func
 
 // sce/ee/gcc/src/gcc/build/gcc/fp-bit.c

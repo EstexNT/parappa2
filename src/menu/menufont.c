@@ -11,7 +11,7 @@
 /* data 18f598 */ extern MCODE_ASCII mcode_ascii_TmpMenuFont[]; /* static */
 /* data 18fe58 */ extern MCODE_ASCII mcode_HalfSpace; /* static */
 /* data 18fe68 */ extern MCODE_KANJI_ANIME PadSymbolFontA[]; /* static */
-/* data 18ff70 */ MCODE_DAT ArowPat[];
+/* data 18ff70 */ extern MCODE_DAT ArowPat[];
 /* data 18ffa8 */ extern MCODE_DAT TsFont[]; /* static */
 /* data 190360 */ extern char Tbl_ASC2EUC[193]; /* static */
 /* sdata 399890 */ extern int _PadFont_SW; /* static */
@@ -232,7 +232,7 @@ static void _PKFontPut(SPR_PKT pk, SPR_PRM *spr, SUBT_CODE *psubt, int line_num,
         break;
     }
 
-    ppMcode = &mcode_dat_pp_TmpMenuFont;
+    ppMcode = mcode_dat_pp_TmpMenuFont;
     for (i = 0; i < line_num; i++) {
         int x;
         int y;
@@ -308,7 +308,7 @@ static void _PADArrow_Put(SPR_PKT pk, SPR_PRM *spr, MCODE_DAT *pfnt, int x, int 
         aflg = pfnt->v;
     }
 
-    pat = &ArowPat;
+    pat = ArowPat;
 
     spr->px = x;
     spr->py = y;
