@@ -185,6 +185,17 @@ typedef enum {
     EXAMTYPE_MAX = 3
 } EXAM_TYPE;
 
+typedef struct { // 0x20
+    /* 0x00 */ int spmmap;
+    /* 0x04 */ int spamap;
+    /* 0x08 */ int spamapP;
+    /* 0x0c */ PR_MODELHANDLE spmHdl;
+    /* 0x10 */ PR_ANIMATIONHANDLE spaHdl;
+    /* 0x14 */ PR_ANIMATIONHANDLE spaHdlP;
+    /* 0x18 */ int *frame_pp;
+    /* 0x1c */ int *frame_ppP;
+} GUIMAP;
+
 void examCharSet(EX_CHAR_DISP *ecd_pp, sceGifPacket *gifpk_pp);
 
 void MbarMemberClear(int stg);

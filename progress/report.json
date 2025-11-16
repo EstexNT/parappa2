@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 47.096855,
+    "fuzzy_match_percent": 48.732925,
     "total_code": "342284",
-    "matched_code": "158016",
-    "matched_code_percent": 46.165173,
-    "total_data": "26064868",
-    "matched_data": "26015216",
-    "matched_data_percent": 99.8095,
+    "matched_code": "163616",
+    "matched_code_percent": 47.801243,
+    "total_data": "26082796",
+    "matched_data": "26033144",
+    "matched_data_percent": 99.80963,
     "total_functions": 1429,
-    "matched_functions": 973,
-    "matched_functions_percent": 68.08958,
+    "matched_functions": 1005,
+    "matched_functions_percent": 70.3289,
     "total_units": 70
   },
   "units": [
@@ -3966,14 +3966,14 @@
     {
       "name": "main/mbar",
       "measures": {
-        "fuzzy_match_percent": 19.346266,
+        "fuzzy_match_percent": 56.550625,
         "total_code": "15052",
-        "matched_code": "2912",
-        "matched_code_percent": 19.346268,
+        "matched_code": "8512",
+        "matched_code_percent": 56.55062,
         "total_data": "224",
         "total_functions": 82,
-        "matched_functions": 34,
-        "matched_functions_percent": 41.463413,
+        "matched_functions": 66,
+        "matched_functions_percent": 80.48781,
         "total_units": 1
       },
       "sections": [
@@ -3995,7 +3995,7 @@
         {
           "name": ".text",
           "size": "15208",
-          "fuzzy_match_percent": 19.346266,
+          "fuzzy_match_percent": 56.550625,
           "metadata": {}
         }
       ],
@@ -4003,12 +4003,14 @@
         {
           "name": "examCharSet",
           "size": "684",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "0"
         },
         {
           "name": "clrColorBuffer",
           "size": "160",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "688"
         },
@@ -4127,18 +4129,21 @@
         {
           "name": "MbarHookUseOK",
           "size": "16",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2512"
         },
         {
           "name": "MbarHookUseNG",
           "size": "16",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2528"
         },
         {
           "name": "MbarHookPoll",
           "size": "188",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2544"
         },
@@ -4152,24 +4157,28 @@
         {
           "name": "vsAnimationReq",
           "size": "44",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2808"
         },
         {
           "name": "vsAnimationReset",
           "size": "40",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2856"
         },
         {
           "name": "vsScr2Move",
           "size": "28",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2896"
         },
         {
           "name": "vsAnimationPoll",
           "size": "296",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2928"
         },
@@ -4183,6 +4192,7 @@
         {
           "name": "metColorSet",
           "size": "468",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "3304"
         },
@@ -4210,12 +4220,14 @@
         {
           "name": "ExamDispPlySet",
           "size": "24",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "4080"
         },
         {
           "name": "ExamDispReq",
           "size": "76",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "4104"
         },
@@ -4248,12 +4260,14 @@
         {
           "name": "hex2decPlMi",
           "size": "204",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "5368"
         },
         {
           "name": "examNumDisp",
           "size": "356",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "5576"
         },
@@ -4266,12 +4280,14 @@
         {
           "name": "examLevelDisp",
           "size": "252",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "6216"
         },
         {
           "name": "ExamDispSet",
           "size": "72",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "6472"
         },
@@ -4326,54 +4342,63 @@
         {
           "name": "MbarGifInit",
           "size": "136",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "7096"
         },
         {
           "name": "MbarGifTrans",
           "size": "16",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "7232"
         },
         {
           "name": "MbarCharSet",
           "size": "580",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "7248"
         },
         {
           "name": "MbarCharSet2",
           "size": "428",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "7832"
         },
         {
           "name": "MbarWindowSet",
           "size": "128",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "8264"
         },
         {
           "name": "MbarGetDispPosX",
           "size": "104",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "8392"
         },
         {
           "name": "MbarGetDispPosY",
           "size": "52",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "8496"
         },
         {
           "name": "MbarGetTimeArea",
           "size": "104",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "8552"
         },
         {
           "name": "MbarGetTimeArea2",
           "size": "96",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "8656"
         },
@@ -4394,6 +4419,7 @@
         {
           "name": "MbarGetStartTap",
           "size": "60",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "8824"
         },
@@ -4413,6 +4439,7 @@
         {
           "name": "MbarFlashMake",
           "size": "252",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "9152"
         },
@@ -4437,24 +4464,28 @@
         {
           "name": "MbarTapSubt",
           "size": "124",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "11520"
         },
         {
           "name": "MbarPosOffsetSet",
           "size": "96",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "11648"
         },
         {
           "name": "mbar_othon_frame_set",
           "size": "140",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "11744"
         },
         {
           "name": "MbarDisp",
           "size": "320",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "11888"
         },
@@ -4473,6 +4504,7 @@
         {
           "name": "MbarDispSceneVsDraw",
           "size": "40",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "13248"
         },
@@ -5238,9 +5270,9 @@
         "total_code": "2580",
         "matched_code": "2580",
         "matched_code_percent": 100.0,
-        "total_data": "212",
-        "matched_data": "12",
-        "matched_data_percent": 5.6603775,
+        "total_data": "18140",
+        "matched_data": "17940",
+        "matched_data_percent": 98.89746,
         "total_functions": 18,
         "matched_functions": 18,
         "matched_functions_percent": 100.0,
@@ -5249,11 +5281,13 @@
       "sections": [
         {
           "name": ".bss",
+          "size": "17736",
           "fuzzy_match_percent": 100.0,
           "metadata": {}
         },
         {
           "name": ".data",
+          "size": "192",
           "fuzzy_match_percent": 100.0,
           "metadata": {}
         },
@@ -13179,16 +13213,16 @@
     {
       "id": "main",
       "measures": {
-        "fuzzy_match_percent": 62.223064,
+        "fuzzy_match_percent": 66.737885,
         "total_code": "124036",
-        "matched_code": "76336",
-        "matched_code_percent": 61.543423,
-        "total_data": "48216",
-        "matched_data": "38372",
-        "matched_data_percent": 79.58354,
+        "matched_code": "81936",
+        "matched_code_percent": 66.05824,
+        "total_data": "66144",
+        "matched_data": "56300",
+        "matched_data_percent": 85.117325,
         "total_functions": 570,
-        "matched_functions": 465,
-        "matched_functions_percent": 81.57895,
+        "matched_functions": 497,
+        "matched_functions_percent": 87.192986,
         "total_units": 17
       }
     },

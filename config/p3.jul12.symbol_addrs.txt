@@ -871,6 +871,7 @@ guime_camera_hdl                    = 0x00399a94;
 
 exam_global_ply                     = 0x01c70030; // size:0x10
 exam_global_ply_current_ply         = 0x01c70040; // size:0x10
+tp_tmp_72                           = 0x01c6ffc0; // size:0x60
 metFrameCnt                         = 0x01c70050; // size:0xc
 metFrameCntLight                    = 0x01c70060; // size:0xc
 scr_tenmetu_col_dat                 = 0x01c70070; // size:0xc
@@ -2400,6 +2401,8 @@ __divdi3                            = 0x001680d0; // type:func
 exit                                = 0x00169730; // type:func
 __fixsfdi                           = 0x00169760; // type:func
 __floatdisf                         = 0x00169a20; // type:func
+__muldi3                            = 0x0016a168; // type:func
+__moddi3                            = 0x00169b00; // type:func
 __udivdi3                           = 0x0016a1c8; // type:func
 __umoddi3                           = 0x0016a798; // type:func
 
