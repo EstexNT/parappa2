@@ -1,13 +1,15 @@
 #include "main/mbar.h"
 
 #include "main/cmnfile.h"
-#include "os/syssub.h"
-#include "os/tim2.h"
-#include "os/cmngifpk.h"
-#include "os/system.h"
+#include "main/sprite.h"
 
+#include "os/cmngifpk.h"
+#include "os/syssub.h"
+#include "os/system.h"
+#include "os/tim2.h"
+
+#include <math.h>
 #include <stdio.h>
-#include <string.h>
 
 /* data 186288 */ extern TIM2_DAT tim2spr_tbl_tmp1[]; /* static, tim2spr_tbl */
 /* data 186a68 */ extern u_int tmpColor[]; /* static */
@@ -123,15 +125,18 @@ void examCharSet(EX_CHAR_DISP *ecd_pp, sceGifPacket *gifpk_pp) {
 static void clrColorBuffer(int id) {
     extern sceGsLoadImage tp_tmp_72; /* static */
     TIM2_DAT *tim2_dat_pp;
-    u_char *tr_adr;
-    u_int cpsm, cbp;
+    u_char   *tr_adr;
+    u_int     cpsm, cbp;
 
     tim2_dat_pp = &tim2spr_tbl_tmp1[id];
     tr_adr = (u_char*)&tmpColor;
+
     cpsm = PR_TEX0(tim2_dat_pp).CPSM;
     cbp = PR_TEX0(tim2_dat_pp).CBP;
+
     sceGsSetDefLoadImage(&tp_tmp_72, cbp, 1, cpsm, 0, 0, 8, 2);
     FlushCache(0);
+
     sceGsExecLoadImage(&tp_tmp_72, (u_long128*)tr_adr);
     sceGsSyncPath(0, 0);
 }
@@ -249,7 +254,7 @@ void MbarNikoSet(int num, int ofs) {
         niko_chan_str_pp[i + ofs].niko_enum = NIKO_MARU;
     }
 
-    if (num & 0x1) {
+    if ((num % 2) != 0) {
         if (((num / 2) + ofs) >= niko_chan_str_cnt) {
             printf("NIKO OVER!!\n");
             return;
@@ -355,8 +360,10 @@ static void MbarHookPoll(void) {
     for (i = 0; i < 2; i++) {
         if (mbhook_str[i].timer != 0) {
             mbhook_str[i].timer++;
+
             moto_pp = cmnfGetFileAdrs(mbhook_str[i].moto);
             saki_pp = cmnfGetFileAdrs(mbhook_str[i].saki);
+
             if (mbhook_str[i].timer < 0 || mbhook_str[i].timer > 15) {
                 Tim2Trans(moto_pp);
                 mbhook_str[i].timer = 0;
@@ -379,9 +386,8 @@ void vsAnimationInit(void) {
 }
 
 void vsAnimationReq(int ply, long scrMoto, long scrSaki, VS_MV_TYPE vt) {
-    VS_SCR_CTRL *vsc_pp;
+    VS_SCR_CTRL *vsc_pp = &vs_scr_ctrl[ply];
 
-    vsc_pp = &vs_scr_ctrl[ply];
     vsc_pp->motoScr = scrMoto;
     vsc_pp->sakiScr = scrSaki;
     vsc_pp->animation_time = 60;
@@ -389,9 +395,8 @@ void vsAnimationReq(int ply, long scrMoto, long scrSaki, VS_MV_TYPE vt) {
 }
 
 void vsAnimationReset(int ply, long scr) {
-    VS_SCR_CTRL *vsc_pp;
+    VS_SCR_CTRL *vsc_pp = &vs_scr_ctrl[ply];
 
-    vsc_pp = &vs_scr_ctrl[ply];
     vsc_pp->motoScr = scr;
     vsc_pp->sakiScr = scr;
     vsc_pp->animation_time = 0;
@@ -412,16 +417,20 @@ static void vsAnimationPoll(void) {
     for (i = 0; i < 4; i++) {
         if (vs_scr_ctrl[i].animation_time != 0) {
             vsScoreAni[i] = 60 - vs_scr_ctrl[i].animation_time;
+
             score = ((vs_scr_ctrl[i].sakiScr - vs_scr_ctrl[i].motoScr) * vsScoreAni[i]) / 60;
             score += vs_scr_ctrl[i].motoScr;
+
             vsScoreMove[i] = score;
             vsScoreMove[i] = vsScr2Move(vsScoreMove[i]);
+
             if (vs_scr_ctrl[i].vt == VSMT_UP) {
                 vsScoreAni[i] += 62;
             }
             if (vs_scr_ctrl[i].vt == VSMT_DW) {
                 vsScoreAni[i] += 2;
             }
+
             vs_scr_ctrl[i].animation_time--;
             if (vs_scr_ctrl[i].animation_time == 0) {
                 vs_scr_ctrl[i].motoScr = vs_scr_ctrl[i].sakiScr;
@@ -442,9 +451,8 @@ static void metColorInit(void) {
 }
 
 static void metColorSet(EXAM_TYPE exam_type, float per) {
-    u_char *moto_pp;
-    u_char *saki_pp;
-    int sakiper;
+    u_char *moto_pp, *saki_pp;
+    int     sakiper;
 
     if (per == 0.0f) {
         return Tim2Trans(cmnfGetFileAdrs(metcol_str[exam_type].df_num));
@@ -455,8 +463,10 @@ static void metColorSet(EXAM_TYPE exam_type, float per) {
     if (per == 1.0f) {
         return Tim2Trans(cmnfGetFileAdrs(metcol_str[exam_type].ok_num));
     }
+
     sakiper = metcol_str[exam_type].df_num;
     moto_pp = cmnfGetFileAdrs(sakiper);
+
     if (per < 0.0f) {
         per = -per;
         if (per > 1.0f) {
@@ -471,6 +481,7 @@ static void metColorSet(EXAM_TYPE exam_type, float per) {
         saki_pp = cmnfGetFileAdrs(metcol_str[exam_type].ok_num);
         sakiper = per * 128;
     }
+
     Cl2MixTrans(sakiper, 128, saki_pp, moto_pp);
 }
 
@@ -530,6 +541,7 @@ void ExamDispPlySet(GLOBAL_PLY *ply, int pos) {
 void ExamDispReq(int ply, int plmi) {
     exam_disp_cursor_timer = 0;
     exam_global_ply_current = exam_global_ply[ply];
+
     if (plmi) {
         exam_global_ply_current_ply[ply] = 1;
     } else {
@@ -562,6 +574,8 @@ float examScore2Level(long score) {
 
     return ret_lvl;
 }
+
+INCLUDE_RODATA("asm/nonmatchings/main/mbar", D_00393450);
 
 #ifndef NON_MATCHING
 INCLUDE_ASM("asm/nonmatchings/main/mbar", ExamDispOn);
@@ -644,18 +658,20 @@ INCLUDE_ASM("asm/nonmatchings/main/mbar", hex2dec_mbar_tmp);
 
 static u_long hex2decPlMi(long data) {
     u_long ret;
-    int i;
-    long plmichar;
+    int    i;
+    long   plmichar;
 
     ret = 0;
     if (data == 0) {
         return ret;
     }
-    plmichar = data < 1 ? 0 : 10;
+
+    plmichar = (data < 1) ? 0 : 10;
     if (data < 0) {
         data *= -1;
         plmichar = 11;
     }
+
     i = 0;
     if (data == 0) {
         ret = plmichar;
@@ -669,20 +685,21 @@ static u_long hex2decPlMi(long data) {
         }
         ret |= plmichar << (i * 4);
     }
+
     return ret;
 }
 
 void examNumDisp(sceGifPacket *ex_gif_pp, long score, short x, short y, int keta, u_char *coldat_pp, int plmi) {
-    int i;
-    u_char num;
-    int first_f;
+    int          i;
+    u_char       num;
+    int          first_f;
     EX_CHAR_DISP ex_ecd;
 
     first_f = FALSE;
     examCharBasic(&ex_ecd, &tim2spr_tbl_tmp1[27]);
     examCharKidoSet(&ex_ecd, coldat_pp[0], coldat_pp[1], coldat_pp[2]);
     
-    if (plmi != 0) {
+    if (plmi) {
         score = hex2decPlMi(score);
     } else {
         score = hex2dec_mbar_tmp(score);
@@ -701,60 +718,58 @@ void examNumDisp(sceGifPacket *ex_gif_pp, long score, short x, short y, int keta
     }
 }
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/mbar", examScoreSet);
-#else
-/* Needs .rodata match */
 static void examScoreSet(sceGifPacket *ex_gif_pp) {
     int i;
     int pos_dat[2][2] = {
-        {530, 4},
-        {530, 36},
+        { 530, 4  },
+        { 530, 36 },
     };
 
     for (i = 0; i < 2; i++) {
-        if (exam_global_ply[i] == NULL) {
-            continue;
-        }
-        if (exam_global_ply_current_ply[i]) {
-            examNumDisp(ex_gif_pp, exam_global_ply[i]->now_score, pos_dat[i][0], pos_dat[i][1], 5, scr_tenmetu_col_dat[i], 1);
-        } else {
-            examNumDisp(ex_gif_pp, exam_global_ply[i]->score, pos_dat[i][0], pos_dat[i][1], 5, scr_tenmetu_col_dat[i], 0);
+        if (exam_global_ply[i] != NULL) {
+            if (exam_global_ply_current_ply[i]) {
+                examNumDisp(ex_gif_pp, exam_global_ply[i]->now_score, pos_dat[i][0], pos_dat[i][1], 5, scr_tenmetu_col_dat[i], 1);
+            } else {
+                examNumDisp(ex_gif_pp, exam_global_ply[i]->score, pos_dat[i][0], pos_dat[i][1], 5, scr_tenmetu_col_dat[i], 0);
+            }
         }
     }
 }
-#endif
 
 static void examLevelDisp(sceGifPacket *ex_gif_pp) {
-    GLOBAL_PLY *exg_p;
-    int old_fr, targ_fr;
-    EX_CHAR_DISP ex_ecd;
-    int plevel, i;
+    GLOBAL_PLY   *exg_p;
+    int           old_fr, targ_fr;
+    EX_CHAR_DISP  ex_ecd;
+    int           plevel, i;
 
     for (i = 0; i < 4; i++) {
         exg_p = exam_global_ply[i];
-        if (exg_p == NULL) {
-            continue;
-        }
-        old_fr = conditionFramCnt[i];
-        targ_fr = exg_p->rank_level * 20;
-        if (old_fr < targ_fr) {
-            old_fr += 2;
-            if (targ_fr < old_fr) {
-                old_fr = targ_fr;
-            }
-        } else {
-            old_fr -= 2;
+        if (exg_p != NULL) {
+            old_fr  = conditionFramCnt[i];
+            targ_fr = exg_p->rank_level * 20;
+
             if (old_fr < targ_fr) {
-                old_fr = targ_fr;
+                old_fr += 2;
+                if (targ_fr < old_fr) {
+                    old_fr = targ_fr;
+                }
+            } else {
+                old_fr -= 2;
+                if (old_fr < targ_fr) {
+                    old_fr = targ_fr;
+                }
             }
+
+            if (old_fr > 240) {
+                old_fr = 240;
+            }
+
+            conditionFramCnt[i] = old_fr;
         }
-        if (old_fr >= 241) {
-            old_fr = 240;
-        }
-        conditionFramCnt[i] = old_fr;
     }
+
     plevel = conditionFramCnt[0] * 96 / 240;
+
     examCharBasic(&ex_ecd, &tim2spr_tbl_tmp1[28]);
     examCharUVWHSet(&ex_ecd, plevel, 0, 24, 88);
     examCharPosSet(&ex_ecd, 616, 136);
@@ -791,10 +806,6 @@ void MbarInit(int stg) {
 void MbarReset(void) {
     WorkClear(mbar_req_str, sizeof(mbar_req_str));
 }
-
-INCLUDE_RODATA("asm/nonmatchings/main/mbar", D_00393450);
-
-INCLUDE_RODATA("asm/nonmatchings/main/mbar", D_00393458);
 
 void MbarReq(MBAR_REQ_ENUM mm_req, TAPSET *ts_pp, int curr_time, SCR_TAP_MEMORY *tm_pp, int tm_cnt, 
              int lang, int tapdat_size, TAPDAT *tapdat_pp, GUI_CURSOR_ENUM guic) {
@@ -863,26 +874,31 @@ void MbarGifTrans(int pri) {
 
 void MbarCharSet(MBARR_CHR *mb_pp) {
     MBA_CHAR_DATA *mbcd_pp;
-    float w, h;
-    int x1, y1, x2, y2;
+    float          w, h;
+    int            x1, y1, x2, y2;
 
     mbcd_pp = &mba_char_data[mb_pp->mbc_enum];
     if (mbcd_pp->tim2_dat_pp == NULL) {
         return;
     }
+
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_RGBAQ, SCE_GS_SET_RGBAQ(mb_pp->r, mb_pp->g, mb_pp->b, mb_pp->a, 0x3f800000));
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_TEX0_1, mbcd_pp->tim2_dat_pp->GsTex0);
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_TEX1_1, mbcd_pp->tim2_dat_pp->GsTex1);
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_PRIM, SCE_GS_SET_PRIM(6, 0, 1, 0, 0, 0, 1, 0, 0));
+
     w = mbcd_pp->sclx * mb_pp->sclx * mbcd_pp->tim2_dat_pp->w;
     h = mbcd_pp->scly * mb_pp->scly * mbcd_pp->tim2_dat_pp->h;
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_UV, SCE_GS_SET_UV(0, 0));
+
     w *= 0.5f;
     h *= 0.5f;
     x1 = (mb_pp->xp - w) * 16.0f;
     y1 = (mb_pp->yp - h) * 16.0f;
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_XYZ2, SCE_GS_SET_XYZ2(0x6C00 + x1, 0x7900 + y1, 1));
+
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_UV, SCE_GS_SET_UV(mbcd_pp->tim2_dat_pp->w << 4, mbcd_pp->tim2_dat_pp->h << 4));
+
     x2 = (mb_pp->xp + w) * 16.0f;
     y2 = (mb_pp->yp + h) * 16.0f;
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_XYZ2, SCE_GS_SET_XYZ2(0x6C00 + x2, 0x7900 + y2, 1));
@@ -890,21 +906,26 @@ void MbarCharSet(MBARR_CHR *mb_pp) {
 
 void MbarCharSet2(MBARR_CHR2 *mb_pp) {
     MBA_CHAR_DATA *mbcd_pp;
-    int x1, y1, x2, y2;
+    int            x1, y1, x2, y2;
     
     mbcd_pp = &mba_char_data[mb_pp->mbc_enum];
     if (mbcd_pp->tim2_dat_pp == NULL) {
         return;
     }
+
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_RGBAQ, SCE_GS_SET_RGBAQ(mb_pp->r, mb_pp->g, mb_pp->b, mb_pp->a, 0x3f800000));
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_TEX0_1, mbcd_pp->tim2_dat_pp->GsTex0);
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_TEX1_1, mbcd_pp->tim2_dat_pp->GsTex1);
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_PRIM, SCE_GS_SET_PRIM(6, 0, 1, 0, 0, 0, 1, 0, 0));
+
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_UV, SCE_GS_SET_UV(0, 0));
+
     x1 = mb_pp->xp + mb_pp->ofsx;
     y1 = mb_pp->yp + mb_pp->ofsy;
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_XYZ2, SCE_GS_SET_XYZ2(GS_X_COORD(x1), GS_Y_COORD(y1), 1));
+
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_UV, SCE_GS_SET_UV(mbcd_pp->tim2_dat_pp->w << 4, mbcd_pp->tim2_dat_pp->h << 4));
+
     x2 = mb_pp->xp2 + mb_pp->ofsx2;
     y2 = mb_pp->yp2 + mb_pp->ofsy2;
     sceGifPkAddGsAD(&mbar_gif, SCE_GS_XYZ2, SCE_GS_SET_XYZ2(GS_X_COORD(x2), GS_Y_COORD(y2), 1));
@@ -930,11 +951,13 @@ static int MbarGetDispPosX(int tick) {
     if (tick < 0) {
         return 13;
     }
+
     if (tick < 480) {
         pos = (tick * 25 / 24);
     } else {
         pos = ((tick - 384) * 25 / 24);
     }
+
     return pos + 13;
 }
 
@@ -954,9 +977,8 @@ static int MbarGetDispPosY(int tick) {
 }
 
 static int MbarGetTimeArea(MBAR_REQ_STR *mr_pp) {
-    int ret;
+    int ret = 0;
 
-    ret = 0;
     if (mr_pp->mbar_req_enum == MBAR_NONE) {
         return ret;
     }
@@ -976,10 +998,9 @@ static int MbarGetTimeArea(MBAR_REQ_STR *mr_pp) {
 }
 
 static int MbarGetTimeArea2(MBAR_REQ_STR *mr_pp) {
-    int ret;
+    int ret = 0;
 
-    ret = 0;
-    if (mr_pp->mbar_req_enum == 0) {
+    if (mr_pp->mbar_req_enum == MBAR_NONE) {
         return ret;
     }
     if (mbar_ctrl_time >= (mr_pp->current_time + mr_pp->tapset_pp->taptimeEnd)) {
@@ -1006,33 +1027,31 @@ static int MbarGetStartTap(MBAR_REQ_STR *mr_pp) {
     int ret;
 
     ret = mr_pp->current_time + mr_pp->tapset_pp->taptimeStart;
-    ret = (ret / 0x18 - 1) * 0x18;
+    ret = (ret / 24 - 1) * 24;
     return -1 < ret ? ret : 0;
 }
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/mbar", MbarSclRotMake);
-#else
-/* Needs .rodata match */
 void MbarSclRotMake(MBARR_CHR *mbarr_pp, int mbtime) {
     float tmp_rate;
 
     mbarr_pp->sclx = 1.0f;
     mbarr_pp->scly = 1.0f;
-    if (mbtime >= 96u) {
+
+    if (mbtime >= (u_int)96) {
         return;
     }
+
     if (mbtime < 24) {
         tmp_rate = (24 - mbtime) / 24.0f + 1.0f;
         mbarr_pp->sclx = tmp_rate;
         mbarr_pp->scly = tmp_rate;
     }
+
     if (mbtime < 96) {
-        tmp_rate = cosf(mbtime * 0.12345f / 96.0f);
+        tmp_rate = cosf(mbtime * 6.2831855f / 96.0f);
         mbarr_pp->sclx *= tmp_rate;
     }
 }
-#endif
 
 void MbarGuideLightMake(MBARR_CHR *mbarr_pp, int mbtime) {
     u_char col = 128;
@@ -1045,9 +1064,9 @@ void MbarGuideLightMake(MBARR_CHR *mbarr_pp, int mbtime) {
 }
 
 int MbarFlashMake(MBARR_CHR *mbarr_pp, MBARR_CHR *mbarr_moto_pp, int mbtime, int fltype) {
-    float fsize;
+    float   fsize;
     u_char *colpp;
-    u_char scale;
+    u_char  scale;
 
     if (mbtime < 0) {
         return 0;
@@ -1075,41 +1094,36 @@ int MbarFlashMake(MBARR_CHR *mbarr_pp, MBARR_CHR *mbarr_moto_pp, int mbtime, int
     return 1;    
 }
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/mbar", MbarBackSet);
-#else
-/* Needs .rodata match */
 void MbarBackSet(MBAR_REQ_STR *mr_pp) {
-    int i, stt, endt, sttap, curtime;
-    MBARR_CHR mbarr;
+    int        i, stt, endt, sttap, curtime;
+    MBARR_CHR  mbarr;
     MBARR_CHR2 mbarr_chr2;
-    int sttime, endtime;
+    int        sttime, endtime;
 
     mbarr = (MBARR_CHR) {
         .mbc_enum = MBC_BALL,
-        .xp = 13,
-        .yp = 23,
-        .sclx = 1.0f,
-        .scly = 1.0f,
-        .r = 128,
-        .g = 128,
-        .b = 128,
-        .a = 128,
+        .xp = 13, .yp = 23,
+        .sclx = 1.0f, .scly = 1.0f,
+        .r = 128, .g = 128, .b = 128, .a = 128
     };
 
     MbarWindowSet(MBWINDOW_UP);
+
     if (MbarGetTimeArea2(mr_pp) == 0) {
         return;
     }
+
     curtime = mbar_ctrl_time;
     stt = MbarGetStartTime(mr_pp);
     endt = MbarGetEndTime(mr_pp);
     sttap = MbarGetStartTap(mr_pp);
+
     if (mr_pp->mbar_req_enum & 0x200) {
-        mbarr_chr2.mbc_enum = 0x24;
+        mbarr_chr2.mbc_enum = MBC_GLINE_P;
     } else {
-        mbarr_chr2.mbc_enum = 0x25;
+        mbarr_chr2.mbc_enum = MBC_GLINE_T;
     }
+
     endtime = endt - stt - 1;
     if (curtime < stt) {
         sttime = 0;
@@ -1117,74 +1131,83 @@ void MbarBackSet(MBAR_REQ_STR *mr_pp) {
         sttime = curtime - stt;
     }
 
-    mbarr_chr2.b = 0x80;
-    mbarr_chr2.g = 0x80;
-    mbarr_chr2.r = 0x80;
-    mbarr_chr2.a = 0x20;
+    mbarr_chr2.b = 128;
+    mbarr_chr2.g = 128;
+    mbarr_chr2.r = 128;
+    mbarr_chr2.a = 32;
     mbarr_chr2.ofsx2 = 0;
     mbarr_chr2.ofsx = 0;
-    mbarr_chr2.ofsy = -0xe;
-    mbarr_chr2.ofsy2 = 0xe;
+    mbarr_chr2.ofsy = -14;
+    mbarr_chr2.ofsy2 = 14;
     
     if (sttime < endtime) {
         mbarr_chr2.xp = MbarGetDispPosX(sttime);
         mbarr_chr2.yp = MbarGetDispPosY(sttime);
         mbarr_chr2.xp2 = MbarGetDispPosX(endtime);
         mbarr_chr2.yp2 = MbarGetDispPosY(endtime);
+
         if (mr_pp->mbar_req_enum & 0x40) {
-            mbarr_chr2.yp2 += 0x32;
-            mbarr_chr2.yp += 0x32;
+            mbarr_chr2.yp2 += 50;
+            mbarr_chr2.yp += 50;
         } else if (mr_pp->mbar_req_enum & 0x800) {
-            mbarr_chr2.yp2 += 0x19;
-            mbarr_chr2.yp += 0x19;
+            mbarr_chr2.yp2 += 25;
+            mbarr_chr2.yp += 25;
         }
+
         if (mbarr_chr2.yp != mbarr_chr2.yp2) {
-            mbarr_chr2.xp2 = MbarGetDispPosX(0x1df);
-            mbarr_chr2.yp2 = MbarGetDispPosY(0x1df);
+            mbarr_chr2.xp2 = MbarGetDispPosX(479);
+            mbarr_chr2.yp2 = MbarGetDispPosY(479);
+
             if (mr_pp->mbar_req_enum & 0x40) {
-                mbarr_chr2.yp2 += 0x32;
+                mbarr_chr2.yp2 += 50;
             } else if (mr_pp->mbar_req_enum & 0x800) {
-                mbarr_chr2.yp2 += 0x19;
+                mbarr_chr2.yp2 += 25;
             }
+
             MbarCharSet2(&mbarr_chr2);
-            mbarr_chr2.xp = MbarGetDispPosX(0x1e0);
-            mbarr_chr2.yp = MbarGetDispPosY(0x1e0);
+
+            mbarr_chr2.xp = MbarGetDispPosX(480);
+            mbarr_chr2.yp = MbarGetDispPosY(480);
             mbarr_chr2.xp2 = MbarGetDispPosX(endtime);
             mbarr_chr2.yp2 = MbarGetDispPosY(endtime);
+
             if (mr_pp->mbar_req_enum & 0x40) {
-                mbarr_chr2.yp2 += 0x32;
-                mbarr_chr2.yp += 0x32;
+                mbarr_chr2.yp2 += 50;
+                mbarr_chr2.yp += 50;
             } else if (mr_pp->mbar_req_enum & 0x800) {
-                mbarr_chr2.yp2 += 0x19;
-                mbarr_chr2.yp += 0x19;
+                mbarr_chr2.yp2 += 25;
+                mbarr_chr2.yp += 25;
             }
         }
+
         MbarCharSet2(&mbarr_chr2);
     }
-    for (endtime = stt + 0x18; endtime < endt; endtime += 0x18) {
-        if ((endtime - 0x18) >= sttap) {
+
+    for (endtime = stt + 24; endtime < endt; endtime += 24) {
+        if ((endtime - 24) >= sttap) {
             sttime = endtime - stt;
             mbarr.xp = MbarGetDispPosX(sttime);
             mbarr.yp = MbarGetDispPosY(sttime);
-            mbarr.mbc_enum = 0x16;
-            if (((endtime / 0x18) & 0x3) == 0) {
-                mbarr.mbc_enum = 0x17;
+
+            mbarr.mbc_enum = MBC_BALL;
+            if (((endtime / 24) % 4) == 0) {
+                mbarr.mbc_enum = MBC_STAR;
             }
+
             if (mr_pp->mbar_req_enum & 0x40) {
-                mbarr.yp += 0x32;
+                mbarr.yp += 50;
             } else if (mr_pp->mbar_req_enum & 0x800) {
-                mbarr.yp += 0x19;
+                mbarr.yp += 25;
             }
+
             if (mr_pp->mbar_req_enum & 0x80) {
                 MbarGuideLightMake(&mbarr, curtime - endtime);
             }
+
             MbarCharSet(&mbarr);
         }
     }
 }
-#endif
-
-INCLUDE_RODATA("asm/nonmatchings/main/mbar", D_00393488);
 
 INCLUDE_RODATA("asm/nonmatchings/main/mbar", D_003934A0);
 
@@ -1196,18 +1219,13 @@ INCLUDE_ASM("asm/nonmatchings/main/mbar", MbarCurSet);
 /* Needs .rodata match */
 static void MbarCurSet(MBAR_REQ_STR *mr_pp) {
     MBARR_CHR mbarr;
-    int curtime, gbalTapTime, sttime;
+    int       curtime, gbalTapTime, sttime;
 
     mbarr = (MBARR_CHR) {
-        .mbc_enum = 0,
-        .xp = 0,
-        .yp = 0,
-        .sclx = 1.0f,
-        .scly = 1.0f,
-        .r = 128,
-        .g = 128,
-        .b = 128,
-        .a = 128,
+        .mbc_enum = MBC_NONE,
+        .xp = 0, .yp = 0,
+        .sclx = 1.0f, .scly = 1.0f,
+        .r = 128, .g = 128, .b = 128, .a = 128
     }; 
     
     gbalTapTime = mr_pp->current_time;
@@ -1247,12 +1265,13 @@ static int MbarTapSubt(MBAR_REQ_STR *mr_pp) {
     if (MbarGetTimeArea(mr_pp) == 0) {
         return 0;
     }
-    if (game_status.subtitle != SUBTITLE_ON) {
-        return 1;
+
+    if (game_status.subtitle == SUBTITLE_ON) {
+        lng = mr_pp->tapset_pp->taptimeEnd - mr_pp->tapset_pp->taptimeStart;
+        nowp = mbar_ctrl_time - mr_pp->current_time - mr_pp->tapset_pp->taptimeStart;
+        SubtTapPrintWake(mr_pp->tapset_pp->tapsubt[mr_pp->lang], mr_pp->lang, lng, nowp);
     }
-    lng = mr_pp->tapset_pp->taptimeEnd - mr_pp->tapset_pp->taptimeStart;
-    nowp = mbar_ctrl_time - mr_pp->current_time - mr_pp->tapset_pp->taptimeStart;
-    SubtTapPrintWake(mr_pp->tapset_pp->tapsubt[mr_pp->lang], mr_pp->lang, lng, nowp);
+
     return 1;
 }
 
@@ -1261,39 +1280,40 @@ static int MbarTapSubt(MBAR_REQ_STR *mr_pp) {
     if (MbarGetTimeArea2(mr_pp) == 0) {
         return;
     }
-    if ((MbarGetEndTime(mr_pp) - MbarGetStartTime(mr_pp)) < 0x1e1) {
+    if ((MbarGetEndTime(mr_pp) - MbarGetStartTime(mr_pp)) <= 480) {
         mbar_pos_y_ofs = 12;
     }
 }
 
 void mbar_othon_frame_set(MBAR_REQ_STR* mr_pp) {
     int curtime;
-    int mp_st;
-    int mp_end;
-    int mp_fix;
+    int mp_st, mp_end, mp_fix;
 
     curtime = mbar_ctrl_time - mr_pp->current_time - mr_pp->tapset_pp->taptimeStart;
-    curtime += 0x30;
+    curtime += 48;
+
     if (curtime < 0) {
         return;
     }
 
-    if (curtime >= 0x49) {
+    if (curtime >= 73) {
         return;
     }
 
     if (mr_pp->mbar_req_enum & 0x40) {
-        mp_st = 0x32;
-        mp_end = 0x5A;
-        mp_fix = 0x5A;
+        mp_st = 50;
+        mp_end = 90;
+        mp_fix = 90;
     } else {
-        mp_st = 0x5A;
-        mp_end = 0x82;
-        mp_fix = 0x32;
+        mp_st = 90;
+        mp_end = 130;
+        mp_fix = 50;
     }
-    if (curtime < 0x18) {
+
+    if (curtime < 24) {
         mp_fix = (((mp_end - mp_st) * curtime) / 24) + mp_st;
     }
+
     othon_frame = mp_fix;
 }
 
@@ -1301,21 +1321,21 @@ void MbarDisp(void) {
     int i, j;
 
     MbarGifInit();
+
     for (i = 0; i < 4u; i++) {
         for (j = 0; j < 5u; j++) {
             if (mbar_req_str[j].mbar_req_enum == MBAR_NONE) {
                 continue;
             }
-            if (mbar_req_str[j].tapset_pp == NULL) {
-                continue;
-            }
-            if (mbar_req_str[j].tapset_pp->coolup == -1) {
+            if (mbar_req_str[j].tapset_pp == NULL || mbar_req_str[j].tapset_pp->coolup == -1) {
                 continue;
             }
             (*marSetPrgTbl[i])(&mbar_req_str[j]);
         }
     }
+
     MbarGifTrans(7);
+
     if (game_status.subtitle == SUBTITLE_ON) {
         for (i = 0; i < 5u; i++) {
             if (mbar_req_str[i].mbar_req_enum == MBAR_NONE) {
@@ -1324,7 +1344,7 @@ void MbarDisp(void) {
             if (mbar_req_str[i].tapset_pp == NULL) {
                 continue;
             }
-            if (MbarTapSubt(&mbar_req_str[i]) != 0) {
+            if (MbarTapSubt(&mbar_req_str[i])) {
                 break;
             }
         }
@@ -1332,7 +1352,7 @@ void MbarDisp(void) {
 }
 
 int MbarDispScene(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
-    int i, j;
+    int   i, j;
     float men_tmp;
 
     men_tmp = PrGetMendererRatio();
@@ -1350,10 +1370,7 @@ int MbarDispScene(void *para_pp, int frame, int first_f, int useDisp, int drDisp
         if (mbar_req_str[i].mbar_req_enum == MBAR_NONE) {
             continue;
         }
-        if (mbar_req_str[i].tapset_pp == NULL) {
-            continue;
-        }
-        if (mbar_req_str[i].tapset_pp->coolup == -1) {
+        if (mbar_req_str[i].tapset_pp == NULL || mbar_req_str[i].tapset_pp->coolup == -1) {
             continue;
         }
         for (j = 0; j < 4u; j++) {
@@ -1366,10 +1383,7 @@ int MbarDispScene(void *para_pp, int frame, int first_f, int useDisp, int drDisp
         if (mbar_req_str[i].mbar_req_enum == MBAR_NONE) {
             continue;
         }
-        if (mbar_req_str[i].tapset_pp == NULL) {
-            continue;
-        }
-        if (mbar_req_str[i].tapset_pp->coolup == -1) {
+        if (mbar_req_str[i].tapset_pp == NULL || mbar_req_str[i].tapset_pp->coolup == -1) {
             continue;
         }
         mbar_othon_frame_set(&mbar_req_str[i]);
@@ -1391,7 +1405,7 @@ int MbarDispScene(void *para_pp, int frame, int first_f, int useDisp, int drDisp
             if (mbar_req_str[i].tapset_pp == NULL) {
                 continue;
             }
-            if (MbarTapSubt(&mbar_req_str[i]) != 0) {
+            if (MbarTapSubt(&mbar_req_str[i])) {
                 break;
             }
         }
@@ -1401,7 +1415,7 @@ int MbarDispScene(void *para_pp, int frame, int first_f, int useDisp, int drDisp
 }
 
 int MbarDispSceneDraw(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
-    int i, j;
+    int   i, j;
     float men_tmp;
 
     if (first_f == -2) {
@@ -1410,6 +1424,7 @@ int MbarDispSceneDraw(void *para_pp, int frame, int first_f, int useDisp, int dr
     if (first_f == -1) {
         return 0;
     }
+
     men_tmp = PrGetMendererRatio();
     PrSetMendererRatio(0.0f);
 
@@ -1425,17 +1440,13 @@ int MbarDispSceneDraw(void *para_pp, int frame, int first_f, int useDisp, int dr
         if (mbar_req_str[i].mbar_req_enum == MBAR_NONE) {
             continue;
         }
-        if (mbar_req_str[i].tapset_pp == NULL) {
+        if (mbar_req_str[i].tapset_pp == NULL || mbar_req_str[i].tapset_pp->coolup == -1) {
             continue;
         }
-        if (mbar_req_str[i].tapset_pp->coolup == -1) {
-            continue;
-        }
-        if (global_data.play_step == PSTEP_VS && i != 3) {
-            continue;
-        }
-        for (j = 0; j < 4u; j++) {
-            (marSetPrgTbl[j])(&mbar_req_str[i]);
+        if (global_data.play_step != PSTEP_VS || i == PINDEX_BOXY) {
+            for (j = 0; j < 4u; j++) {
+                (marSetPrgTbl[j])(&mbar_req_str[i]);
+            }
         }
     }
 
@@ -1452,6 +1463,7 @@ int MbarDispSceneVsDraw(void *para_pp, int frame, int first_f, int useDisp, int 
     if (first_f == -1) {
         return 0;
     }
+
     vs_mouse_disp_flag = 1;
     return 0;
 }
@@ -1500,9 +1512,6 @@ TIM2_DAT* lessonTim2InfoGet(void) {
     return &tim2spr_tbl_tmp1[52];
 }
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/mbar", lessonCl2InfoGet);
-#else /* requires .rodata migration */
 TIM2_DAT* lessonCl2InfoGet(SCRRJ_LESSON_ROUND_ENUM type) {
     u_short le_num[10] = {
         0x2d, /* SCRRJ_LR_LESSON_1 */
@@ -1520,17 +1529,10 @@ TIM2_DAT* lessonCl2InfoGet(SCRRJ_LESSON_ROUND_ENUM type) {
 
     return &tim2spr_tbl_tmp1[le_num[type]];
 }
-#endif
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/mbar", MbarDemoCharDisp);
-#else
-/* Needs .rodata match */
 void MbarDemoCharDisp(void) {
     TIM2_DAT *tim2_dat_pp;
-    SPR_PRIM spr_prim;
-
-    spr_prim = (SPR_PRIM) {
+    SPR_PRIM  spr_prim = {
         .x = 2298,
         .y = 2128,
         .scalex = 256,
@@ -1548,14 +1550,10 @@ void MbarDemoCharDisp(void) {
     spr_prim.h = tim2_dat_pp->h;
     SprClear();
     SprDispAlphaSet();
-    SprPackSet(tim2_dat_pp);
+    SprPackSet((SPR_DAT*)tim2_dat_pp);
     SprDispZABnclr();
     SprSetColor(128, 128, 128, 128);
     SprDispAlp(&spr_prim);
     SprFlash();
 }
-#endif
 
-INCLUDE_RODATA("asm/nonmatchings/main/mbar", D_003934E8);
-
-INCLUDE_RODATA("asm/nonmatchings/main/mbar", D_00393500);

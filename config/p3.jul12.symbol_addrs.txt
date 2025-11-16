@@ -2383,6 +2383,9 @@ sceMcChdir                          = 0x001649b8; // type:func
 sceMcFormat                         = 0x00164b08; // type:func
 sceMcDelete                         = 0x00164bd0; // type:func
 
+// sce/ee/gcc/src/newlib/libm/math/sf_cos.c
+cosf                                = 0x001652d0; // type:func
+
 // sce/ee/gcc/src/newlib/libm/math/sf_sin.c
 sinf                                = 0x001654a0; // type:func
 
