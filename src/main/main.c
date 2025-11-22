@@ -188,135 +188,66 @@ INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393910);
 INCLUDE_ASM("asm/nonmatchings/main/main", dummyPlay);
 void dummyPlay(/* s0 16 */ int retTitle);
 #else
-static void dummyPlay(/* s0 16 */ int retTitle)
-{
-    /* s1 17 */ int mode;
-    /* s2 18 */ int ret;
-    /* -0x150(sp) */ long scoreTmp[2] = {};
-    /* -0x140(sp) */ u_char *msgDmy[5] =
-    {
+static void dummyPlay(int retTitle) {
+    int     mode;
+    int     ret = 0;
+    long    scoreTmp[2] = {};
+
+    u_char *msgDmy[5] = {
         "TITLE   A or O or X EXIT",
         "REPLAY  A or O or X EXIT",
         "SINGLE  A .. COOL O .. GOOD  X .. NG",
         "VS MAN  A..1p win O..2p win X..EXIT",
-        "VS COM  A or O .. CLEAR  X .. NG"
+        "VS COM  A or O .. CLEAR  X .. NG",
     };
+    u_char msg_dat[80];
 
-    mode = 0; // 177
-
-    if (retTitle == 0)
-    {
-        if (game_status.demo_flagG != 2) {
-            // 179
-            mode = 1;
-            if (game_status.play_modeG == 0) {
-                //DbgMsgInit();
-            }
-        }
-    }
-
-    game_status.bonusG = 0; // 185
-    DbgMsgInit(); // 186
-
-    while (1)
-    {
-        /* -0x120(sp) */ u_char msg_dat[80];
-        /* -0xd0(sp) */ u_char *pmd[3] = { "SINGLE", "VS MAN", "VS COM" };
-        /* -0xc0(sp) */ u_char *ptype[2] = { "NORMAL", "EASY" };
-    }
-
-#if 0
-    /* s1 17 */ int mode;
-    /* s2 18 */ int ret;
-    /* -0x150(sp) */ long scoreTmp[2] = {};
-    /* -0x140(sp) */ u_char *msgDmy[5] =
-    {
-        "TITLE   A or O or X EXIT",
-        "REPLAY  A or O or X EXIT",
-        "SINGLE  A .. COOL O .. GOOD  X .. NG",
-        "VS MAN  A..1p win O..2p win X..EXIT",
-        "VS COM  A or O .. CLEAR  X .. NG"
-    };
-
-    mode = 0;
-
-    if (retTitle == 0)
-    {
+    if (retTitle != 0) {
         mode = 0;
-
-        if (game_status.demo_flagG == DEMOF_REPLAY)
-        {
-            mode = 1;
-        }
-        else if (game_status.play_modeG == PLAY_MODE_SINGLE)
-        {
-            mode = 2;
-        }
-        else if (game_status.play_modeG == PLAY_MODE_VS_MAN)
-        {
-            mode = 3;
-        }
-        else if (game_status.play_modeG != PLAY_MODE_SINGLE)
-        {
-            mode = 4;
-        }
+    } else if (game_status.demo_flagG == DEMOF_REPLAY) {
+        mode = 1;
+    } else if (game_status.play_modeG == PLAY_MODE_SINGLE) {
+        mode = 2;
+    } else if (game_status.play_modeG == PLAY_MODE_VS_MAN) {
+        mode = 3;
+    } else {
+        mode = 4;
     }
 
     game_status.bonusG = 0;
+
     DbgMsgInit();
 
-    while (1)
-    {
-        /* -0x120(sp) */ u_char msg_dat[80];
-        /* -0xd0(sp) */ u_char *pmd[3] = { "SINGLE", "VS MAN", "VS COM" };
-        /* -0xc0(sp) */ u_char *ptype[2] = { "NORMAL", "EASY" };
+    while (1) {
+        u_char *pmd[3]   = { "SINGLE", "VS MAN", "VS COM" };
+        u_char *ptype[2] = { "NORMAL", "EASY" };
 
-        msg_dat[0] = 0;
-
-        if (pad[0].one & SCE_PADRright)
-        {
-            ret = 1;
-        }
-        else if (pad[0].one & SCE_PADRdown)
-        {
-            ret = 2;
-        }
-        else if (pad[0].one & SCE_PADRup)
-        {
-            ret = 3;
-        }
-
-        if (ret != 0)
+        if (pad[0].one & 0x20) ret = 1;
+        else if (pad[0].one & 0x10) ret = 3;
+        else if (pad[0].one & 0x40) ret = 2;
+        if (ret != 0) {
             break;
+        }
 
+        msg_dat[0] = '\0';
         DbgMsgClear();
         DbgMsgSetSize(16, 10);
         DbgMsgSetColor(128, 128, 128);
+
         DbgMsgPrint(msgDmy[mode], 1780, 1968);
 
-        if (mode == 1)
-        {
-            // sprintf(msg_dat, "STG:%d MODE:%s TYPE:%s ROUND:%d", mc_rep_str.play_stageS,pmd[mc_rep_str.play_modeS],ptype[mc_rep_str.play_typeS], mc_rep_str.roundS + TRND_R2);
-            DbgMsgPrint(msg_dat, 1770, 2000);
-        }
-        else
-        {
-            if (pad[0].shot & SCE_PADL1)
-                scoreTmp[0] += 10;
-            if (pad[0].shot & SCE_PADL2)
-                scoreTmp[0] -= 10;
+        switch (mode) {
+        case 2:
+        case 3:
+        case 4:
+            if (pad[0].shot & 0x4) scoreTmp[0] += 10;
+            if (pad[0].shot & 0x1) scoreTmp[0] -= 10;
+            if (pad[0].shot & 0x8) scoreTmp[1] += 10;
+            if (pad[0].shot & 0x2) scoreTmp[1] -= 10;
+            if (scoreTmp[0] < 0) scoreTmp[0] = 0;
+            if (scoreTmp[1] < 0) scoreTmp[1] = 0;
 
-            if (pad[0].shot & SCE_PADR1)
-                scoreTmp[1] += 10;
-            if (pad[0].shot & SCE_PADR2)
-                scoreTmp[1] -= 10;
-
-            if (scoreTmp[0] < 0)
-                scoreTmp[0] = 0;
-            if (scoreTmp[1] < 0)
-                scoreTmp[1] = 0;
-
-            sprintf(msg_dat, "STG:%d MODE:%s TYPE:%s ROUND:%d", game_status.play_stageG, pmd[game_status.play_modeG], ptype[game_status.play_table_modeG], game_status.roundG + TRND_R2);
+            sprintf(msg_dat, "STG:%d MODE:%s TYPE:%s ROUND:%d", game_status.play_stageG, pmd[game_status.play_modeG], ptype[game_status.play_table_modeG], game_status.roundG + 1);
             DbgMsgPrint(msg_dat, 1770, 2000);
 
             DbgMsgSetColor(0, 255, 0);
@@ -324,100 +255,168 @@ static void dummyPlay(/* s0 16 */ int retTitle)
             DbgMsgPrint("SCORE 2P  R1 .. UP   R2 .. DOWN", 1770, 2032);
 
             DbgMsgSetColor(255, 255, 0);
-            sprintf(msg_dat, "1P:%5d    2P:%5d", scoreTmp[0], scoreTmp[1]);
-            DbgMsgPrint(msg_dat, 1770, 2046);
+            sprintf(msg_dat, "1P:%5d    2P:%5d", (int)scoreTmp[0], (int)scoreTmp[1]);
+            DbgMsgPrint(msg_dat, 1770, 0x7fe);
+            break;
+        case 1:
+            sprintf(msg_dat, "STG:%d MODE:%s TYPE:%s ROUND:%d", mc_rep_str.play_stageS, pmd[mc_rep_str.play_modeS], ptype[mc_rep_str.play_typeS], mc_rep_str.roundS + 1);
+            DbgMsgPrint(msg_dat, 1770, 2000);
         }
 
         DbgMsgFlash();
         MtcWait(1);
     }
 
-    switch (mode)
-    {
+    switch (mode) {
     case 2:
-        if ((ret == 1) || (ret == 3))
-        {
-            if (game_status.endingFlag == 1)
-            {
-                while (1)
-                {
+        if (ret == 1 || ret == 3) {
+            u_int clrcnt;
+
+            if (game_status.endingFlag == 1) {
+                while (1) {
+                    MtcWait(1);
+                    if (pad[0].one & 0x70) {
+                        break;
+                    }
+
                     DbgMsgClear();
                     DbgMsgSetSize(16, 10);
                     DbgMsgSetColor(128, 128, 128);
                     DbgMsgPrint("ENDING   A or O or X  EXIT", 1800, 1968);
                     DbgMsgFlash();
-
-                    if (pad[0].one & 0x70)
-                        break;
-
-                    MtcWait(1);
                 }
-            }
-            else if (game_status.endingFlag - 2U < 3)
-            {
-                while (1)
-                {
+            } else if (game_status.endingFlag == 2 || game_status.endingFlag == 3 || game_status.endingFlag == 4) {
+                while (1) {
+                    MtcWait(1);
+                    if (pad[0].one & 0x70) {
+                        break;
+                    }
+
                     DbgMsgClear();
                     DbgMsgSetSize(16, 10);
                     DbgMsgSetColor(128, 128, 128);
                     DbgMsgPrint("BONUS GAME   A or O or X  EXIT", 1800, 1968);
                     DbgMsgFlash();
-
-                    if (pad[0].one & 0x70)
-                        break;
-
-                    MtcWait(1);
                 }
             }
 
             menu_str.sel_menu_enum = SEL_MENU_SAVE;
+
+            mc_rep_str.play_stageS = game_status.play_stageG;
             mc_rep_str.play_modeS = game_status.play_modeG;
-            mc_rep_str.roundS = game_status.roundG;
             mc_rep_str.play_typeS = game_status.play_typeG;
             mc_rep_str.play_table_modeS = game_status.play_table_modeG;
-            mc_rep_str.play_stageS = game_status.play_stageG;
+            mc_rep_str.roundS = game_status.roundG;
+            
+            if (ret == 1) {
+                clrcnt = game_status.stClrCntGood[game_status.play_stageG];
+                if (clrcnt != -1) {
+                    clrcnt++;
+                }
+                game_status.stClrCntGood[game_status.play_stageG] = clrcnt;
 
-            if (ret != 1)
-            {
-                if (game_status.stClrCntCool[game_status.play_stageG] != -1)
-                    game_status.stClrCntCool[game_status.play_stageG]++;
+                game_status.disp_level = DLVL_GOOD;
+            } else {
+                clrcnt = game_status.stClrCntCool[game_status.play_stageG];
+                if (clrcnt != -1) {
+                    clrcnt++;
+                }
+                game_status.stClrCntCool[game_status.play_stageG] = clrcnt;
+
+                game_status.disp_level = DLVL_COOL;
             }
-            else
-            {
-                if (game_status.stClrCntGood[game_status.play_stageG] != -1)
-                    game_status.stClrCntGood[game_status.play_stageG]++;
-            }
-
-            game_status.disp_level = (DISP_LEVEL)(ret == 1);
-
-            game_status.disp_level = (ret == 1);
 
             game_status.scoreG[0] = scoreTmp[0];
             game_status.scoreG[1] = 0;
-        }
-        else
-        {
+        } else {
+            game_status.disp_level = DLVL_BAD;
+
             menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
-            game_status.disp_level = DLVL_BAD; 
+            game_status.scoreG[0] = 0;
+            game_status.scoreG[1] = 0;
+        }    
+        break;
+    case 4:
+        if (ret == 1 || ret == 3) {
+            u_int       clrcnt;
+            GLOBAL_PLY *gply_pp;
+
+            menu_str.sel_menu_enum = SEL_MENU_SAVE;
+
+            mc_rep_str.play_stageS = game_status.play_stageG;
+            mc_rep_str.play_modeS = game_status.play_modeG;
+            mc_rep_str.play_typeS = game_status.play_typeG;
+            mc_rep_str.roundS = game_status.roundG;
+            mc_rep_str.play_table_modeS = game_status.play_table_modeG;
+
+            clrcnt = game_status.stClrCntVs[game_status.play_stageG];
+            if (clrcnt != -1) {
+                clrcnt++;
+            }
+            game_status.stClrCntVs[game_status.play_stageG] = clrcnt;
+
+            game_status.scoreG[0] = scoreTmp[0];
+            game_status.scoreG[1] = scoreTmp[1];
+
+            gply_pp = &global_data.global_ply[0];
+            gply_pp->vsWin = 3;
+            gply_pp->vsLost = 0;
+
+            gply_pp = &global_data.global_ply[1];
+            gply_pp->vsWin = 0;
+            gply_pp->vsLost = 3;
+        } else {
+            menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
             game_status.scoreG[0] = 0;
             game_status.scoreG[1] = 0;
         }
         break;
+    case 3:
+        if (ret == 1 || ret == 3) {
+            menu_str.sel_menu_enum = SEL_MENU_SAVE;
 
+            game_status.scoreG[0] = scoreTmp[0];
+            game_status.scoreG[1] = scoreTmp[1];
+
+            mc_rep_str.play_stageS = game_status.play_stageG;
+            mc_rep_str.play_modeS = game_status.play_modeG;
+            mc_rep_str.play_typeS = game_status.play_typeG;
+            mc_rep_str.roundS = game_status.roundG;
+            mc_rep_str.play_table_modeS = game_status.play_table_modeG;
+
+            if (ret == 1) {
+                GLOBAL_PLY *gply_pp;
+                gply_pp = &global_data.global_ply[0];
+                gply_pp->vsWin = 0;
+                gply_pp->vsLost = 3;
+
+                gply_pp = &global_data.global_ply[1];
+                gply_pp->vsWin = 3;
+                gply_pp->vsLost = 0;
+            } else {
+                GLOBAL_PLY *gply_pp;
+
+                gply_pp = &global_data.global_ply[0];
+                gply_pp->vsWin = 3;
+                gply_pp->vsLost = 0;
+
+                gply_pp = &global_data.global_ply[1];
+                gply_pp->vsWin = 0;
+                gply_pp->vsLost = 3;
+            }
+        } else {
+            menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
+            game_status.scoreG[0] = 0;
+            game_status.scoreG[1] = 0;
+        }
+        break;
     case 1:
         menu_str.sel_menu_enum = SEL_MENU_REPLAY;
         break;
-    case 3:
+    default:
+        menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
         break;
     }
-
-    /* SCOPE VARIABLES */
-    // /* a1 5 */ u_int clrcnt;
-    // /* a1 5 */ u_int clrcnt;
-    // /* v1 3 */ GLOBAL_PLY *gply_pp;
-    // /* v0 2 */ GLOBAL_PLY *gply_pp;
-    // /* v0 2 */ GLOBAL_PLY *gply_pp;
-#endif
 }
 #endif
 
@@ -454,7 +453,7 @@ int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
     GlobalSetTempo(&global_data, stdat_rec[sel_stage].stdat_dat_pp[sel_disp].tempo);
 
     ScrCtrlInit(stdat_dat_pp, (void*)UsrMemGetAdr(0));
-    
+
     do {
         MtcWait(1);
     } while (!ScrCtrlInitCheck());
@@ -464,7 +463,7 @@ int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
             MtcWait(1);
         }
     }
-    
+
     if (firstf) {
         FadeCtrlReq(FMODE_BLACK_IN, 120);
     }
@@ -550,17 +549,16 @@ static void SpHatChangeSub(void) {
     int           rt2t_r3[3] = { 0xbc, 0xbd, 0xbe };
     int           rt2t_r4[3] = { 0xbf, 0xc0, 0xc1 };
     RT2TRANS_STR  rt2trans_str[4] = {
-        { .num = 3, .data_pp = rt2t_r1},
-        { .num = 3, .data_pp = rt2t_r2},
-        { .num = 3, .data_pp = rt2t_r3},
-        { .num = 3, .data_pp = rt2t_r4},
+        { .num = 3, .data_pp = rt2t_r1 },
+        { .num = 3, .data_pp = rt2t_r2 },
+        { .num = 3, .data_pp = rt2t_r3 },
+        { .num = 3, .data_pp = rt2t_r4 },
     };
     
     RT2TRANS_STR *rt2trans_str_pp = &rt2trans_str[GetHatRound()];
     int           i;
 
-    for (i = 0; i < rt2trans_str_pp->num; i++)
-    {
+    for (i = 0; i < rt2trans_str_pp->num; i++) {
         Tim2Trans(GetIntAdrsCurrent(rt2trans_str_pp->data_pp[i]));
     }
     PR_SCOPEEND

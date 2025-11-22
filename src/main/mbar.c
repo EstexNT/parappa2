@@ -73,7 +73,7 @@ static void   vsAnimationPoll(void);
 static void   metColorInit(void);
 static void   metColorSet(EXAM_TYPE exam_type, float per);
 static void   ExamDispOn(void);
-static u_long hex2dec_mbar_tmp(u_long data);
+static u_long hex2dec(u_long data);
 static u_long hex2decPlMi(long data);
 static void   examScoreSet(sceGifPacket *ex_gif_pp);
 static void   examLevelDisp(sceGifPacket *ex_gif_pp);
@@ -654,36 +654,50 @@ static void ExamDispOn(void) {
 }
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/main/mbar", hex2dec_mbar_tmp);
+static u_long hex2dec(u_long data) {
+    u_long ret = 0;
+    u_int  i;
+
+    for (i = 0; i < 16; i++) {
+        if (data == 0) {
+            break;
+        }
+
+        ret |= (data % 10) << (i * 4);
+        data /= 10;
+    }
+
+    return ret;
+}
 
 static u_long hex2decPlMi(long data) {
-    u_long ret;
-    int    i;
+    u_long ret = 0;
+    u_int  i;
     long   plmichar;
 
-    ret = 0;
     if (data == 0) {
-        return ret;
+        return 0;
     }
 
-    plmichar = (data < 1) ? 0 : 10;
+    plmichar = 0;
+
+    if (data > 0) {
+        plmichar = 10;
+    }
+
     if (data < 0) {
-        data *= -1;
-        plmichar = 11;
+        plmichar = 11; 
+        data = data * -1;
     }
 
-    i = 0;
-    if (data == 0) {
-        ret = plmichar;
-    } else {
-        while (data) {
-            ret |= (data % 10) << (i * 4);
-            data /= 10;
-            if (++i >= 16u) {
-                return ret;
-            }
+    for (i = 0; i < 16; i++) {
+        if (data == 0) {
+            ret |= (plmichar << (i * 4));
+            break;
         }
-        ret |= plmichar << (i * 4);
+
+        ret |= (data % 10) << (i * 4);
+        data /= 10;
     }
 
     return ret;
@@ -702,7 +716,7 @@ void examNumDisp(sceGifPacket *ex_gif_pp, long score, short x, short y, int keta
     if (plmi) {
         score = hex2decPlMi(score);
     } else {
-        score = hex2dec_mbar_tmp(score);
+        score = hex2dec(score);
     }
 
     for (i = 0; i < keta; i++) {
