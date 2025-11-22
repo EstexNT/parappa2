@@ -86,7 +86,7 @@ static int  exh_yaku(EXAM_CHECK *ec_pp, int hane_flag);
 /* static */ int  exh_yaku_original(EXAM_CHECK *ec_pp);
 /* static */ int  exh_yaku_hane(EXAM_CHECK *ec_pp);
 static int  exh_allkey_out(EXAM_CHECK *ec_pp);
-static int  exh_allkey_out_nh(EXAM_CHECK *ec_pp);
+/* static */ int  exh_allkey_out_nh(EXAM_CHECK *ec_pp);
 /* static */ int  exh_command(EXAM_CHECK *ec_pp);
 /* static */ int  exh_renda_out(EXAM_CHECK *ec_pp);
 static int  manemane_check_sub(EXAM_CHECK *ec_pp);
@@ -681,7 +681,45 @@ int ScrCtrlIndvNextTime(SCORE_INDV_STR *sindv_pp, int Ncnt) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", ScrCtrlIndvNextReadLine);
+int ScrCtrlIndvNextReadLine(SCORE_INDV_STR *sindv_pp, int ckf) {
+    int tmp_tapstr_pos, tmp_tapset_pos;
+    int cktime;
+
+    if (sindv_pp->scrdat_pp == NULL) {
+        return 0;
+    }
+
+    tmp_tapstr_pos = global_data.tapLevel;
+    tmp_tapset_pos = sindv_pp->tapset_pos;
+
+    cktime = sindv_pp->scrdat_pp->tapstr[tmp_tapstr_pos].tapset_pp[tmp_tapset_pos].taptimeStart;
+
+    while (1) {
+        tmp_tapset_pos++;
+
+        if (tmp_tapset_pos >= sindv_pp->scrdat_pp->tapstr[tmp_tapstr_pos].tapset_size) {
+            if (ckf == 0) {
+                sindv_pp->tapset_pos = -1;
+            }
+
+            return 1;
+        }
+
+        if (ckf == 2) {
+            if (sindv_pp->scrdat_pp->tapstr[tmp_tapstr_pos].tapset_pp[tmp_tapset_pos].taptimeStart >= cktime) {
+                return 0;
+            }
+        } else {
+            if (sindv_pp->scrdat_pp->tapstr[tmp_tapstr_pos].tapset_pp[tmp_tapset_pos].player_code == sindv_pp->plycode) {
+                if (ckf == 0) {
+                    sindv_pp->tapset_pos = tmp_tapset_pos;
+                }
+
+                return 0;
+            }
+        }
+    }
+}
 
 int getLvlTblRand(TAPLVL_DAT *taplvl_dat_pp) {
     int rand_tmp;
@@ -1475,7 +1513,22 @@ INCLUDE_ASM("asm/nonmatchings/main/scrctrl", exh_yaku);
 
 INCLUDE_ASM("asm/nonmatchings/main/scrctrl", exh_allkey_out);
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", exh_allkey_out_nh);
+/* static */ int exh_allkey_out_nh(EXAM_CHECK *ec_pp) {
+    int use_bit;
+    int i;
+
+    for (i = 0, use_bit = 0; i < ec_pp->ted_num; i++) {
+        use_bit |= GetIndex2KeyCode(ec_pp->ted[i].key);
+    }
+
+    use_bit &= ec_pp->otehon_all;
+
+    if (use_bit == ec_pp->otehon_all) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
 
 /* static */ int exh_command(EXAM_CHECK *ec_pp) {
     return 0;
@@ -1542,23 +1595,137 @@ INCLUDE_ASM("asm/nonmatchings/main/scrctrl", IndvGetTapSetAdrs);
 
 INCLUDE_ASM("asm/nonmatchings/main/scrctrl", nextExamTime);
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", GetSindvPcodeLine);
+static SCORE_INDV_STR* GetSindvPcodeLine(PLAYER_CODE pcode) {
+    SCORE_INDV_STR *sindv_pp;
+    int             i;
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", ExamScoreCheck);
+    sindv_pp = score_indv_str;
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", ExamScoreCheckSame);
+    for (i = 0; i < PR_ARRAYSIZEU(score_indv_str); i++, sindv_pp++) {
+        if (sindv_pp->status & SCS_USE) {
+            if (sindv_pp->plycode == pcode) {
+                return sindv_pp;
+            }
+        }
+    }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", levelChangeCheck);
-
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", levelUpRank);
-
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", levelDownRank);
+    return NULL;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/main/scrctrl", D_00392D30);
 
-INCLUDE_RODATA("asm/nonmatchings/main/scrctrl", D_00392D40);
+INCLUDE_ASM("asm/nonmatchings/main/scrctrl", ExamScoreCheck);
 
-INCLUDE_RODATA("asm/nonmatchings/main/scrctrl", D_00392D88);
+static int ExamScoreCheckSame(SCORE_INDV_STR *sindv_pp) {
+    SCORE_INDV_STR  sindv_tmp;
+    GLOBAL_PLY      global_ply_tmp;
+    int             i;
+    TAPSET         *tapset_pp;
+    SCR_TAP_MEMORY *scr_tap_memory_pp;
+    TAPDAT         *tapdat_pp;
+    int             tapdat_cnt;
+
+    if (sindv_pp->global_ply->rank_level == RLVL_COOL ||
+        sindv_pp->global_ply->rank_level == RLVL_COOL_GOOD) {
+        return 150;
+    }
+
+    global_ply_tmp = *sindv_pp->global_ply;
+
+    sindv_tmp      = *sindv_pp;
+    sindv_tmp.global_ply = &global_ply_tmp;
+
+    tapset_pp = IndvGetTapSetAdrs(sindv_pp);
+
+    sindv_tmp.scr_tap_memory_cnt = 0;
+    scr_tap_memory_pp = sindv_tmp.scr_tap_memory;
+
+    tapdat_pp = tapset_pp->tapdat_pp;    
+    tapdat_cnt = tapset_pp->tapdat_size;
+
+    if (tapset_pp->tapscode == TAPSCODE_ANSWER) {
+        tapdat_pp = vs_tapdat_tmp;
+        tapdat_cnt = vs_tapdat_tmp_cnt;
+    }
+
+    for (i = 0; i < tapdat_cnt; i++, tapdat_pp++) {
+        if (tapdat_pp->KeyIndex != 0) {
+            if (global_data.play_typeL == PLAY_TYPE_ONE) {
+                scr_tap_memory_pp->key = KiTR;
+            } else {
+                scr_tap_memory_pp->key = tapdat_pp->KeyIndex;
+            }
+
+            scr_tap_memory_pp->onKey = 1;
+            scr_tap_memory_pp->ofs_frame = tapdat_pp->time;
+
+            sindv_tmp.scr_tap_memory_cnt++;
+            scr_tap_memory_pp++;
+        }
+    }
+
+    ExamScoreCheck(&sindv_tmp);
+    return global_ply_tmp.now_score;
+}
+
+static int levelChangeCheck(RANK_LEVEL lvl0, RANK_LEVEL lvl1) {
+    int lvl0_tmp = RANK_LEVEL2DISP_LEVEL_HK(lvl0);
+    int lvl1_tmp = RANK_LEVEL2DISP_LEVEL_HK(lvl1);
+
+    if (lvl0_tmp != lvl1_tmp) {
+        return (lvl0_tmp > lvl1_tmp);
+    }
+
+    return -1;
+}
+
+static int levelUpRank(RANK_LEVEL lvl) {
+    RANK_LEVEL up_tbl[17] = {
+        /* COOL      -> COOL      */ RLVL_COOL,
+        /* COOL/GOOD -> COOL      */ RLVL_COOL,
+        /* GOOD/COOL -> COOL      */ RLVL_COOL,
+        /* GOOD      -> GOOD/COOL */ RLVL_GOOD_COOL,
+        /* GOOD/BAD  -> GOOD      */ RLVL_GOOD,
+        /* BAD/GOOD  -> GOOD      */ RLVL_GOOD,
+        /* BAD       -> BAD/GOOD  */ RLVL_BAD_GOOD,
+        /* BAD/AWFUL -> BAD       */ RLVL_BAD,
+        /* AWFUL/BAD -> BAD       */ RLVL_BAD,
+        /* AWFUL     -> AWFUL/BAD */ RLVL_AWFUL_BAD,
+        /* AWFUL/END -> AWFUL     */ RLVL_AWFUL,
+        /* END0      -> AWFUL     */ RLVL_AWFUL,
+        /* END1      -> END0      */ RLVL_END0,
+        /* END2      -> END1      */ RLVL_END1,
+        /* HK_END0   -> END1      */ RLVL_END1,
+        /* HK_END1   -> END1      */ RLVL_END1,
+        /* HK_END2   -> END1      */ RLVL_END1,
+    };
+
+    return up_tbl[lvl];
+}
+
+static int levelDownRank(RANK_LEVEL lvl) {
+    RANK_LEVEL down_tbl[17] = {
+        /* COOL      -> COOL/GOOD */ RLVL_COOL_GOOD,
+        /* COOL/GOOD -> GOOD      */ RLVL_GOOD,
+        /* GOOD/COOL -> GOOD      */ RLVL_GOOD,
+        /* GOOD      -> GOOD/BAD  */ RLVL_GOOD_BAD,
+        /* GOOD/BAD  -> BAD       */ RLVL_BAD,
+        /* BAD/GOOD  -> BAD       */ RLVL_BAD,
+        /* BAD       -> BAD/AWFUL */ RLVL_BAD_AWFUL,
+        /* BAD/AWFUL -> AWFUL     */ RLVL_AWFUL,
+        /* AWFUL/BAD -> AWFUL     */ RLVL_AWFUL,
+        /* AWFUL     -> AWFUL/END */ RLVL_AWFUL_END,
+        /* AWFUL/END -> END1      */ RLVL_END1,
+        /* END0      -> END1      */ RLVL_END1,
+        /* END1      -> END2      */ RLVL_END2,
+        /* END2      -> HK_END1   */ RLVL_HK_END1,
+        /* HK_END0   -> HK_END1   */ RLVL_HK_END1,
+        /* HK_END1   -> HK_END1   */ RLVL_HK_END1,
+        /* HK_END2   -> HK_END1   */ RLVL_HK_END1,
+    };
+
+    return down_tbl[lvl];
+}
 
 INCLUDE_ASM("asm/nonmatchings/main/scrctrl", ScrMoveSetSub);
 #if 0
@@ -2246,10 +2413,10 @@ void ScrCtrlInit(STDAT_DAT *sdat_pp, void *data_top) {
     scrJimakuLine = global_data.draw_tbl_top;
     scrMbarLine   = global_data.draw_tbl_top;
     scrDrawLine   = global_data.draw_tbl_top;
-    
+
     score_str.go_loop_flag = FALSE;
     MtcExec(ScrCtrlMainLoop, MTC_TASK_SCORECTRL);
-    
+
     score_str.mbar_flag = FALSE;
 
     if (GlobalMendererUseCheck()) {
@@ -2349,9 +2516,27 @@ static void bonusPointSave(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", bngTapEventCheck);
+void bngTapEventCheck(SCORE_INDV_STR *sindv_pp, int num, int id) {
+    TAPSET *tapset_pp;
+    TAPDAT *tapdat_pp;
 
-void bonusGameParaReq(BNG_ACT_P_ENUM actnum) {
+    if (sindv_pp->scrdat_pp == NULL) {
+        return;
+    }
+
+    tapset_pp = &sindv_pp->scrdat_pp->tapstr[global_data.tapLevel].tapset_pp[sindv_pp->tapset_pos];
+    tapdat_pp = &tapset_pp->tapdat_pp[num];
+
+    if (tapdat_pp->tapct[0].actor != -1) {
+        DrawTapReqTbl(tapdat_pp->tapct[0].actor, Pcode2Pindex(sindv_pp->plycode), NULL);
+    }
+
+    if (tapdat_pp->tapct[0].sound != -1) {
+        ScrTapReq(sindv_pp->sndId, id, tapdat_pp->tapct[0].sound);
+    }
+}
+
+static void bonusGameParaReq(BNG_ACT_P_ENUM actnum) {
     bngTapEventCheck(&score_indv_str[2], actnum, 0);
 }
 
@@ -2389,15 +2574,13 @@ static u_long hex2dec(u_long data) {
     u_long ret = 0;
     u_int  i;
 
-    for (i = 0; data != 0;) {
+    for (i = 0; i < 16; i++) {
+        if (data == 0) {
+            break;
+        }
+
         ret |= (data % 10) << (i * 4);
         data /= 10;
-
-        i++;
-        
-        if (i >= 16) {
-            return ret;
-        }
     }
 
     return ret;
