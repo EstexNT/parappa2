@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 50.269485,
+    "fuzzy_match_percent": 52.133434,
     "total_code": "342284",
-    "matched_code": "168228",
-    "matched_code_percent": 49.148663,
+    "matched_code": "174608",
+    "matched_code_percent": 51.01261,
     "total_data": "26082808",
     "matched_data": "26033144",
     "matched_data_percent": 99.80959,
     "total_functions": 1429,
-    "matched_functions": 1021,
-    "matched_functions_percent": 71.44856,
+    "matched_functions": 1028,
+    "matched_functions_percent": 71.938416,
     "total_units": 70
   },
   "units": [
@@ -1792,14 +1792,14 @@
     {
       "name": "main/scrctrl",
       "measures": {
-        "fuzzy_match_percent": 49.950573,
+        "fuzzy_match_percent": 69.41604,
         "total_code": "32776",
-        "matched_code": "15828",
-        "matched_code_percent": 48.29143,
+        "matched_code": "22208",
+        "matched_code_percent": 67.7569,
         "total_data": "1468",
         "total_functions": 128,
-        "matched_functions": 105,
-        "matched_functions_percent": 82.03125,
+        "matched_functions": 112,
+        "matched_functions_percent": 87.5,
         "total_units": 1
       },
       "sections": [
@@ -1826,7 +1826,7 @@
         {
           "name": ".text",
           "size": "33024",
-          "fuzzy_match_percent": 49.950573,
+          "fuzzy_match_percent": 69.41604,
           "metadata": {}
         }
       ],
@@ -2332,6 +2332,7 @@
         {
           "name": "exh_allkey_out",
           "size": "164",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "14096"
         },
@@ -2385,12 +2386,14 @@
         {
           "name": "IndvGetTapSetAdrs",
           "size": "76",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "15152"
         },
         {
           "name": "nextExamTime",
           "size": "180",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "15232"
         },
@@ -2444,6 +2447,7 @@
         {
           "name": "ScrExamSetCheck",
           "size": "4328",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "18080"
         },
@@ -2457,6 +2461,7 @@
         {
           "name": "ScrCtrlIndvJob",
           "size": "884",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "23664"
         },
@@ -2489,6 +2494,7 @@
         {
           "name": "otehonSetCheck",
           "size": "192",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "26032"
         },
@@ -2681,6 +2687,7 @@
         {
           "name": "bnNumberDisp",
           "size": "556",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "31256"
         },
@@ -13241,16 +13248,16 @@
     {
       "id": "main",
       "measures": {
-        "fuzzy_match_percent": 70.9781,
+        "fuzzy_match_percent": 76.12177,
         "total_code": "124036",
-        "matched_code": "86548",
-        "matched_code_percent": 69.77652,
+        "matched_code": "92928",
+        "matched_code_percent": 74.92018,
         "total_data": "66156",
         "matched_data": "56300",
         "matched_data_percent": 85.101875,
         "total_functions": 570,
-        "matched_functions": 513,
-        "matched_functions_percent": 90.0,
+        "matched_functions": 520,
+        "matched_functions_percent": 91.228065,
         "total_units": 17
       }
     },

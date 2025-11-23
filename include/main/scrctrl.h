@@ -310,6 +310,30 @@ typedef enum {
     TAP_FOLLOW_MAX
 } TAP_FOLLOW_ENUM;
 
+enum {
+    SCREX_UP = 0,
+    SCREX_DOWN = 1,
+    SCREX_ADD = 2,
+    SCREX_SUB = 3,
+    SCREX_AB_DRAW = 4,
+    SCREX_AB_WIN0 = 5,
+    SCREX_AB_WIN1 = 6,
+    SCREX_AB_WIN2 = 7,
+    SCREX_AB_LOSE0 = 8,
+    SCREX_AB_LOSE1 = 9,
+    SCREX_AB_LOSE2 = 10,
+    SCREX_AR_DRAW = 11,
+    SCREX_AR_WIN0 = 12,
+    SCREX_AR_WIN1 = 13,
+    SCREX_AR_WIN2 = 14,
+    SCREX_AR_LOSE0 = 15,
+    SCREX_AR_LOSE1 = 16,
+    SCREX_AR_LOSE2 = 17,
+    SCREX_MAX = 18,
+    SCREX_AB_TOP = 4,
+    SCREX_AR_TOP = 11
+};
+
 typedef enum {
     EXH_NORMAL_ADD = 0,
     EXH_NORMAL_SUB = 1,
@@ -500,7 +524,6 @@ typedef enum {
     BNGAPE_H_NG = 7
 } BNG_ACT_P_ENUM;
 
-
 typedef enum {
     BNGAKE_NONE = -1,
     BNGAKE_1_TOP = 0,
@@ -575,6 +598,13 @@ typedef struct { // 0x4c
     /* 0x18 */ BNG_KOTAMA bng_kotama[4];
     /* 0x48 */ int bonus_cnt;
 } BNG_STR;
+
+typedef struct { // 0x20
+    /* 0x00 */ TIM2_DAT *tim2_dat_pp;
+    /* 0x04 */ int w;
+    /* 0x08 */ int h;
+    /* 0x0c */ u_char map[10][2];
+} BN_NUM_TYPE;
 
 int GetCurrentTblNumber(void);
 

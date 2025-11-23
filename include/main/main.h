@@ -5,6 +5,8 @@
 
 #include <eetypes.h>
 
+#include "dbug/dbug.h"
+
 #include "main/cdctrl.h"
 #include "main/sprite.h"
 
@@ -57,5 +59,7 @@ int urawazaKeyCheck(void);
 void ura_check(void);
 
 void mainStart(void* xx);
+
+extern DBG_SELECT_STR dbg_select_str;
 
 #endif /* MAIN_H */
