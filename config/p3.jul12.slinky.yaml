@@ -136,13 +136,13 @@ segments:
       - { path: asm/sdk/libmc.s.o }
 
       - { path: asm/sdk/newlib.s.o }
-  
-  #- name: vutext
-  #  alloc_sections: [.vutext]
-  #  subalign: 16
-  #  files:
-  #    - { path: asm/data/vutext.s.o }
-  
+
+  - name: vutext
+    alloc_sections: [.vutext]
+    subalign: 16
+    files:
+      - { path: asm/data/vutext.s.o }
+
   # # TODO: .reginfo should go here.
   # - name: reginfo
   #   #alloc_sections: [.reginfo]
@@ -262,10 +262,7 @@ segments:
     alloc_sections: [.data]
     files:
       - { path: asm/sdk/crt0.s.o }
-      - { path: asm/sdk/tmp.s.o }
-
-      - { path: asm/data/vutext.s.o }
-      - { path: asm/data/7A900.data.s.o } # frame_table
+      - { path: asm/data/sdk/tmp.data.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -976,7 +973,6 @@ segments:
       - { path: src/main/etc.c.o }
       - { path: src/main/wipe.c.o }
       - { path: src/main/mcctrl.c.o }
-      #- { path: asm/data/main/mcctrl.bss.s.o }
       - { path: asm/data/main/main.bss.s.o }
       - { path: src/main/cmnfile.c.o }
       - { path: asm/data/main/p3str.bss.s.o }

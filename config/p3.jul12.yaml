@@ -181,11 +181,12 @@ segments:
         - [0x652D0,  asm, sdk/newlib]
 
         # .vutext
-        - [0x78040,  databin, vutext]
+        - [0x78040,  vutext, vutext]
         #- [0x7A890,  databin, pad]
 
         # .data
-        - [0x7A900,  data]
+        - [0x7A900,  data, sdk/tmp]
+
         - [0x7A970, .data, dbug/dbgmsg]
         - [0x7B9E0, .data, dbug/vramsave]
         - [0x7BA90, .data, os/mtc]

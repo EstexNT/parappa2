@@ -98,7 +98,7 @@ extern DBG_MODE_STR dbg_mode_str[4/*0*/]; /* = {
 extern int overlay_loadaddr;
 extern int uramen_end_flag;
 
-/* ,bss */
+/* .bss */
 extern MENU_STR menu_str;
 
 extern int first_f; /* mainStart */
@@ -420,9 +420,6 @@ static void dummyPlay(int retTitle) {
 }
 #endif
 
-extern char D_00393A00[]; /* rodata - "overlay module load in\n" */
-extern char D_00393A18[]; /* rodata - "overlay module load out\n" */
-
 int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
     STDAT_DAT *stdat_dat_pp;
     int        ret = 0;
@@ -431,10 +428,10 @@ int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
     printf("=== selPlayDisp stg:%d disp:%d ===\n", sel_stage, sel_disp);
 
     /* Load stage overlay */
-    printf(D_00393A00);
+    printf("overlay module load in\n");
     CdctrlRead(&stdat_rec[sel_stage].ovlfile, overlay_loadaddr, NULL);
     CdctrlReadWait();
-    printf(D_00393A18);
+    printf("overlay module load out\n");
 
     asm("sync.l");
     FlushCache(WRITEBACK_DCACHE);
@@ -454,9 +451,13 @@ int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
 
     ScrCtrlInit(stdat_dat_pp, (void*)UsrMemGetAdr(0));
 
-    do {
+    while (1) {
         MtcWait(1);
-    } while (!ScrCtrlInitCheck());
+
+        if (ScrCtrlInitCheck()) {
+            break;
+        }
+    }
 
     if (!firstf) {
         while (!WipeEndCheck()) {
@@ -519,9 +520,6 @@ int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
     return ret;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A00);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393A18);
-
 static void SpHatChangeSub(void) {
     PADD *pad_pp;
 
@@ -574,10 +572,10 @@ int selPlayDispTitleDisp(int sel_stage, int sel_disp, int ovl_load) {
     printf("=== selPlayDisp stg:%d disp:%d ===\n", sel_stage, sel_disp);
 
     if (ovl_load) {
-        printf(D_00393A00);
+        printf("overlay module load in\n");
         CdctrlRead(&stdat_rec[sel_stage].ovlfile, overlay_loadaddr, NULL);
         CdctrlReadWait();
-        printf(D_00393A18);
+        printf("overlay module load out\n");
     }
 
     asm("sync.l");
@@ -592,9 +590,13 @@ int selPlayDispTitleDisp(int sel_stage, int sel_disp, int ovl_load) {
 
     ScrCtrlInit(stdat_dat_pp, (void*)UsrMemGetAdr(0));
 
-    do {
+    while (1) {
         MtcWait(1);
-    } while (!ScrCtrlInitCheck());
+
+        if (ScrCtrlInitCheck()) {
+            break;
+        }
+    }
 
     ScrCtrlGoLoop();
     WipeOutReq();
@@ -783,9 +785,231 @@ void startUpDisp(void) {
     SpuBankSet();
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/main", selPlayDispType);
+int selPlayDispType(int sel_stage, int sel_disp, CANCEL_TYPE_ENUM canseltype) {
+    STDAT_DAT  *stdat_dat_pp;
+    int         ret;
+    int         yn_disp_on;
+    GLOBAL_PLY *gply_pp;
 
-INCLUDE_ASM("asm/nonmatchings/main/main", selPlayDispSetPlay);
+    stdat_dat_pp = &stdat_rec[sel_stage].stdat_dat_pp[sel_disp];
+
+    if (stdat_dat_pp->play_step == PSTEP_XTR) {
+        int fsize;
+        int tmp_area;
+
+        fsize = CdctrlGetFileSize(&stdat_dat_pp->intfile);
+        fsize = ((fsize + 2047) / 2048) * 2048;
+
+        tmp_area = UsrMemEndAlloc(fsize);
+        UsrMemEndFree();
+
+        CdctrlRead(&stdat_dat_pp->intfile, UsrMemAllocNext(), tmp_area);
+        CdctrlReadWait();
+    }
+
+    while (1) {
+        ret = FALSE;
+
+        global_data.play_stageL = sel_stage;
+        GlobalPlySet(&global_data, stdat_dat_pp->play_step, sel_stage);
+        GlobalTimeInit(&global_data);
+        GlobalSetTempo(&global_data, stdat_rec[sel_stage].stdat_dat_pp[sel_disp].tempo);
+
+        ScrCtrlInit(stdat_dat_pp, (void*)UsrMemGetAdr(0));
+
+        while (1) {
+            MtcWait(1);
+
+            if (ScrCtrlInitCheck()) {
+                break;
+            }
+        }
+
+        while (!WipeEndCheck()) {
+            MtcWait(1);
+        }
+
+        ScrCtrlGoLoop();
+        WipeOutReq();
+
+        PrSetPostureWorkArea(UsrMemAllocNext(), UsrMemAllocEndNext() - UsrMemAllocNext());
+        DrawCtrlInit(stdat_dat_pp->ev_pp, global_data.draw_tbl_top, (void*)UsrMemGetAdr(0));
+        PrSetPostureWorkArea(NULL, 0);
+        DrawCtrlTimeSet(0);
+
+        MtcWait(1);
+
+        while (1) {
+            MtcWait(1);
+
+            if (canseltype != CBE_HOOK) {
+                int btn = pad[0].one;
+                if (canseltype == CBE_VS_MAN) {
+                    btn |= pad[1].one;
+                }
+
+                if ((btn & SCE_PADstart) && WipeEndCheck() && !ScrEndWaitLoop()) {
+                    ret = TRUE;
+                    break;
+                }
+            }
+
+            if (ScrEndCheckScore()) {
+                break;
+            }
+        }
+
+        DrawCtrlQuit();
+
+        CdctrlWP2SetVolume(0);
+        CdctrlWp2FileEnd();
+
+        ScrCtrlQuit();
+
+        if (canseltype == CBE_NORMAL) {
+            break;
+        }
+        if (canseltype == CBE_HOOK) {
+            break;
+        }
+
+        if (ret) {
+            gply_pp = &global_data.global_ply[0];
+        } else {
+            if (canseltype == CBE_SINGLE) {
+                DISP_LEVEL disp_level;
+
+                gply_pp = &global_data.global_ply[0];
+
+                disp_level = RANK_LEVEL2DISP_LEVEL(gply_pp->rank_level);
+                if (disp_level == DLVL_COOL || disp_level == DLVL_GOOD) {
+                    break;
+                }
+            } else if (canseltype == CBE_VS_MAN) {
+                gply_pp = &global_data.global_ply[0];
+            } else if (canseltype == CBE_VS_COM) {
+                gply_pp = &global_data.global_ply[0];
+                if (gply_pp->vsWin > gply_pp->vsLost) {
+                    break;
+                }
+            }
+        }
+
+        wipeYesNoDispReq();
+
+        while (1) {
+            int btn;
+
+            MtcWait(1);
+
+            btn = pad[0].one;
+            if (canseltype == CBE_VS_MAN) {
+                btn |= pad[1].one;
+            }
+
+            if (btn & SCE_PADRright) {
+                yn_disp_on = FALSE;
+                break;
+            }
+            if (btn & SCE_PADRdown) {
+                yn_disp_on = TRUE;
+                break;
+            }
+        }
+
+        if (!yn_disp_on) {
+            wipeParaInReq();
+        } else {
+            break;
+        }
+    }
+
+    return ret;
+}
+
+int selPlayDispSetPlay(int sel_stage) {
+    int        i;
+    STDAT_DAT *stdat_dat_pp;
+    int        fsize;
+    int        ret;
+
+    ret = 0;
+
+    printf("overlay module load out\n");
+    CdctrlRead(&stdat_rec[sel_stage].ovlfile, overlay_loadaddr, NULL);
+    printf("overlay module load in\n");
+    CdctrlReadWait();
+
+    for (i = stdat_rec[sel_stage].stdat_dat_num - 1; i >= 0; i--) {
+        stdat_dat_pp = &stdat_rec[sel_stage].stdat_dat_pp[i];
+
+        if (stdat_dat_pp->play_step != PSTEP_XTR) {
+            fsize = CdctrlGetFileSize(&stdat_dat_pp->intfile);
+            fsize = ((fsize + 2047) / 2048) * 2048;
+
+            CdctrlReadOne(&stdat_dat_pp->intfile, UsrMemEndAlloc(fsize), NULL);
+            CdctrlReadWait();
+        }
+    }
+
+    for (i = 0; i < stdat_rec[sel_stage].stdat_dat_num; i++) {
+        stdat_dat_pp = &stdat_rec[sel_stage].stdat_dat_pp[i];
+
+        if (stdat_dat_pp->play_step == PSTEP_XTR) {
+            ret = selPlayDispType(sel_stage, i, CBE_NORMAL);
+        } else {
+            int decp = UsrMemAllocEndNext();
+
+            UsrMemEndFree();
+
+            CdctrlMemIntgDecode(decp, UsrMemAllocNext());
+
+            cmnfTim2Trans();
+
+            if (stdat_dat_pp->play_step == PSTEP_HOOK) {
+                GLOBAL_PLY *gply_pp = &global_data.global_ply[0];
+
+                ret = selPlayDispType(sel_stage, i, CBE_HOOK);
+
+                ingame_common_str.HookClrCnt = gply_pp->exam_tbl_up - (gply_pp->exam_tbl_dw / 2);
+                if (ingame_common_str.HookClrCnt < 0) {
+                    ingame_common_str.HookClrCnt = 0;
+                }
+                if (ingame_common_str.HookClrCnt > 10) {
+                    ingame_common_str.HookClrCnt = 10;
+                }
+
+                printf("HOOK cnt:%d\n", ingame_common_str.HookClrCnt);
+            } else {
+                if (global_data.play_modeL == PLAY_MODE_SINGLE) {
+                    ret = selPlayDispType(sel_stage, i, CBE_SINGLE);
+                } else if (global_data.play_modeL == PLAY_MODE_VS_MAN) {
+                    ret = selPlayDispType(sel_stage, i, CBE_VS_MAN);
+                } else if (global_data.play_modeL == PLAY_MODE_VS_COM) {
+                    ret = selPlayDispType(sel_stage, i, CBE_VS_COM);
+                }
+            }
+        }
+
+        UsrMemClearTop();
+
+        if (i != (stdat_rec[sel_stage].stdat_dat_num - 1)) {
+            PLAY_STEP play_step_tmp = stdat_rec[sel_stage].stdat_dat_pp[i + 1].play_step;
+
+            if (play_step_tmp == PSTEP_GAME) {
+                wipeParaInReq();
+            } else if (play_step_tmp == PSTEP_HOOK) {
+                wipeBoxyInReq();
+            } else {
+                wipeBoxyWaitReq();
+            }
+
+            MtcWait(2);
+        }
+    }
+
+    return ret;
+}
 
 int selPlayDispSetPlayOne(int sel_stage) {
     int        i;
@@ -796,16 +1020,18 @@ int selPlayDispSetPlayOne(int sel_stage) {
 
     ret = 0;
 
-    printf(D_00393A18);
+    printf("overlay module load out\n");
     CdctrlRead(&stdat_rec[sel_stage].ovlfile, overlay_loadaddr, NULL);
-    printf(D_00393A00);
+    printf("overlay module load in\n");
     CdctrlReadWait();
 
     i = stdat_rec[sel_stage].stdat_dat_num - 1;
     stdat_dat_pp = &stdat_rec[sel_stage].stdat_dat_pp[i];
 
     fsize = CdctrlGetFileSize(&stdat_dat_pp->intfile);
-    CdctrlReadOne(&stdat_dat_pp->intfile, UsrMemEndAlloc(((fsize + 2047) / 2048) * 2048), NULL);
+    fsize = ((fsize + 2047) / 2048) * 2048;
+
+    CdctrlReadOne(&stdat_dat_pp->intfile, UsrMemEndAlloc(fsize), NULL);
     CdctrlReadWait();
 
     decp = UsrMemAllocEndNext();
@@ -849,8 +1075,11 @@ void titleDisp(int firstf) {
         GlobalLobcalCopy();
 
         stdat_dat_pp = stdat_rec[19].stdat_dat_pp;
+
         fsize = CdctrlGetFileSize(&stdat_dat_pp->intfile);
-        CdctrlReadOne(&stdat_dat_pp->intfile, UsrMemEndAlloc(((fsize + 2047) / 2048) * 2048), NULL);
+        fsize = ((fsize + 2047) / 2048) * 2048;
+
+        CdctrlReadOne(&stdat_dat_pp->intfile, UsrMemEndAlloc(fsize), NULL);
         CdctrlReadWait();
 
         if (loop == 0) {
