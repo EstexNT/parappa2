@@ -1,4 +1,4 @@
-#include "common.h"
+#include "renderstuff.h"
 
 INCLUDE_ASM("asm/nonmatchings/prlib/renderee", InitializeEECore__13PrRenderStuffP13PrSceneObject);
 
@@ -6,12 +6,12 @@ INCLUDE_ASM("asm/nonmatchings/prlib/renderee", RenderVertexEECoreBothface__13PrR
 
 INCLUDE_ASM("asm/nonmatchings/prlib/renderee", RenderVertexEECoreNormal__13PrRenderStuff);
 
-PR_EXTERN
-void RenderVertexEECoreRefmap__13PrRenderStuff(void) {
+void PrRenderStuff::RenderVertexEECoreRefmap() {
+    /* Empty */
 }
 
-PR_EXTERN
-void RenderVertexEECoreContour__13PrRenderStuff(void) {
+void PrRenderStuff::RenderVertexEECoreContour() {
+    /* Empty */
 }
 
 INCLUDE_ASM("asm/nonmatchings/prlib/renderee", RenderNodeEECore__13PrRenderStuffP23PrVuNodeHeaderDmaPacket);

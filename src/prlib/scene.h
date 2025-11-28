@@ -43,7 +43,7 @@ public:
     sceGsDrawEnv1* unk70;
     PR_PADDING(unk74, 0x8);
     float mCameraTime;
-    PR_PADDING(unk80, 0x4);
+    char* mName;
     float mDefaultFocalLen;
     float mDefaultDefocusLen;
     u_int mDefaultDepthLevel;

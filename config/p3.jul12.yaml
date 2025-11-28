@@ -468,7 +468,7 @@ segments:
         - { type: .bss,  vram: 0x01c82a00, name: iop_mdl/tapctrl_rpc  }
 
         - { type: .bss,  vram: 0x01c82a70, name: prlib/gifreg         }
-        - { type: bss,   vram: 0x01c83190, name: prlib/prlib          }
+        - { type: .bss,  vram: 0x01c83190, name: prlib/prlib          }
         - { type: bss,   vram: 0x01c831b0, name: prlib/renderee       }
         - { type: .bss,  vram: 0x01c831c0, name: prlib/microprogram   }
         - { type: bss,   vram: 0x01c831e0, name: prlib/spram          }

@@ -8,20 +8,20 @@
 #include "model.h"
 
 void SpmFileHeader::ChangePointer() {
-    if (this->mFlags & 0x1) {
+    if (mFlags & 0x1) {
         return;
     }
 
     this->unk64 = CalculatePointer<int>(this->unk64);
-    mNodes = CalculatePointer<SpmNode*>(this->mNodes);
+    mNodes = CalculatePointer<SpmNode*>(mNodes);
 
     for (int i = 0; i < mNodeNum; i++) {
-        mNodes[i] = CalculatePointer<SpmNode>(this->mNodes[i]);
+        mNodes[i] = CalculatePointer<SpmNode>(mNodes[i]);
     }
 
     /* Change node pointers starting from the first. */
     (*mNodes)->ChangePointer(this, NULL);
-    this->mFlags |= 0x1;
+    mFlags |= 0x1;
 }
 
 void SpmNode::ChangePointer(SpmFileHeader* model, SpmNode* arg1) {
@@ -74,7 +74,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/setpointer", ChangePointer__13SpaFileHeader)
 INCLUDE_ASM("asm/nonmatchings/prlib/setpointer", ChangePointer__16SpaNodeAnimationP13SpaFileHeader);
 
 void SpcFileHeader::ChangePointer() {
-    if (this->mFlags & 0x1) {
+    if (mFlags & 0x1) {
         return;
     }
 

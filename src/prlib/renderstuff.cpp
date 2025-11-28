@@ -106,7 +106,7 @@ void PrRenderStuff::StartRender(PrSceneObject* scene) {
 }
 
 void PrRenderStuff::WaitRender() {
-    bool s1 = false;
+    bool noSync = false;
 
     mDmaQueue.Wait();
     PrStopMfifo();
@@ -117,16 +117,16 @@ void PrRenderStuff::WaitRender() {
         sceGsSyncPath(0, 0);
         mScene->ApplyDepthOfField();
         sceGsSyncPath(0, 0);
-        s1 = true;
+        noSync = true;
     }
 
     if (mScene->mScreenModelList != NULL) {
         mScene->PrepareScreenModelRender();
         mDmaQueue.Wait();
-        s1 = false;
+        noSync = false;
     }
 
-    if (!s1) {
+    if (!noSync) {
         sceGsSyncPath(0, 0);
     }
 
@@ -200,13 +200,13 @@ void PrRenderStuff::SortTransmitDmaArray() {
 }
 
 void PrRenderStuff::MergeRender() {
-    bool s4 = false;
+    bool first = false;
 
     for (int i = 0; i < mTransmitArraySize; i++) {
-        if (!s4 && mTransmitArray[i].unk4 == -1) {
+        if (!first && mTransmitArray[i].unk4 == -1) {
             PrDmaStripForSetGifRegister* strip = PrGetDmaStripGifRegister(eGifRegisterMode_Unk1);
             AppendDmaTag(&strip->mTag);
-            s4 = true;
+            first = true;
         }
 
         AppendDmaTag(mTransmitArray[i].tag);

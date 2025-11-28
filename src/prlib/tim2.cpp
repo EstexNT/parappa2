@@ -493,8 +493,10 @@ u_int Tim2LoadClut(TIM2_PICTUREHEADER *ph) {
     /* Calculate the top address of the CLUT data */
     u_long128 *pClut = (u_long128*)((char*)ph + ph->HeaderSize + ph->ImageSize);
 
-    /* Transfer CLUT data into GS local memory.
-     * CLUT data format, etc. are defined by CLUT type and texture type. */
+    /*
+     * Transfer CLUT data into GS local memory.
+     * CLUT data format, etc. are defined by CLUT type and texture type.
+     */
     switch ((ph->ClutType << 8) | ph->ImageType) {
         case (((TIM2_RGB16 | 0x40) << 8) | TIM2_IDTEX4): /* 16  colors, CSM1, 16bits, compound */
         case (((TIM2_RGB24 | 0x40) << 8) | TIM2_IDTEX4): /* 16  colors, CSM1, 24bits, compound */
@@ -502,9 +504,11 @@ u_int Tim2LoadClut(TIM2_PICTUREHEADER *ph) {
         case (( TIM2_RGB16         << 8) | TIM2_IDTEX8): /* 256 colors, CSM1, 16bits, compound */
         case (( TIM2_RGB24         << 8) | TIM2_IDTEX8): /* 256 colors, CSM1, 24bits, compound */
         case (( TIM2_RGB32         << 8) | TIM2_IDTEX8): /* 256 colors, CSM1, 32bits, compound */
-            /* If 256 colors CLUT and storage mode is CSM1 or
+            /*
+             * If 256 colors CLUT and storage mode is CSM1 or
              * 16 colors CLUT and storage mode is CSM1 and compounded flag is ON
-             * pixels are already placed in the right place, so directly transferable. */
+             * pixels are already placed in the right place, so directly transferable.
+             */
             Tim2LoadTexture(cpsm, cbp, 1, 16, (ph->ClutColors / 16), pClut);
             break;
         case (( TIM2_RGB16         << 8) | TIM2_IDTEX4): /* 16  colors, CSM1, 16bits, sequential */
@@ -516,12 +520,14 @@ u_int Tim2LoadClut(TIM2_PICTUREHEADER *ph) {
         case (((TIM2_RGB16 | 0x80) << 8) | TIM2_IDTEX8): /* 256 colors, CSM2, 16bits, sequential */
         case (((TIM2_RGB24 | 0x80) << 8) | TIM2_IDTEX8): /* 256 colors, CSM2, 24bits, sequential */
         case (((TIM2_RGB32 | 0x80) << 8) | TIM2_IDTEX8): /* 256 colors, CSM2, 32bits, sequential */
-            /* If 16 colors CLUT, storage mode is CSM1, and compounded flag is OFF or
+            /*
+             * If 16 colors CLUT, storage mode is CSM1, and compounded flag is OFF or
              * if 16 colors CLUT and storage mode is CSM2 or
              * if 256 colors CLUT and storage mode is CSM2:
              *
              * Sequential placement (CSM2) is ineffective in performance, so compound
-             * into CSM1, then transfer. */
+             * into CSM1, then transfer.
+             */
             for (int i = 0; i < ph->ClutColors / 16; i++) {
                 sceGsSetDefLoadImage(&li, cbp, 1, cpsm, (i & 1) * 8, (i >> 1) * 2, 8, 2);
                 FlushCache(WRITEBACK_DCACHE);

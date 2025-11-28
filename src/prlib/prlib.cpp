@@ -192,52 +192,18 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrHideModel);
 
 PR_EXTERN
 NaVECTOR<float, 4>* PrGetModelPrimitivePosition(PrModelObject* model) {
-    /*
-     * FIXME(poly): These `tmp_X` symbols aren't real
-     * and are product of the static NaVECTOR instances.
-     *
-     * The solution would be to make these static
-     * (when the TU's .bss matches, of course), and
-     * the compiler should generate these temp. symbols.
-     *
-     * The symbols themselves are meant to call the
-     * constructor once, though in this case there's
-     * no actual call because it is inlined (empty constructor).
-     */
-    extern NaVECTOR<float, 4> vector_0;
-    static int tmp_0 = 0;
-    
-    if (tmp_0 == 0) {
-        tmp_0 = 1;
-    }
-    
-    model->GetPrimitivePosition(&vector_0);
-    return &vector_0;
+    static NaVECTOR<float, 4> vector;
+
+    model->GetPrimitivePosition(&vector);
+    return &vector;
 }
 
 PR_EXTERN
 NaVECTOR<float, 4>* PrGetModelScreenPosition(PrModelObject* model) {
-    /*
-     * FIXME(poly): These `tmp_X` symbols aren't real
-     * and are product of the static NaVECTOR instances.
-     *
-     * The solution would be to make these static
-     * (when the TU's .bss matches, of course), and
-     * the compiler should generate these temp. symbols.
-     *
-     * The symbols themselves are meant to call the
-     * constructor once, though in this case there's
-     * no actual call because it is inlined (empty constructor).
-     */
-    extern NaVECTOR<float, 4> vector_1;
-    static int tmp_1 = 0;
-    
-    if (tmp_1 == 0) {
-        tmp_1 = 1;
-    }
+    static NaVECTOR<float, 4> vector;
 
-    model->GetScreenPosition(&vector_1);
-    return &vector_1;
+    model->GetScreenPosition(&vector);
+    return &vector;
 }
 
 int prCurrentStage = 0;
@@ -301,9 +267,15 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetModelName);
 
 INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetAnimationName);
 
-INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetCameraName);
+PR_EXTERN
+char* PrGetCameraName(SpcFileHeader* camera) {
+    return camera->mName;
+}
 
-INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetSceneName);
+PR_EXTERN
+char* PrGetSceneName(PrSceneObject* scene) {
+    return scene->mName;
+}
 
 PR_EXTERN
 PrRENDERING_STATISTICS* PrGetRenderingStatistics() {

@@ -298,8 +298,16 @@ NaVECTOR<float, 4>* SpaTrack<NaVECTOR<float, 4> >::GetSprineValue(u_int seg, flo
     float f0 = (arg1 - this->unkC[seg]) / f2;
 
     /*
-     * See PrGetModelPrimitivePosition/PrGetModelScreenPosition
-     * on prlib.cpp
+     * FIXME(poly): These `tmp_X` symbols aren't real
+     * and are product of the static NaVECTOR instances.
+     *
+     * The solution would be to make these static
+     * (when the TU's .bss matches, of course), and
+     * the compiler should generate these temp. symbols.
+     *
+     * The symbols themselves are meant to call the
+     * constructor once, though in this case there's
+     * no actual call because it is inlined (empty constructor).
      */
     extern NaVECTOR<float, 4> return_buffer;
     extern int tmp_0_1744;
