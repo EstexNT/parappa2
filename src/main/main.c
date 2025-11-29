@@ -28,95 +28,75 @@
 #include <math.h>
 #include <stdio.h>
 
-/* .sdata */
-extern int urawaza_skip_bottun;
-extern int urawaza_levelsel_bottun;
+static int urawaza_skip_bottun = FALSE;
+static int urawaza_levelsel_bottun = -1;
 
-/* data */
-extern DBG_SELECT_STR dbg_select_str; /* = {
-    .debug_on      = 0,
-    .use_line      = 0xFFFFFFFF,
-    .score_updown  = 0,
-    .non_play      = 0,
-}; */
+DBG_SELECT_STR dbg_select_str = {
+    .debug_on     = FALSE,
+    .use_line     = -1,
+    .score_updown = FALSE,
+    .non_play     = FALSE
+};
 
-extern u_char *dbg_tbl_msg[]; /* = {
+static u_char *dbg_tbl_msg[] = {
     "AUTO", "BASE",
-    "LV1",
-    "LV2",
-    "LV3",
-    "LV4",
-    "LV5",
-    "LV6",
-    "LV7", 
-    "LV8", 
-    "LV9", 
-    "LV10",
-    "LV11", 
-    "LV12", 
-    "LV13", 
-    "LV14", 
-    "LV15", 
-    "LV16",
-}; */
+    "LV1",  "LV2",  "LV3",  "LV4",
+    "LV5",  "LV6",  "LV7",  "LV8",
+    "LV9",  "LV10", "LV11", "LV12",
+    "LV13", "LV14", "LV15", "LV16",
+};
 
-extern u_char *dbg_score_msg[]; /* = {
-    "OFF", "ON"
-}; */
+static u_char *dbg_score_msg[] = {
+    "OFF", "ON",
+};
 
-extern DBG_MODE_STR dbg_mode_str[4/*0*/]; /* = {
+static DBG_MODE_STR dbg_mode_str[] = {
     {
         .msg_pp = "START",
         .set_pp = NULL,
         .min = 0,
         .max = 0,
-        .selmsg_pp = NULL,
+        .selmsg_pp = NULL
     },
     {
         .msg_pp = "TABLE",
         .set_pp = &dbg_select_str.use_line,
-        .min = 0xFFFFFFFF,
+        .min = -1,
         .max = 17,
-        .selmsg_pp = dbg_tbl_msg,
+        .selmsg_pp = dbg_tbl_msg
     },
     {
         .msg_pp = "SCORE DBUG",
         .set_pp = &dbg_select_str.score_updown,
         .min = 0,
         .max = 2,
-        .selmsg_pp = dbg_score_msg,
+        .selmsg_pp = dbg_score_msg
     },
     {
         .msg_pp = "NON PLAY",
         .set_pp = &dbg_select_str.non_play,
         .min = 0,
         .max = 2,
-        .selmsg_pp = dbg_score_msg,
+        .selmsg_pp = dbg_score_msg
     },
-}; */
+};
 
-extern int overlay_loadaddr;
-extern int uramen_end_flag;
+int overlay_loadaddr = 0x01ca0000; /* TODO: Don't hardcode */
 
-/* .bss */
-extern MENU_STR menu_str;
-
-extern int first_f; /* mainStart */
-
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393810);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393820);
+static MENU_STR menu_str;
 
 static void dbg_select_disp(void) {
-    int selpos;
+    int           selpos;
     DBG_MODE_STR *dbg_pp;
-    int i;
-    int numkun; /* TODO: can't find an use for this (v0). */
+    int           i;
+    int           numkun; /* TODO: can't find an use for this (v0). */
 
     selpos = 0;
     DbgMsgInit();
 
     while (1) {
         MtcWait(1);
+
         dbg_pp = &dbg_mode_str[selpos];
         if (pad[0].one & (SCE_PADRleft | SCE_PADRright)) {
             if (dbg_pp->set_pp == NULL) {
@@ -175,19 +155,6 @@ static void dbg_select_disp(void) {
     MtcWait(1);
 }
 
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393840);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393860);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393880);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_003938A8);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_003938D0);
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_003938F8);
-
-INCLUDE_RODATA("asm/nonmatchings/main/main", D_00393910);
-
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/main", dummyPlay);
-void dummyPlay(/* s0 16 */ int retTitle);
-#else
 static void dummyPlay(int retTitle) {
     int     mode;
     int     ret = 0;
@@ -222,9 +189,14 @@ static void dummyPlay(int retTitle) {
         u_char *pmd[3]   = { "SINGLE", "VS MAN", "VS COM" };
         u_char *ptype[2] = { "NORMAL", "EASY" };
 
-        if (pad[0].one & 0x20) ret = 1;
-        else if (pad[0].one & 0x10) ret = 3;
-        else if (pad[0].one & 0x40) ret = 2;
+        if (pad[0].one & SCE_PADRright) {
+            ret = 1;
+        } else if (pad[0].one & SCE_PADRup) {
+            ret = 3;
+        } else if (pad[0].one & SCE_PADRdown) {
+            ret = 2;
+        }
+
         if (ret != 0) {
             break;
         }
@@ -240,12 +212,26 @@ static void dummyPlay(int retTitle) {
         case 2:
         case 3:
         case 4:
-            if (pad[0].shot & 0x4) scoreTmp[0] += 10;
-            if (pad[0].shot & 0x1) scoreTmp[0] -= 10;
-            if (pad[0].shot & 0x8) scoreTmp[1] += 10;
-            if (pad[0].shot & 0x2) scoreTmp[1] -= 10;
-            if (scoreTmp[0] < 0) scoreTmp[0] = 0;
-            if (scoreTmp[1] < 0) scoreTmp[1] = 0;
+            if (pad[0].shot & SCE_PADL1) {
+                scoreTmp[0] += 10;
+            }
+            if (pad[0].shot & SCE_PADL2) {
+                scoreTmp[0] -= 10;
+            }
+
+            if (pad[0].shot & SCE_PADR1) {
+                scoreTmp[1] += 10;
+            }
+            if (pad[0].shot & SCE_PADR2) {
+                scoreTmp[1] -= 10;
+            }
+
+            if (scoreTmp[0] < 0) {
+                scoreTmp[0] = 0;
+            }
+            if (scoreTmp[1] < 0) {
+                scoreTmp[1] = 0;
+            }
 
             sprintf(msg_dat, "STG:%d MODE:%s TYPE:%s ROUND:%d", game_status.play_stageG, pmd[game_status.play_modeG], ptype[game_status.play_table_modeG], game_status.roundG + 1);
             DbgMsgPrint(msg_dat, 1770, 2000);
@@ -275,7 +261,7 @@ static void dummyPlay(int retTitle) {
             if (game_status.endingFlag == 1) {
                 while (1) {
                     MtcWait(1);
-                    if (pad[0].one & 0x70) {
+                    if (pad[0].one & (SCE_PADRup | SCE_PADRright | SCE_PADRdown)) {
                         break;
                     }
 
@@ -288,7 +274,7 @@ static void dummyPlay(int retTitle) {
             } else if (game_status.endingFlag == 2 || game_status.endingFlag == 3 || game_status.endingFlag == 4) {
                 while (1) {
                     MtcWait(1);
-                    if (pad[0].one & 0x70) {
+                    if (pad[0].one & (SCE_PADRup | SCE_PADRright | SCE_PADRdown)) {
                         break;
                     }
 
@@ -418,7 +404,6 @@ static void dummyPlay(int retTitle) {
         break;
     }
 }
-#endif
 
 int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
     STDAT_DAT *stdat_dat_pp;
@@ -562,8 +547,6 @@ static void SpHatChangeSub(void) {
     PR_SCOPEEND
 }
 
-extern char D_003996C0[]; /* sdata - "DEBUG" */
-
 int selPlayDispTitleDisp(int sel_stage, int sel_disp, int ovl_load) {
     STDAT_DAT *stdat_dat_pp;
     int        ret = 0;
@@ -636,7 +619,7 @@ int selPlayDispTitleDisp(int sel_stage, int sel_disp, int ovl_load) {
 
             CmnGifOpenCmnPk(&dbgPk);
             DbgMsgClearUserPkt(&dbgPk);
-            DbgMsgPrintUserPkt(D_003996C0, 1730, 1948, &dbgPk);
+            DbgMsgPrintUserPkt("DEBUG", 1730, 1948, &dbgPk);
             CmnGifCloseCmnPk(&dbgPk, 7);
         }
     }
@@ -729,6 +712,8 @@ void logoDispOne(SPR_PRIM *sprm_pp, TIM2_DAT *tmd_pp) {
     }
 }
 
+static int uramen_end_flag = FALSE;
+
 static void uramenFileSearchTask(void *x) {
     printf("file search in\n");
     stDatFirstFileSearch();
@@ -755,11 +740,22 @@ static void uramenFileSearchEnd(void) {
 void startUpDisp(void) {
     /* Splash screens TIM2 data */
     /* TODO: match .data (see symbol_addrs.txt) */
-    extern TIM2_DAT tim2spr_tbl_tmp0[2]; /* static */ /* =
-    {
-        { .GsTex0 = 0x20050A022531A800, .GsTex1 = 0x260, .w = 320, .h = 224 }, / NanaOn-Sha /
-        { .GsTex0 = 0x20150A81A5422968, .GsTex1 = 0x260, .w = 440, .h = 52  }, / SCEI presents /
-    }; */
+    static TIM2_DAT tim2spr_tbl_tmp0[2] = {
+        /* NanaOn-Sha */
+        {
+            .GsTex0 = SCE_GS_SET_TEX0(10240, 6, SCE_GS_PSMT8, 9, 8, 0, 0, 10320, SCE_GS_PSMCT32, 0, 0, 1),
+            .GsTex1 = SCE_GS_SET_TEX1(0, 0, 1, 1, 1, 0, 0),
+            .w = 320,
+            .h = 224
+        },
+        /* SCEI presents */
+        {
+            .GsTex0 = SCE_GS_SET_TEX0(10600, 8, SCE_GS_PSMT4, 9, 6, 0, 0, 10324, SCE_GS_PSMCT16, 0, 0, 1),
+            .GsTex1 = SCE_GS_SET_TEX1(0, 0, 1, 1, 1, 0, 0),
+            .w = 440,
+            .h = 52
+        },
+    };
 
     /* Splash screens sprite data */
     SPR_PRIM spr_prim[2] = {
@@ -770,7 +766,7 @@ void startUpDisp(void) {
     UsrMemClear();
     SpuBankSet();
 
-    CdctrlRead(&file_str_logo_file, UsrMemAllocNext(), 0);
+    CdctrlRead(&file_str_logo_file, UsrMemAllocNext(), NULL);
     CdctrlReadWait();
 
     SprInit();
@@ -1055,8 +1051,165 @@ int selPlayDispSetPlayOne(int sel_stage) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/main", gamePlayDisp);
-int gamePlayDisp(void);
+int gamePlayDisp(void) {
+    int         sel_stage;
+    GLOBAL_PLY *gply_pp;
+    u_int       clrcnt;
+    int         cancel_flag;
+    int         ret;
+    int         dsip_level;
+    int         i; /* Not in STABS */
+
+    cancel_flag = 0;
+
+    GlobalLobcalCopy();
+
+    game_status.bonusG = 0;
+
+    if (global_data.demo_flagL == DEMOF_REPLAY) {
+        mccGlobalLocalCopy();
+    } else {
+        if (dbg_select_str.debug_on) {
+            if (dbg_select_str.use_line < 0) {
+                global_data.tapLevelCtrl = LM_AUTO;
+            } else {
+                global_data.tapLevel = dbg_select_str.use_line;
+                global_data.tapLevelCtrl = LM_FIX;
+            }
+        } else {
+            if (urawaza_levelsel_bottun >= 0) {
+                global_data.tapLevelCtrl = LM_FIX;
+                global_data.tapLevel = urawaza_levelsel_bottun;
+            }
+        }
+    }
+
+    sel_stage = global_data.play_stageL;
+
+    inCmnInit(sel_stage);
+
+    if (global_data.play_modeL != PLAY_MODE_SINGLE) {
+        sel_stage += 10;
+    }
+
+    if (global_data.demo_flagL != DEMOF_OFF) {
+        SpuBankSet();
+        UsrMemClear();
+
+        ret = selPlayDisp(sel_stage, stdat_rec[sel_stage].stdat_dat_num - 1, FALSE);
+    } else {
+        if (urawaza_skip_bottun) {
+            cancel_flag = selPlayDispSetPlayOne(sel_stage);
+        } else {
+            cancel_flag = selPlayDispSetPlay(sel_stage);
+        }
+
+        ret = cancel_flag;
+    }
+
+    if (game_status.demo_flagG == DEMOF_REPLAY) {
+        menu_str.sel_menu_enum = SEL_MENU_REPLAY;
+    } else if (game_status.demo_flagG == DEMOF_DEMO) {
+        menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
+    } else {
+        if (game_status.play_modeG == PLAY_MODE_SINGLE) {
+            gply_pp = &global_data.global_ply[0];
+
+            dsip_level = RANK_LEVEL2DISP_LEVEL(gply_pp->rank_level);
+            game_status.disp_level = dsip_level;
+
+            if ((dsip_level == DLVL_COOL || dsip_level == DLVL_GOOD) && !cancel_flag) {
+                mccLocalGlobalCopy();
+
+                game_status.scoreG[0] = gply_pp->score;
+                game_status.scoreG[1] = 0;
+
+                menu_str.sel_menu_enum = SEL_MENU_SAVE;
+
+                if (dsip_level == DLVL_GOOD) {
+                    clrcnt = game_status.stClrCntGood[game_status.play_stageG];
+                    if (clrcnt != -1) {
+                        clrcnt++;
+                    }
+                    game_status.stClrCntGood[game_status.play_stageG] = clrcnt;
+                } else {
+                    clrcnt = game_status.stClrCntCool[game_status.play_stageG];
+                    if (clrcnt != -1) {
+                        clrcnt++;
+                    }
+                    game_status.stClrCntCool[game_status.play_stageG] = clrcnt;
+                }
+
+                if (game_status.endingFlag == 1) {
+                    SpuBankSet();
+                    UsrMemClear();
+                    WipeInReq();
+                    MtcWait(2);
+
+                    selPlayDisp(9, 0, FALSE);
+                } else if (
+                    game_status.endingFlag == 2 ||
+                    game_status.endingFlag == 3 ||
+                    game_status.endingFlag == 4
+                ) {
+                    ingame_common_str.SingleScore = gply_pp->score;
+                    ingame_common_str.bonusType   = (game_status.endingFlag - 2);
+
+                    SpuBankSet();
+                    UsrMemClear();
+                    WipeInReq();
+                    MtcWait(2);
+
+                    selPlayDisp(10, 0, FALSE);
+
+                    game_status.bonusG = ingame_common_str.BonusScore;
+                }
+            } else {
+                menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
+                game_status.scoreG[0] = 0;
+                game_status.scoreG[1] = 0;
+            }
+        } else if (game_status.play_modeG == PLAY_MODE_VS_MAN) {
+            if (!cancel_flag) {
+                mccLocalGlobalCopy();
+
+                gply_pp = &global_data.global_ply[0];
+
+                game_status.scoreG[0] = gply_pp->vsScore;
+                game_status.scoreG[1] = (gply_pp + 1)->vsScore;
+
+                menu_str.sel_menu_enum = SEL_MENU_SAVE;
+            } else {
+                menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
+                game_status.scoreG[0] = 0;
+                game_status.scoreG[1] = 0;
+            }
+        } else if (game_status.play_modeG == PLAY_MODE_VS_COM) {
+            gply_pp = &global_data.global_ply[0];
+
+            if ((gply_pp->vsWin > gply_pp->vsLost) && !cancel_flag) {
+                mccLocalGlobalCopy();
+
+                game_status.scoreG[0] = gply_pp->vsScore;
+                game_status.scoreG[1] = (gply_pp + 1)->vsScore;
+
+                menu_str.sel_menu_enum = SEL_MENU_SAVE;
+
+                clrcnt = game_status.stClrCntVs[game_status.play_stageG];
+                if (clrcnt != -1) {
+                    clrcnt++;
+                }
+                game_status.stClrCntVs[game_status.play_stageG] = clrcnt;
+            } else {
+                menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
+                game_status.scoreG[0] = 0;
+                game_status.scoreG[1] = 0;
+            }
+        }
+    }
+
+    return ret;
+}
 
 void titleDisp(int firstf) {
     STDAT_DAT *stdat_dat_pp;
@@ -1102,7 +1255,7 @@ void titleDisp(int firstf) {
             break;
         }
 
-        firstf = 0;
+        firstf = FALSE;
         SetBackColor(0, 0, 0);
         deramode ^= 1;
 
@@ -1122,12 +1275,15 @@ void titleDisp(int firstf) {
 
 int urawazaKeyCheck(void) {
     PADD *pad_pp;
+
     int change_tbl[17] = {
-        1,  3,  5,  7,
-        0,  10, 12, 14,
-        16, 15, 13, 11,
-        9,  8,  6,  4,  2,
+        TLL_LV01,   TLL_LV03, TLL_LV05, TLL_LV07,
+        TLL_NORMAL, TLL_LV10, TLL_LV12, TLL_LV14,
+        TLL_LV16,   TLL_LV15, TLL_LV13, TLL_LV11,
+        TLL_LV09,   TLL_LV08, TLL_LV06, TLL_LV04,
+        TLL_LV02,
     };
+
     int   ud_d, ret;
     float pos;
 
@@ -1165,8 +1321,6 @@ int urawazaKeyCheck(void) {
     return ret;
 }
 
-extern char D_003996D0[]; /* sdata - "ura:%d" */
-
 void ura_check(void) {
     u_char msg_tmp[32];
     int    ret;
@@ -1180,7 +1334,7 @@ void ura_check(void) {
         if (ret < 0) {
             sprintf(msg_tmp, "ura:NOUSE");
         } else {
-            sprintf(msg_tmp, D_003996D0, ret);
+            sprintf(msg_tmp, "ura:%d", ret);
         }
 
         DbgMsgClear();
@@ -1194,7 +1348,7 @@ void ura_check(void) {
 }
 
 void mainStart(void *xx) {
-    /* sdata 3996d8 */ extern int first_f;
+    static int first_f = TRUE;
     int retTitle;
 
     mccReqInit();
@@ -1206,7 +1360,7 @@ void mainStart(void *xx) {
     hat_change_enum = HCNG_AUTO;
 
     TapCtInit();
-    TapCt(0, 0, 0);
+    TapCt(TAPCT_INIT, 0, TAPCT_NONE);
 
     TimeCallbackSet();
     GlobalInit();
@@ -1232,7 +1386,7 @@ void mainStart(void *xx) {
         WipeInReq();
         MtcWait(2);
 
-        first_f = 0;
+        first_f = FALSE;
 
         menu_str.sel_menu_enum = SEL_MENU_STAGESEL;
         game_status.demo_flagG = DEMOF_OFF;
@@ -1242,7 +1396,7 @@ void mainStart(void *xx) {
             SpuBankSet();
 
             urawaza_levelsel_bottun = -1;
-            urawaza_skip_bottun = 0;
+            urawaza_skip_bottun = FALSE;
 
             CdctrlRead(&file_str_menu_file, UsrMemAllocNext(), UsrMemAllocEndNext());
             CdctrlReadWait();
@@ -1264,9 +1418,9 @@ void mainStart(void *xx) {
              */
             if (pad[0].shot & SCE_PADL1 &&
                 pad[0].shot & SCE_PADL2) {
-                urawaza_skip_bottun = 1;
+                urawaza_skip_bottun = TRUE;
             } else {
-                urawaza_skip_bottun = 0;
+                urawaza_skip_bottun = FALSE;
             }
 
             /*

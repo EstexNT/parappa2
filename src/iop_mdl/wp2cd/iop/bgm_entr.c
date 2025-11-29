@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../wp2cd.h"
 
 #include <intrman.h>
 #include <loadcore.h>
@@ -7,9 +7,6 @@
 #include <thread.h>
 
 #include <stdio.h>
-
-/* bgm_com.c */
-extern int sce_bgm_loop(void);
 
 ModuleInfo Module = { "WaveP2_driver", 0x100 };
 

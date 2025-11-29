@@ -583,8 +583,8 @@ void SpuBankSet(void) {
     int i;
 
     for (i = 0; i < PR_ARRAYSIZEU(scr_snd_area) - 1; i++) {
-        TapCt(0x8010 | i, scr_snd_area[i].spu_adrs, 0);
-        TapCt(0x8020 | i, scr_snd_area[i].iop_size, 0);
+        TapCt(TAPCT_ALLOCSPU | i, scr_snd_area[i].spu_adrs, TAPCT_NONE);
+        TapCt(TAPCT_ALLOCIOP | i, scr_snd_area[i].iop_size, TAPCT_NONE);
     }
 }
 
@@ -592,8 +592,8 @@ void SpuBankSetAll(void) {
     int i;
 
     for (i = 0; i < PR_ARRAYSIZEU(scr_snd_area); i++) {
-        TapCt(0x8010 | i, scr_snd_area[i].spu_adrs, 0);
-        TapCt(0x8020 | i, scr_snd_area[i].iop_size, 0);
+        TapCt(TAPCT_ALLOCSPU | i, scr_snd_area[i].spu_adrs, TAPCT_NONE);
+        TapCt(TAPCT_ALLOCIOP | i, scr_snd_area[i].iop_size, TAPCT_NONE);
     }
 }
 

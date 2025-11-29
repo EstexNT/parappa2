@@ -361,19 +361,18 @@ void intReadSub(void) {
             int i;
             printf("int file snd file in\n");
 
-            /* TODO: name TAPCT commands */
-            while (TapCt(0x8070, 0, 0)) {
+            while (TapCt(TAPCT_TRANSCHECK, TAPCT_NONE, TAPCT_NONE)) {
                 MtcWait(1);
             }
 
-            for (i = 0; i < PACK(head_read_pp)->fnum / 2; i++) {
-                TapCt(0x8030 | i, PACK(head_read_pp)->adr[i] + UsrMemAllocNext(),
+            for (i = 0; i < (PACK(head_read_pp)->fnum / 2); i++) {
+                TapCt(TAPCT_BDSPUTRANS | i, PACK(head_read_pp)->adr[i] + UsrMemAllocNext(),
                     PACK(head_read_pp)->adr[i + 1] - PACK(head_read_pp)->adr[i]);
-                TapCt(0x8040 | i, PACK(head_read_pp)->adr[i + PACK(head_read_pp)->fnum / 2] + UsrMemAllocNext(),
-                    PACK(head_read_pp)->adr[i + 1 + PACK(head_read_pp)->fnum / 2] - PACK(head_read_pp)->adr[i + PACK(head_read_pp)->fnum / 2]);
+                TapCt(TAPCT_HDIOPTRANS | i, PACK(head_read_pp)->adr[i + (PACK(head_read_pp)->fnum / 2)] + UsrMemAllocNext(),
+                    PACK(head_read_pp)->adr[i + 1 + (PACK(head_read_pp)->fnum / 2)] - PACK(head_read_pp)->adr[i + (PACK(head_read_pp)->fnum / 2)]);
             }
 
-            while (TapCt(0x8070, 0, 0)) {
+            while (TapCt(TAPCT_TRANSCHECK, TAPCT_NONE, TAPCT_NONE)) {
                 MtcWait(1);
             }
 
@@ -535,15 +534,14 @@ void CdctrlMemIntgDecode(u_int rbuf, u_int setbuf) {
         case FT_SND: {
             int i;
 
-            for (i = 0; i < PACK(head_read_pp)->fnum / 2; i++) {
-                /* TODO: name TAPCT commands */
-                TapCt(0x8030 | i, PACK(head_read_pp)->adr[i] + UsrMemAllocNext(),
-                    PACK(head_read_pp)->adr[i+1] - PACK(head_read_pp)->adr[i]);
-                TapCt(0x8040 | i, PACK(head_read_pp)->adr[i + PACK(head_read_pp)->fnum / 2] + UsrMemAllocNext(),
-                    PACK(head_read_pp)->adr[i+1+PACK(head_read_pp)->fnum / 2] - PACK(head_read_pp)->adr[i + PACK(head_read_pp)->fnum / 2]);
+            for (i = 0; i < (PACK(head_read_pp)->fnum / 2); i++) {
+                TapCt(TAPCT_BDSPUTRANS | i, PACK(head_read_pp)->adr[i] + UsrMemAllocNext(),
+                    PACK(head_read_pp)->adr[i + 1] - PACK(head_read_pp)->adr[i]);
+                TapCt(TAPCT_HDIOPTRANS | i, PACK(head_read_pp)->adr[i + (PACK(head_read_pp)->fnum / 2)] + UsrMemAllocNext(),
+                    PACK(head_read_pp)->adr[i + 1 + (PACK(head_read_pp)->fnum / 2)] - PACK(head_read_pp)->adr[i + (PACK(head_read_pp)->fnum / 2)]);
             }
 
-            while (TapCt(0x8070, 0, 0)) {
+            while (TapCt(TAPCT_TRANSCHECK, TAPCT_NONE, TAPCT_NONE)) {
                 MtcWait(1);
             }
             break;

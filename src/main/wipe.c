@@ -212,23 +212,24 @@ void wipeSndReq(SNDTAP_WIPE_ENUM req) {
 
     sndtap_pp = &sndtap_wipe[req];
 
-    TapCt(0xb0, 0, 0);
-    TapCt(0xf3, 0xf, sndtap_pp->volume);
-    TapCt(0xd3, 0xf, sndtap_pp->prg + sndtap_pp->key * 256);
+    TapCt(TAPCT_SETEFFECTMODE, SD_REV_MODE_OFF, 0);
+    TapCt(TAPCT_TAPVOLUME | 3, 0xf, sndtap_pp->volume);
+    TapCt(TAPCT_TAPREQ    | 3, 0xf, sndtap_pp->prg + sndtap_pp->key * 256);
 }
 
 void wipeSndStop(void) {
-    TapCt(0xe0, 0xf, 0);
+    TapCt(TAPCT_TAPSTOP, 0xf, TAPCT_NONE);
 }
 
 void wipeSndFileTrans(void) {
-    TapCt(0x8033, (int)cmnfGetFileAdrs(74), cmnfGetFileSize(74));
-    TapCt(0x8043, (int)cmnfGetFileAdrs(73), cmnfGetFileSize(73));
+    TapCt(TAPCT_BDSPUTRANS | 3, (int)cmnfGetFileAdrs(74), cmnfGetFileSize(74));
+    TapCt(TAPCT_HDIOPTRANS | 3, (int)cmnfGetFileAdrs(73), cmnfGetFileSize(73));
 
-    TapCt(0x90, PR_CONCAT(0x3fff, 0x3fff), 0);
-    TapCt(0xa0, PR_CONCAT(0x3fff, 0x3fff), 0);
-    TapCt(0xb0, 0, 0x1fff);
-    TapCt(0x80, PR_CONCAT(0x3fff, 0x3fff), 0);
+    TapCt(TAPCT_SETMASTERVOL, PR_CONCAT(0x3fff, 0x3fff), TAPCT_NONE);
+    TapCt(TAPCT_SETVOLUME,    PR_CONCAT(0x3fff, 0x3fff), TAPCT_NONE);
+
+    TapCt(TAPCT_SETEFFECTMODE, SD_REV_MODE_OFF, 0x1fff);
+    TapCt(TAPCT_SETEFFECTVOL,  PR_CONCAT(0x3fff, 0x3fff), TAPCT_NONE);
 }
 
 static void LocalBufCopy(int disp) {

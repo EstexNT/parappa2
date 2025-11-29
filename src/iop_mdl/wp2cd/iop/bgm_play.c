@@ -14,41 +14,9 @@
 #define KB(x) (x*1024)
 #define SCTORS(x) (x/2048)
 
-#define RDMODE_CD (0)
-#define RDMODE_PC (1)
-
 int  _PreLoadBack(int status);
 void _BgmStop(void);
 int  _BgmPlay(int status);
-
-typedef struct { // 0x30
-    /* 0x00:0 */ unsigned int size : 32; /* File size (in sectors) */
-    /* 0x04:0 */ unsigned int pos : 32;
-    /* 0x08:0 */ unsigned int ofs : 32;
-    /* 0x0c:0 */ unsigned int Channel : 32; /* Number of channels */
-    /* 0x10 */ u_short ReqChan[2]; /* Channels reserved for audio [L&R channels] */
-    /* 0x14 */ int TransPos;
-    /* 0x18 */ int TransMax;
-    /* 0x1c */ int Tr1Size; /* Total size of channels */
-    /* 0x20 */ int StartTrPos; /* (Unused) */
-    /* 0x24 */ int TransEEAdrs; /* Base addr. for EE transfers */
-    /* 0x28 */ int TransId; /* DMA queuing identifier. */
-    /* 0x2c */ int readBackFlag;
-} WAVEP2;
-
-typedef struct { // 0x10
-    /* 0x0 */ int buf_pos[2];
-    /* 0x8 */ int TrackSize;
-    /* 0xc */ int dbuf_flg;
-} SBUF;
-
-typedef struct { // 0x10
-    /* 0x0 */ u_int trSize;
-    /* 0x4 */ u_int trAdr;
-    /* 0x8 */ u_int pad1;
-    /* 0xc */ u_int pad2;
-    /* 0x10 */ u_char dat[0];
-} P3STR_TRH;
 
 static int bug_bug_bug_flag = FALSE;
 static int fp_pc = -1;

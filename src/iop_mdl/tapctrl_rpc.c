@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #define DATA_SIZE_NORMAL (16)
-#define TAPCT_DEV (0x8001)
 
 static u_int sbuff[16] PR_ALIGNED(64);
 static sceSifClientData gCd;

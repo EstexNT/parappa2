@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+#include <libcdvd.h>
+
 /* WP2 commands */
 #define WP2_NONE                 (0)
 
@@ -50,4 +52,70 @@
 /* WaveP2 module ID */
 #define WP2CD_DEV                (0x8800)
 
+#if !defined(__R5900__)
+
+typedef struct { // 0x30
+    /* 0x00:0 */ unsigned int size : 32; /* File size (in sectors) */
+    /* 0x04:0 */ unsigned int pos : 32;
+    /* 0x08:0 */ unsigned int ofs : 32;
+    /* 0x0c:0 */ unsigned int Channel : 32; /* Number of channels */
+    /* 0x10 */ u_short ReqChan[2]; /* Channels reserved for audio [L&R channels] */
+    /* 0x14 */ int TransPos;
+    /* 0x18 */ int TransMax;
+    /* 0x1c */ int Tr1Size; /* Total size of channels */
+    /* 0x20 */ int StartTrPos; /* (Unused) */
+    /* 0x24 */ int TransEEAdrs; /* Base addr. for EE transfers */
+    /* 0x28 */ int TransId; /* DMA queuing identifier. */
+    /* 0x2c */ int readBackFlag;
+} WAVEP2;
+
+typedef struct { // 0x10
+    /* 0x0 */ int buf_pos[2];
+    /* 0x8 */ int TrackSize;
+    /* 0xc */ int dbuf_flg;
+} SBUF;
+
+typedef struct { // 0x10
+    /* 0x0 */ u_int trSize;
+    /* 0x4 */ u_int trAdr;
+    /* 0x8 */ u_int pad1;
+    /* 0xc */ u_int pad2;
+    /* 0x10 */ u_char dat[0];
+} P3STR_TRH;
+
+/* Read mode types */
+#define RDMODE_CD (0)
+#define RDMODE_PC (1)
+
+/* bgm_com.c */
+extern int          sce_bgm_loop(void);
+
+/* bgm_play.c */
+extern void         BgmSetVolumeDirect(unsigned int vol);
+extern void         BgmSetMasterVolume(unsigned int vol);
+extern void         BgmCdInit(int mode);
+extern void         BgmSdInit(int status);
+extern int          BgmInit(int block_size);
+extern void         BgmQuit(int status);
+extern int          BgmOpen(char *filename);
+extern int          BgmOpenFLoc(sceCdlFILE *fpLoc);
+extern void         BgmClose(int status);
+extern int          BgmPreLoad(void);
+extern void         BgmPreLoadBack(void);
+extern int          BgmReadBuffFull(void);
+extern int          BgmStart(void);
+extern void         BgmStop(unsigned int vol);
+extern void         BgmSetVolume(unsigned int vol);
+extern void         BgmSetMode(u_int maxChan);
+extern unsigned int BgmGetMode(void);
+extern int          BgmSeek(unsigned int ofs);
+extern int          BgmSeekFLoc(sceCdlFILE *fpLoc);
+extern void         BgmSetChannel(u_int chan);
+extern void         BgmSetTrPoint(u_int trpos);
+extern int          BgmGetTime(void);
+extern int          BgmGetTSample(void);
+extern int          BgmGetCdErrCode(void);
+
 #endif
+
+#endif /* WP2CD_H */

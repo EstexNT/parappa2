@@ -7,32 +7,6 @@
 
 #include <stdio.h>
 
-/* bgm_play.c */
-extern void         BgmSetVolumeDirect(unsigned int vol);
-extern void         BgmSetMasterVolume(unsigned int vol);
-extern void         BgmCdInit(int mode);
-extern void         BgmSdInit(int status);
-extern int          BgmInit(int block_size);
-extern void         BgmQuit(int status);
-extern int          BgmOpen(char *filename);
-extern int          BgmOpenFLoc(sceCdlFILE *fpLoc);
-extern void         BgmClose(int status);
-extern int          BgmPreLoad(void);
-extern void         BgmPreLoadBack(void);
-extern int          BgmReadBuffFull(void);
-extern int          BgmStart(void);
-extern void         BgmStop(unsigned int vol);
-extern void         BgmSetVolume(unsigned int vol);
-extern void         BgmSetMode(u_int maxChan);
-extern unsigned int BgmGetMode(void);
-extern int          BgmSeek(unsigned int ofs);
-extern int          BgmSeekFLoc(sceCdlFILE *fpLoc);
-extern void         BgmSetChannel(u_int chan);
-extern void         BgmSetTrPoint(u_int trpos);
-extern int          BgmGetTime(void);
-extern int          BgmGetTSample(void);
-extern int          BgmGetCdErrCode(void);
-
 static void* bgmFunc(unsigned int command, void *data, int size);
 
 int gRpcArg[16];

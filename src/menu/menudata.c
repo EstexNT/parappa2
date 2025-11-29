@@ -1044,50 +1044,50 @@ void MenuDataSndInit(void) {
     _BankChan1Req = 0;
     _BankChan1Stat = 0;
 
-    TapCt(0x8011, 0x135010, 0);
-    TapCt(0x90, PR_CONCAT(0x3fff, 0x3fff), 0);
+    TapCt(TAPCT_ALLOCSPU | 1, 0x135010, TAPCT_NONE);
+    TapCt(TAPCT_SETMASTERVOL, PR_CONCAT(0x3fff, 0x3fff), TAPCT_NONE);
 }
 
 void MenuDataSndReq(int chanId, int req) {
     SNDTAP *sndtap_pp = &sndtap_menu[req];
 
-    TapCt(0xf0, chanId, sndtap_pp->volume);
-    TapCt(0xd0, chanId, sndtap_pp->prg + sndtap_pp->key * 256);
+    TapCt(TAPCT_TAPVOLUME, chanId, sndtap_pp->volume);
+    TapCt(TAPCT_TAPREQ,    chanId, sndtap_pp->prg + sndtap_pp->key * 256);
 }
 
 void MenuDataSndStop(int chanId) {
-    TapCt(0xe0, chanId, 0);
+    TapCt(TAPCT_TAPSTOP, chanId, TAPCT_NONE);
 }
 
 void MenuDataSndQuit(void) {
     int i;
 
     for (i = 0; i < 3; i++) {
-        TapCt(0x50 | i, 0, 0);
+        TapCt(TAPCT_CHANCLOSE | i, TAPCT_NONE, TAPCT_NONE);
     }
 }
 
 void MenuDataSndSetVol(int chanId, int req, int vol0) {
     SNDTAP *sndtap_pp = &sndtap_menu[req];
 
-    TapCt(0x130, chanId, sndtap_pp->volume * vol0 >> 8); /* Should be a division rather than a shift? */
+    TapCt(TAPCT_TAPVOLUMECHANGE, chanId, sndtap_pp->volume * vol0 >> 8); /* Should be a division rather than a shift? */
 }
 
 MENU_SPU_ENUM MenuDataSndTrans(int bdId, int hdId, MENU_SPU_ENUM trId) {
-    TapCt(0x8030 | trId, (int)GetIntAdrsCurrent(bdId), (int)GetIntSizeCurrent(bdId));
-    TapCt(0x8040 | trId, (int)GetIntAdrsCurrent(hdId), (int)GetIntSizeCurrent(hdId)); 
+    TapCt(TAPCT_BDSPUTRANS | trId, (int)GetIntAdrsCurrent(bdId), (int)GetIntSizeCurrent(bdId));
+    TapCt(TAPCT_HDIOPTRANS | trId, (int)GetIntAdrsCurrent(hdId), (int)GetIntSizeCurrent(hdId)); 
     return trId;
 }
 
 int MenuDataSndTransCheck(void) {
-    return TapCt(0x8070, 0, 0);
+    return TapCt(TAPCT_TRANSCHECK, TAPCT_NONE, TAPCT_NONE);
 }
 
 void MenuDataSndReqChan(int chanId, int req, MENU_SPU_ENUM trId) {
     SNDTAP *sndtap_pp = &sndtap_menu[req];
 
-    TapCt(0xf0 | trId, chanId, sndtap_pp->volume);
-    TapCt(0xd0 | trId, chanId, sndtap_pp->prg + sndtap_pp->key * 256);
+    TapCt(TAPCT_TAPVOLUME | trId, chanId, sndtap_pp->volume);
+    TapCt(TAPCT_TAPREQ    | trId, chanId, sndtap_pp->prg + sndtap_pp->key * 256);
 }
 
 void MenuDataSpuVolume(int vol) {
@@ -1097,7 +1097,7 @@ void MenuDataSpuVolume(int vol) {
         vol = 0x3fff;
     }
 
-    TapCt(0x90, PR_CONCAT(vol, vol), 0);
+    TapCt(TAPCT_SETMASTERVOL, PR_CONCAT(vol, vol), TAPCT_NONE);
 }
 
 void MenuDataDiskVolume(u_int vol) {
@@ -1175,8 +1175,8 @@ void MenuVoicePlayVol(int chanId, int vsetIdx, int vol0) {
     }
 
     sndtap_pp = VoiceSet[vsetIdx].pTap;
-    TapCt(0xf0 | trId, chanId, (sndtap_pp->volume * vol0) >> 0x8);
-    TapCt(0xd0 | trId, chanId, sndtap_pp->prg + (sndtap_pp->key * 256));
+    TapCt(TAPCT_TAPVOLUME | trId, chanId, (sndtap_pp->volume * vol0) >> 8);
+    TapCt(TAPCT_TAPREQ    | trId, chanId, sndtap_pp->prg + (sndtap_pp->key * 256));
 }
 
 void MenuVoicePlay(int chanId, int vsetIdx) {
@@ -1184,12 +1184,12 @@ void MenuVoicePlay(int chanId, int vsetIdx) {
 }
 
 void MenuVoiceStop(int chanId) {
-    TapCt(0xe0, chanId, 0);
+    TapCt(TAPCT_TAPSTOP, chanId, TAPCT_NONE);
 }
 
 void MenuVoiceSetVol(int chanId, int vsetIdx, int vol0) {
     SNDTAP *sndtap_pp = VoiceSet[vsetIdx].pTap;
-    TapCt(0x130, chanId, (sndtap_pp->volume * vol0) >> 8);
+    TapCt(TAPCT_TAPVOLUMECHANGE, chanId, (sndtap_pp->volume * vol0) >> 8);
 }
 
 void MenuMsgInit(void) {

@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+#include "iop_mdl/tapctrl/tapctrl.h"
+
 int TapCtInit(void);
 int TapCt(int command, int data1, int data2);
 

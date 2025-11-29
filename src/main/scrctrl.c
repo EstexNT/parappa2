@@ -204,18 +204,18 @@ void ScrTapCtrlInit(void *data_top) {
 
 void ScrTapDataTrans(SNDREC *sndrec_pp, int bank, void *data_top) {
     if (sndrec_pp->bd_num >= 0) {
-        TapCt(0x8030 | bank, (int)GetIntAdrsCurrent(sndrec_pp->bd_num), GetIntSizeCurrent(sndrec_pp->bd_num));
-        TapCt(0x8040 | bank, (int)GetIntAdrsCurrent(sndrec_pp->hd_num), GetIntSizeCurrent(sndrec_pp->hd_num));
+        TapCt(TAPCT_BDSPUTRANS | bank, (int)GetIntAdrsCurrent(sndrec_pp->bd_num), GetIntSizeCurrent(sndrec_pp->bd_num));
+        TapCt(TAPCT_HDIOPTRANS | bank, (int)GetIntAdrsCurrent(sndrec_pp->hd_num), GetIntSizeCurrent(sndrec_pp->hd_num));
     }
 
     scr_sndtap_pp[bank] = sndrec_pp->sndtap_pp;
 
-    TapCt(0x90, PR_CONCAT(0x3fff, 0x3fff), 0);
-    TapCt(0xa0, PR_CONCAT(0x3fff, 0x3fff), 0);
+    TapCt(TAPCT_SETMASTERVOL, PR_CONCAT(0x3fff, 0x3fff), TAPCT_NONE);
+    TapCt(TAPCT_SETVOLUME,    PR_CONCAT(0x3fff, 0x3fff), TAPCT_NONE);
 }
 
 int ScrTapDataTransCheck(void) {
-    return TapCt(0x8070, 0, 0);
+    return TapCt(TAPCT_TRANSCHECK, TAPCT_NONE, TAPCT_NONE);
 }
 
 void ScrTapReq(int id, int box, int num) {
@@ -230,12 +230,12 @@ void ScrTapReq(int id, int box, int num) {
 
     tp_pp = scr_sndtap_pp[use_chan] + num;
 
-    TapCt(0xf0 | use_chan, box, tp_pp->volume);
-    TapCt(0xd0 | use_chan, box, tp_pp->prg + tp_pp->key * 256);
+    TapCt(TAPCT_TAPVOLUME | use_chan, box, tp_pp->volume);
+    TapCt(TAPCT_TAPREQ    | use_chan, box, tp_pp->prg + tp_pp->key * 256);
 }
 
 void ScrTapReqStop(int box) {
-    TapCt(0xe0, box, 0);
+    TapCt(TAPCT_TAPSTOP, box, TAPCT_NONE);
 }
 
 static void exam_tbl_updownInit(SCORE_INDV_STR *sindv_pp) {
@@ -1193,7 +1193,7 @@ void useIndevSndKill(void) {
 
     for (i = 0; i < PR_ARRAYSIZE(score_indv_str); i++, sindv_pp++) {
         if (sindv_pp->status & SCS_USE) {
-            TapCt(0xe0, i, 0);
+            TapCt(TAPCT_TAPSTOP, i, TAPCT_NONE);
         }
     }
 }
@@ -1202,7 +1202,7 @@ void useAllClearKeySnd(void) {
     int i;
 
     for (i = 0; i < 12; i++) {
-        TapCt(0xe0, i, 0);
+        TapCt(TAPCT_TAPSTOP, i, TAPCT_NONE);
     }
 }
 
@@ -1213,7 +1213,7 @@ int useIndevSndKillOther(int num) {
     for (i = 0; i < PR_ARRAYSIZE(score_indv_str); i++, sindv_pp++) {
         if (i != num) {
             if (sindv_pp->status & SCS_USE) {
-                TapCt(0xe0, i, 0);
+                TapCt(TAPCT_TAPSTOP, i, TAPCT_NONE);
             }
         }
     }
@@ -2532,7 +2532,7 @@ void subjobEvent(SCORE_INDV_STR *sindv_pp, int ctime_next) {
         case SCRSUBJ_TAP_RESET:
             break;
         case SCRSUBJ_EFFECT:
-            TapCt(0xb0, sindv_pp->sjob_data[j][0], sindv_pp->sjob_data[j][1]);
+            TapCt(TAPCT_SETEFFECTMODE, sindv_pp->sjob_data[j][0], sindv_pp->sjob_data[j][1]);
             break;
         case SCRSUBJ_REVERS: {
             int drline = sindv_pp->retStartLine;
@@ -3014,7 +3014,7 @@ void ScrCtrlMainLoop(void *x) {
         bonusGameInit();
     }
 
-    while (TapCt(0x8070, 0, 0) != 0) {
+    while (TapCt(TAPCT_TRANSCHECK, TAPCT_NONE, TAPCT_NONE)) {
         MtcWait(1);
     }
 
@@ -3225,8 +3225,8 @@ void ScrCtrlInit(STDAT_DAT *sdat_pp, void *data_top) {
         ScrTapDataTrans(score_str.stdat_dat_pp->scr_pp->sndrec_pp, 0, score_str.int_top);
     }
 
-    TapCt(0xb0, 0, 0x1fff);
-    TapCt(0x80, PR_CONCAT(0x3fff, 0x3fff), 0);
+    TapCt(TAPCT_SETEFFECTMODE, SD_REV_MODE_OFF, 0x1fff);
+    TapCt(TAPCT_SETEFFECTVOL,  PR_CONCAT(0x3fff, 0x3fff), TAPCT_NONE);
 
     for (i = 0; i < PR_ARRAYSIZE(score_str.stdat_dat_pp->sndfile); i++) {
         if (score_str.stdat_dat_pp->sndfile[i].fname != NULL) {
@@ -3302,7 +3302,7 @@ void ScrCtrlInit(STDAT_DAT *sdat_pp, void *data_top) {
 
 void ScrCtrlQuit(void) {
     useAllClearKeySnd();
-    TapCt(0x120, 0, 0);
+    TapCt(TAPCT_TRANSCLEAR, TAPCT_NONE, TAPCT_NONE);
 
     MtcKill(MTC_TASK_SCORECTRL);
 }

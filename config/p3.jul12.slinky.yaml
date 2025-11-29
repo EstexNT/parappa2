@@ -288,7 +288,7 @@ segments:
       - { path: src/main/etc.c.o }
       - { path: src/main/wipe.c.o }
       - { path: src/main/mcctrl.c.o }
-      - { path: asm/data/main/main.data.s.o }
+      - { path: src/main/main.c.o }
       - { path: src/main/cmnfile.c.o }
       - { path: src/main/p3str.c.o }
       - { path: src/main/commake.c.o }
@@ -747,9 +747,8 @@ segments:
       - { path: src/main/pack.c.o }
       - { path: src/main/etc.c.o }
       - { path: asm/data/main/wipe.sdata.s.o }
-      #- { path: src/main/wipe.c.o }
       - { path: src/main/mcctrl.c.o }
-      - { path: asm/data/main/main.sdata.s.o }
+      - { path: src/main/main.c.o }
       - { path: src/main/cmnfile.c.o }
       - { path: src/main/p3str.c.o }
       - { path: src/main/commake.c.o }
@@ -973,7 +972,7 @@ segments:
       - { path: src/main/etc.c.o }
       - { path: src/main/wipe.c.o }
       - { path: src/main/mcctrl.c.o }
-      - { path: asm/data/main/main.bss.s.o }
+      - { path: src/main/main.c.o }
       - { path: src/main/cmnfile.c.o }
       - { path: asm/data/main/p3str.bss.s.o }
       - { path: asm/data/main/commake.bss.s.o }
