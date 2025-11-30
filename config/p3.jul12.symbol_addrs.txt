@@ -2145,6 +2145,9 @@ PrInitializeAlphaModulation__Fv                                                 
 PrCreateAlphaModulation__Ff                                                         = 0x00150f88; // type:func
 PrBlendNoodleImage__Fb                                                              = 0x001510d8; // type:func
 
+mendererDeltaRotation                                                               = 0x01c83bd0; // type:f32 size:0x1c
+alphaWeight                                                                         = 0x01c83bf0; // type:f32 size:0x1c
+
 // prlib/mendererdata.cpp
 SetNextTarget__FP20PrNoodlePositionData                                             = 0x00151270; // type:func
 InitializeNoodlePositionData__Fv                                                    = 0x00151490; // type:func

@@ -240,7 +240,7 @@ int MODE_TR_P(int mode, int ws, int hs) {
         rsize *= 3;
     }
     if (mode == 3) {
-        rsize <<= 2;
+        rsize *= 4;
     }
     if (mode == 4) {
         rsize /= 2;

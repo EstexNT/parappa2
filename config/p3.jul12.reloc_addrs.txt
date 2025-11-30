@@ -161,6 +161,12 @@ rom:0x28C718 symbol:none reloc:MIPS_NONE
 // prlib/menderer.cpp: initRenderStripDmaPacket
 rom:0x28C7C4 symbol:none reloc:MIPS_NONE
 
+// prlib/mendereralpha.cpp: PrInitializeAlphaModulation
+rom:0x50D8C symbol:alphaWeight reloc:MIPS_HI16
+rom:0x50D94 symbol:mendererDeltaRotation reloc:MIPS_HI16
+rom:0x50E74 symbol:mendererDeltaRotation reloc:MIPS_LO16
+rom:0x50E30 symbol:alphaWeight reloc:MIPS_LO16
+
 // prlib/mendereralpha.cpp: mendererDrawCopyData
 rom:0x28CD00 symbol:none reloc:MIPS_NONE
 rom:0x28CD50 symbol:none reloc:MIPS_NONE
