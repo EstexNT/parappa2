@@ -398,8 +398,13 @@ Now that we matched our function, we can move on to the next!.
 
 If you need some help with a function or you just want to decomp from the browser (the site does have a very nice-looking diffing view), you'll want to make a decomp(dot)me scratch:
 
-1. Go to the `dump/disasm` folder and find the function you want to decompile on the `{NAME}.text.s` file.
-    - If necessary, grab the required data from `.rodata` (e.g. strings or jumptables) in order to have a working m2c decompilation.
+1. Obtain the disassembly:
+    - It is recommendable that you produce a disassembly with line info to make the decompilation process easier, using the following command as an example:
+        - `./tools/add_lines_to_asm.py --asm-path asm/nonmatchings/main/scrctrl/exh_nombar_sub.s --stdump-json-path dump/sym/p3.json --asm-out dump/out.asm --offset 10`
+        - It is also recommended to keep the offset at 10 or close values.
+    - Second way (no line numbers):
+        - Go to the `dump/disasm` folder and find the function you want to decompile on the `{NAME}.text.s` file.
+        - If necessary, grab the required data from `.rodata` (e.g. strings or jumptables) in order to have a working m2c decompilation.
 2. Go to the decomp.me website and make a [new scratch](https://decomp.me/new), using the `PaRappa the Rapper 2` preset.
     - Use the `PaRappa the Rapper 2 (C++)` preset if the function comes from [prlib](../src/prlib) (C++ library).
 3. Paste the disassembly into the 'Target assembly' box.

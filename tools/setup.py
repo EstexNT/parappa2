@@ -52,11 +52,12 @@ def dump_symbols():
     # todo: do the same for the IRX files?
     p3_p = "iso/SCPS_150.17"
     commands = [
-        [stdump_p, "functions", "--demangle-parameters", "--demangle-return-type", "-o", f"{symdump_p}/p3_functions.cpp", p3_p],
+        [stdump_p, "functions", "--demangle-parameters", "-o", f"{symdump_p}/p3_functions.cpp", p3_p],
         [stdump_p, "globals", "-o", f"{symdump_p}/p3_globals.cpp", p3_p],
         [stdump_p, "types", "-o", f"{symdump_p}/p3_types.cpp", p3_p],
         [stdump_p, "files", "-o", f"{symdump_p}/p3_files.cpp", p3_p],
-        [stdump_p, "includes", "-o", f"{symdump_p}/p3_includes.cpp", p3_p]
+        [stdump_p, "includes", "-o", f"{symdump_p}/p3_includes.cpp", p3_p],
+        [stdump_p, "json", "-o", f"{symdump_p}/p3.json", p3_p],
     ]
 
     for cmd in commands:
