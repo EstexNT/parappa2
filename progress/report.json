@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 53.387363,
+    "fuzzy_match_percent": 53.688866,
     "total_code": "342284",
-    "matched_code": "178900",
-    "matched_code_percent": 52.266537,
+    "matched_code": "179932",
+    "matched_code_percent": 52.568043,
     "total_data": "26083368",
     "matched_data": "26033192",
     "matched_data_percent": 99.80763,
     "total_functions": 1429,
-    "matched_functions": 1034,
-    "matched_functions_percent": 72.35829,
+    "matched_functions": 1038,
+    "matched_functions_percent": 72.63821,
     "total_units": 70
   },
   "units": [
@@ -1792,14 +1792,14 @@
     {
       "name": "main/scrctrl",
       "measures": {
-        "fuzzy_match_percent": 69.41604,
+        "fuzzy_match_percent": 72.56468,
         "total_code": "32776",
-        "matched_code": "22208",
-        "matched_code_percent": 67.7569,
+        "matched_code": "23240",
+        "matched_code_percent": 70.90554,
         "total_data": "1468",
         "total_functions": 128,
-        "matched_functions": 112,
-        "matched_functions_percent": 87.5,
+        "matched_functions": 116,
+        "matched_functions_percent": 90.625,
         "total_units": 1
       },
       "sections": [
@@ -1826,7 +1826,7 @@
         {
           "name": ".text",
           "size": "33024",
-          "fuzzy_match_percent": 69.41604,
+          "fuzzy_match_percent": 72.56468,
           "metadata": {}
         }
       ],
@@ -2285,6 +2285,7 @@
         {
           "name": "exh_nombar_sub",
           "size": "256",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "12672"
         },
@@ -2360,12 +2361,14 @@
         {
           "name": "manemane_check_sub",
           "size": "256",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "14472"
         },
         {
           "name": "manemane_check",
           "size": "272",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "14728"
         },
@@ -2488,6 +2491,7 @@
         {
           "name": "SetIndvDrawTblLine",
           "size": "248",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "25784"
         },
@@ -13265,16 +13269,16 @@
     {
       "id": "main",
       "measures": {
-        "fuzzy_match_percent": 79.56916,
+        "fuzzy_match_percent": 80.40118,
         "total_code": "124036",
-        "matched_code": "97204",
-        "matched_code_percent": 78.36758,
+        "matched_code": "98236",
+        "matched_code_percent": 79.199585,
         "total_data": "66684",
         "matched_data": "56316",
         "matched_data_percent": 84.45204,
         "total_functions": 570,
-        "matched_functions": 524,
-        "matched_functions_percent": 91.929825,
+        "matched_functions": 528,
+        "matched_functions_percent": 92.63158,
         "total_units": 17
       }
     },

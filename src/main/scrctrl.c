@@ -21,6 +21,7 @@
 #include <libpad.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 /* sdata 399438 */ extern int titleStartKey; /* static */
 /* sdata 39943c */ extern int fadeoutStartKey; /* static */
@@ -79,11 +80,11 @@ static int  MapNormalNumGet(int time);
 static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth);
 /* static */ int  exh_normal_add(EXAM_CHECK *ec_pp);
 /* static */ int  exh_normal_sub(EXAM_CHECK *ec_pp);
-static int  exh_nombar_sub(EXAM_CHECK *ec_pp);
+/* static */ int  exh_nombar_sub(EXAM_CHECK *ec_pp);
 /* static */ int  exh_mbar_key_out(EXAM_CHECK *ec_pp);
 /* static */ int  exh_mbar_time_out(EXAM_CHECK *ec_pp);
 /* static */ int  exh_mbar_num_out(EXAM_CHECK *ec_pp);
-static int  exh_yaku(EXAM_CHECK *ec_pp, int hane_flag);
+/* static */ int  exh_yaku(EXAM_CHECK *ec_pp, int hane_flag);
 /* static */ int  exh_yaku_original(EXAM_CHECK *ec_pp);
 /* static */ int  exh_yaku_hane(EXAM_CHECK *ec_pp);
 /* static */ int  exh_allkey_out(EXAM_CHECK *ec_pp);
@@ -91,7 +92,7 @@ static int  exh_yaku(EXAM_CHECK *ec_pp, int hane_flag);
 /* static */ int  exh_command(EXAM_CHECK *ec_pp);
 /* static */ int  exh_renda_out(EXAM_CHECK *ec_pp);
 static int  manemane_check_sub(EXAM_CHECK *ec_pp);
-static int  manemane_check(EXAM_CHECK *ec_pp);
+/* static */ int  manemane_check(EXAM_CHECK *ec_pp);
 /* static */ int  exh_mane(EXAM_CHECK *ec_pp);
 /* static */ int  exh_all_add(EXAM_CHECK *ec_pp);
 static TAPSET* IndvGetTapSetAdrs(SCORE_INDV_STR *sindv_pp);
@@ -1429,39 +1430,43 @@ INCLUDE_ASM("asm/nonmatchings/main/scrctrl", on_th_make);
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", exh_nombar_sub);
-#if 0
-static int exh_nombar_sub(/* s2 18 */ EXAM_CHECK *ec_pp)
-{
-    /* s1 17 */ int i;
-    /* s0 16 */ int ret = 0;
-    /* a0 4 */  int bai;
+/* static */ int exh_nombar_sub(EXAM_CHECK *ec_pp) {
+    int i;
+    int ret;
+    int bai, otehon;
 
-    for (i = 0; i < ec_pp->ted_num; i++)
-    {
-        if ((GetIndex2KeyCode(ec_pp->ted[i].key) & ec_pp->otehon_all) == 0)
-            ret--;
+    ret = 0;
+
+    for (i = 0; i < ec_pp->ted_num; i++) {
+        int keycode = GetIndex2KeyCode(ec_pp->ted[i].key);
+        if ((keycode & ec_pp->otehon_all) == 0) {
+            ret -= 1;
+        }
     }
 
-    bai = 0;
+    bai    = 0;
+    otehon = ec_pp->otehon_all;
 
-    for (i = 0; i < 4U; i++)
-    {
-        bai += (ec_pp->otehon_all >> i) & 1;
+    for (i = 0; i < 4u; i++) {
+        bai += (otehon >> i) & 1;
     }
 
-    if (bai == 1)
+    if (bai == 1) {
         ret *= 3;
-    if (bai == 2)
+    }
+    if (bai == 2) {
         ret *= 2;
-    if (bai == 5)
+    }
+
+    if (bai == 5) {
         ret /= 2;
-    if (bai == 6)
+    }
+    if (bai == 6) {
         ret /= 2;
+    }
 
     return ret;
 }
-#endif
 
 /* static */ int exh_mbar_key_out(EXAM_CHECK *ec_pp) {
     int ret;
@@ -1566,9 +1571,55 @@ INCLUDE_ASM("asm/nonmatchings/main/scrctrl", exh_yaku);
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", manemane_check_sub);
+static int manemane_check_sub(EXAM_CHECK *ec_pp) {
+    int mane_cnt;
+    int i, j;
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", manemane_check);
+    mane_cnt = 0;
+
+    for (i = 0; i < ec_pp->oth_num; i++) {
+        for (j = 0; j < ec_pp->ted_num; j++) {
+            if (global_data.play_typeL == PLAY_TYPE_ONE) {
+                if (ec_pp->oth[i].th_num == ec_pp->ted[j].th_num) {
+                    mane_cnt++;
+                }
+            } else {
+                if (ec_pp->oth[i].th_num == ec_pp->ted[j].th_num) {
+                    if (ec_pp->oth[i].key == ec_pp->ted[j].key) {
+                        mane_cnt++;
+                    }
+                }
+            }
+        }
+    }
+
+    return (mane_cnt * 2) - ec_pp->ted_num;
+}
+
+/* static */ int manemane_check(EXAM_CHECK *ec_pp) {
+    int mane_cnt;
+    int i, j;
+
+    mane_cnt = 0;
+
+    for (i = 0; i < ec_pp->oth_num; i++) {
+        for (j = 0; j < ec_pp->ted_num; j++) {
+            if (global_data.play_typeL == PLAY_TYPE_ONE) {
+                if (ec_pp->oth[i].th_num == ec_pp->ted[j].th_num) {
+                    mane_cnt++;
+                }
+            } else {
+                if (ec_pp->oth[i].th_num == ec_pp->ted[j].th_num) {
+                    if (ec_pp->oth[i].key == ec_pp->ted[j].key) {
+                        mane_cnt++;
+                    }
+                }
+            }
+        }
+    }
+
+    return (mane_cnt * 2) - ec_pp->ted_num - abs(ec_pp->oth_num - ec_pp->ted_num);
+}
 
 /* static */ int exh_mane(EXAM_CHECK *ec_pp) {
     int normal_point;
@@ -2920,39 +2971,45 @@ void allTimeCallbackTimeSetChanTempo(int time) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", SetIndvDrawTblLine);
-#if 0
-int SetIndvDrawTblLine(/* s0 16 */ SCORE_INDV_STR *sindv_pp)
-{
-    /* a1 5 */ TAPSET *tapset_pp;
-    /* a2 6 */ int ctime;
+int SetIndvDrawTblLine(SCORE_INDV_STR *sindv_pp) {
+    TAPSET *tapset_pp;
+    int     ctime;
 
-    if ((sindv_pp->status & SCS_USE) && (sindv_pp->status & 158))
-    {
-        {
-            if (sindv_pp->top_scr_ctrlpp[sindv_pp->useLine].gtime_type != GTIME_VSYNC)
-            {
-                tapset_pp = IndvGetTapSetAdrs(sindv_pp);
-                ctime     = sindv_pp->top_scr_ctrlpp[sindv_pp->useLine].lineTime;
+    if (!(sindv_pp->status & SCS_USE)) {
+        return 0;
+    }
 
-                if (tapset_pp != NULL)
-                {
-                    if (global_data.play_step != PSTEP_VS)
-                    {
-                        if (ctime < sindv_pp->current_time + tapset_pp->taptimeStart)
-                            return 0;
-                    }
+    if (sindv_pp->status & SCS_END ||
+        sindv_pp->status & SCS_END_REQ ||
+        sindv_pp->status & SCS_KILL_REQ ||
+        sindv_pp->status & SCS_WAIT ||
+        sindv_pp->status & SCS_PAUSE) {
+        return 0;
+    }
 
-                    if (ctime < sindv_pp->current_time + tapset_pp->taptimeEnd)
-                        currentTblNumber = sindv_pp->scrdat_pp->drawofs[global_data.tapLevel];
-                }
-            }
+    if (sindv_pp->top_scr_ctrlpp[sindv_pp->useLine].gtime_type == GTIME_VSYNC) {
+        return 0;
+    }
+
+    tapset_pp = IndvGetTapSetAdrs(sindv_pp);
+    ctime     = sindv_pp->top_scr_ctrlpp[sindv_pp->useLine].lineTime;
+    if (tapset_pp == NULL) {
+        return 0;
+    }
+
+    if (global_data.play_step == PSTEP_VS) {
+        if (ctime >= (sindv_pp->current_time + tapset_pp->taptimeEnd)) {
+            return 0;
+        }
+    } else {
+        if (ctime < (sindv_pp->current_time + tapset_pp->taptimeStart) || ctime >= (sindv_pp->current_time + tapset_pp->taptimeEnd)) {
+            return 0;
         }
     }
 
+    currentTblNumber = sindv_pp->scrdat_pp->drawofs[global_data.tapLevel];
     return 0;
 }
-#endif
 
 static int otehonSetCheck(void) {
     SCORE_INDV_STR *sindv_pp;
