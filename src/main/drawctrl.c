@@ -23,6 +23,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* sdata 399518 */ extern VCLR_PARA vclr_black_tmp; /* static */
 /* data 185478 */ extern float bra_tap[10/*undef*/][2]; /* static */
@@ -1471,7 +1472,65 @@ void DrawObjStrTapTimeNext(SCENE_OBJDATA *sod_pp) {
 
 INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawObjTapCtrl);
 
-INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawSceneObjData);
+extern const char D_00399520[]; /* .sdata - "nome_" */
+
+int DrawSceneObjData(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
+    int            i;
+    SCENE_OBJDATA *scn_pp = (SCENE_OBJDATA*)para_pp;
+
+    if (first_f == -2) {
+        DrawSceneInit(&DBufDc.draw01, scn_pp, useDisp);
+        return 0;
+    }
+
+    if (first_f == -1) {
+        DrawSceneReset(scn_pp);
+        return 0;
+    }
+
+    if (first_f == 0) {
+        DrawSceneFirstSet(scn_pp);
+
+        for (i = 0; i < scn_pp->objstr_size; i++) {
+            DrawObjStrInit(&scn_pp->objstr_pp[i]);
+        }
+
+        for (i = 0; i < scn_pp->tapstr_size; i++) {
+            DrawObjStrInit(&scn_pp->tapstr_pp[i]);
+        }
+
+        DrawObjStrReq(scn_pp, 0, 0);
+
+        for (i = 0; i < scn_pp->objtapstr_size; i++) {
+            DrawObjTapStrInit(&scn_pp->objtapstr_pp[i]);
+        }
+    }
+
+    PrSetSceneEnv(scn_pp->handle, DrawGetDrawEnvP(drDisp));
+
+    for (i = 0; i < scn_pp->objstr_size; i++) {
+        DrawObjStrDisp(scn_pp, i, frame, FALSE);
+    }
+
+    DrawObjTapCtrl(scn_pp, dr_tap_req, dr_tap_req_num);
+    DrawObjPrReq(scn_pp);
+
+    PrPreprocessSceneModel(scn_pp->handle);
+
+    /* Disable menderer if scene is named "nome_" */
+    if (strncmp(scn_pp->usrName, D_00399520, 5) != 0) {
+        PrRender(scn_pp->handle);
+        PrWaitRender();
+    } else {
+        float men_tmp = PrGetMendererRatio();
+        PrSetMendererRatio(0.0f);
+        PrRender(scn_pp->handle);
+        PrWaitRender();
+        PrSetMendererRatio(men_tmp);
+    }
+
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawDoubleDispIn);
 
@@ -1657,7 +1716,69 @@ void MendererCtrlTitleDera(void) {
 
 INCLUDE_RODATA("asm/nonmatchings/main/drawctrl", D_00393300);
 
+#ifndef NON_MATCHING
 INCLUDE_ASM("asm/nonmatchings/main/drawctrl", MendererCtrl);
+#else /* Requires .lit4 migration */
+static void MendererCtrl(void) {
+    float Mmax = 0.0f;
+    float Mmin = 0.0f;
+
+    switch (men_ctrl_enum) {
+    case MEN_CTRL_BtoG:
+        men_ctrl_ratio -= 0.0083333338f;
+        Mmax = 1.0f, Mmin = 0.0f;
+        PrSetMendererDirection(FALSE);
+        break;
+    case MEN_CTRL_AtoAB:
+        men_ctrl_ratio -= 0.0083333338f;
+        Mmax = 2.0f, Mmin = 1.5f;
+        PrSetMendererDirection(FALSE);
+        break;
+    case MEN_CTRL_ABtoB:
+        men_ctrl_ratio -= 0.0083333338f;
+        Mmax = 1.5f, Mmin = 1.0f;
+        PrSetMendererDirection(FALSE);
+        break;
+    case MEN_CTRL_AtoB:
+        men_ctrl_ratio -= 0.0083333338f;
+        Mmax = 2.0f, Mmin = 1.0f;
+        PrSetMendererDirection(FALSE);
+        break;
+    case MEN_CTRL_GtoB:
+        men_ctrl_ratio += 0.0083333338f;
+        Mmax = 1.0f, Mmin = 0.0f;
+        PrSetMendererDirection(TRUE);
+        break;
+    case MEN_CTRL_BtoBA:
+        men_ctrl_ratio += 0.0083333338f;
+        Mmax = 1.5f, Mmin = 1.0f;
+        PrSetMendererDirection(TRUE);
+        break;
+    case MEN_CTRL_BAtoA:
+        men_ctrl_ratio += 0.0083333338f;
+        Mmax = 2.0f, Mmin = 1.5f;
+        PrSetMendererDirection(TRUE);
+        break;
+    case MEN_CTRL_BtoA:
+        men_ctrl_ratio += 0.0083333338f;
+        Mmax = 2.0f, Mmin = 1.0f;
+        PrSetMendererDirection(TRUE);
+        break;
+    }
+
+    if (men_ctrl_ratio > Mmax) {
+        men_ctrl_ratio = Mmax;
+    }
+    if (men_ctrl_ratio < Mmin) {
+        men_ctrl_ratio = Mmin;
+    }
+
+    if (men_ctrl_ratio != 0.0f) {
+        PrSetMendererRatio(men_ctrl_ratio);
+        PrRenderMenderer();
+    }
+}
+#endif
 
 static float mendRatioTitleGet(int frame, int dera_f) {
     int           i;

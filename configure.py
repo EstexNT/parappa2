@@ -538,6 +538,15 @@ def build_objdiff_objects():
             f"python3 tools/buildtools/elf_patcher.py {target_path} gas"
         )
 
+        # Keep until splat #504 is merged
+        asm_text = asm_path.read_text()
+        asm_text = re.sub(r" ACC,", " $ACC,", asm_text)
+        asm_text = re.sub(r" Q, ", " $Q, ", asm_text)
+        asm_text = re.sub(r", Q\n", ", $Q\n", asm_text)
+        asm_text = re.sub(r" R, ", " $R, ", asm_text)
+        asm_text = re.sub(r", R\n", ", $R\n", asm_text)
+        asm_path.write_text(asm_text)
+
         target_path.parent.mkdir(parents=True, exist_ok=True)
 
         subprocess.run(command, shell=True)

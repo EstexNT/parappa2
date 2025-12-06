@@ -2478,6 +2478,9 @@ strcpy                              = 0x00171aa0; // type:func
 // sce/ee/gcc/src/newlib/libc/machine/r5900/strlen.S
 strlen                              = 0x00171bb4; // type:func
 
+// sce/ee/gcc/src/newlib/libc/machine/r5900/strncmp.S
+strncmp                             = 0x00171cf0; // type:func
+
 // -- Temporary symbols --
 D_003938F8                          = 0x003938f8; // type:s32
 

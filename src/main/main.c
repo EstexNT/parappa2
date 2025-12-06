@@ -1298,8 +1298,8 @@ int urawazaKeyCheck(void) {
             int rx = pad_pp->ana[PAD_ANA_RX] - 128;
             int ry = pad_pp->ana[PAD_ANA_RY] - 128;
             pos = atan2(-rx, ry);
-            pos = (pos + 3.1415927f);
-            pos = (pos * 17.0f) / 6.2831855f;
+            pos = (pos + PR_PI);
+            pos = (pos * 17.0f) / (PR_PI*2);
             ud_d = pos;
         } else {
             ud_d = randMakeMax(17);
@@ -1412,7 +1412,7 @@ void mainStart(void *xx) {
             retTitle = MenuCtrl(&menu_str);
 
             /*
-             * Cheat code: L1 + R1
+             * Cheat code: L1 + L2
              *
              * Skip cutscenes + Boxy Boy practice.
              */
@@ -1424,7 +1424,7 @@ void mainStart(void *xx) {
             }
 
             /*
-             * Cheat code: L2 + R2
+             * Cheat code: R1 + R2
              *
              * Enable 'shuriken' mode.
              */
@@ -1445,9 +1445,7 @@ void mainStart(void *xx) {
              *    - 'Shuriken' mode is disabled.
              *    - Max round/circuit (Yellow hat).
              *    - Current stage is not a demo.
-             *
-             *    (TODO): Document:
-             *      - game_status.play_table_modeG != PLAY_TABLE_EASY
+             *    - Not in easy mode.
              */
             if (game_status.play_modeG == PLAY_MODE_SINGLE &&
                 game_status.play_typeG == PLAY_TYPE_NORMAL &&

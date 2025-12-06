@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 53.688866,
+    "fuzzy_match_percent": 54.395763,
     "total_code": "342284",
-    "matched_code": "179932",
-    "matched_code_percent": 52.568043,
-    "total_data": "26083368",
+    "matched_code": "180628",
+    "matched_code_percent": 52.771385,
+    "total_data": "26083376",
     "matched_data": "26033192",
-    "matched_data_percent": 99.80763,
+    "matched_data_percent": 99.8076,
     "total_functions": 1429,
-    "matched_functions": 1038,
-    "matched_functions_percent": 72.63821,
+    "matched_functions": 1040,
+    "matched_functions_percent": 72.77817,
     "total_units": 70
   },
   "units": [
@@ -3127,14 +3127,14 @@
     {
       "name": "main/drawctrl",
       "measures": {
-        "fuzzy_match_percent": 65.1541,
+        "fuzzy_match_percent": 67.41521,
         "total_code": "25828",
-        "matched_code": "16828",
-        "matched_code_percent": 65.15409,
+        "matched_code": "17412",
+        "matched_code_percent": 67.41521,
         "total_data": "752",
         "total_functions": 98,
-        "matched_functions": 86,
-        "matched_functions_percent": 87.755104,
+        "matched_functions": 87,
+        "matched_functions_percent": 88.77551,
         "total_units": 1
       },
       "sections": [
@@ -3156,7 +3156,7 @@
         {
           "name": ".text",
           "size": "25992",
-          "fuzzy_match_percent": 65.1541,
+          "fuzzy_match_percent": 67.41521,
           "metadata": {}
         }
       ],
@@ -3497,6 +3497,7 @@
         {
           "name": "DrawSceneObjData",
           "size": "584",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "13808"
         },
@@ -3845,11 +3846,11 @@
     {
       "name": "main/effect",
       "measures": {
-        "fuzzy_match_percent": 69.36872,
+        "fuzzy_match_percent": 99.99283,
         "total_code": "5576",
-        "matched_code": "3868",
-        "matched_code_percent": 69.36873,
-        "total_data": "48",
+        "matched_code": "3852",
+        "matched_code_percent": 69.08178,
+        "total_data": "56",
         "total_functions": 14,
         "matched_functions": 12,
         "matched_functions_percent": 85.71429,
@@ -3867,6 +3868,11 @@
           "metadata": {}
         },
         {
+          "name": ".lit4",
+          "size": "8",
+          "metadata": {}
+        },
+        {
           "name": ".rodata",
           "size": "48",
           "metadata": {}
@@ -3874,7 +3880,7 @@
         {
           "name": ".text",
           "size": "5616",
-          "fuzzy_match_percent": 69.36872,
+          "fuzzy_match_percent": 99.99283,
           "metadata": {}
         }
       ],
@@ -3896,7 +3902,7 @@
         {
           "name": "UG_WaveDisp",
           "size": "756",
-          "fuzzy_match_percent": 100.0,
+          "fuzzy_match_percent": 99.97354,
           "metadata": {},
           "address": "176"
         },
@@ -3910,6 +3916,7 @@
         {
           "name": "UG_AlpDisp",
           "size": "740",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "1032"
         },
@@ -3958,6 +3965,7 @@
         {
           "name": "UG_NoodlesDisp",
           "size": "968",
+          "fuzzy_match_percent": 99.97934,
           "metadata": {},
           "address": "3816"
         },
@@ -3985,14 +3993,14 @@
     {
       "name": "main/mbar",
       "measures": {
-        "fuzzy_match_percent": 74.69971,
+        "fuzzy_match_percent": 75.550095,
         "total_code": "15052",
-        "matched_code": "11064",
-        "matched_code_percent": 73.50518,
+        "matched_code": "11192",
+        "matched_code_percent": 74.35557,
         "total_data": "228",
         "total_functions": 82,
-        "matched_functions": 73,
-        "matched_functions_percent": 89.02439,
+        "matched_functions": 74,
+        "matched_functions_percent": 90.2439,
         "total_units": 1
       },
       "sections": [
@@ -4019,7 +4027,7 @@
         {
           "name": ".text",
           "size": "15208",
-          "fuzzy_match_percent": 74.69971,
+          "fuzzy_match_percent": 75.550095,
           "metadata": {}
         }
       ],
@@ -4355,6 +4363,7 @@
         {
           "name": "MbarCl1CharSet",
           "size": "128",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "6896"
         },
@@ -13269,16 +13278,16 @@
     {
       "id": "main",
       "measures": {
-        "fuzzy_match_percent": 80.40118,
+        "fuzzy_match_percent": 82.3519,
         "total_code": "124036",
-        "matched_code": "98236",
-        "matched_code_percent": 79.199585,
-        "total_data": "66684",
+        "matched_code": "98932",
+        "matched_code_percent": 79.76071,
+        "total_data": "66692",
         "matched_data": "56316",
-        "matched_data_percent": 84.45204,
+        "matched_data_percent": 84.44191,
         "total_functions": 570,
-        "matched_functions": 528,
-        "matched_functions_percent": 92.63158,
+        "matched_functions": 530,
+        "matched_functions_percent": 92.98246,
         "total_units": 17
       }
     },
