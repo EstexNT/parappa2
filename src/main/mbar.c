@@ -847,23 +847,20 @@ void MbarSetCtrlTime(int mctime) {
     mbar_ctrl_time = mctime;
 }
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/mbar", MbarCl1CharSet);
-#else
-static void MbarCl1CharSet(/* a0 4 */ int col_num, /* a1 5 */ int moto_num) {
-    /* a0 4 */ MBA_CHAR_DATA *mbcd_col;
-    /* a1 5 */ MBA_CHAR_DATA *mbcd_mot;
-    /* v0 2 */ sceGsTex0 ColGsTex0;
+static void MbarCl1CharSet(int col_num, int moto_num) {
+    MBA_CHAR_DATA *mbcd_col = &mba_char_data[col_num];
+    MBA_CHAR_DATA *mbcd_mot = &mba_char_data[moto_num];
+    sceGsTex0      ColGsTex0;
+    sceGsTex0      MotGsTex0;
 
-    mbcd_col = &mba_char_data[col_num];
-    mbcd_mot = &mba_char_data[moto_num];
-    
     ColGsTex0 = *(sceGsTex0*)&mbcd_col->tim2_dat_pp->GsTex0;
+    MotGsTex0 = *(sceGsTex0*)&mbcd_mot->tim2_dat_pp->GsTex0;
+
     *mbcd_col->tim2_dat_pp = *mbcd_mot->tim2_dat_pp;
 
-    PR_TEX0(mbcd_col->tim2_dat_pp).CBP = ColGsTex0.CBP;
+    MotGsTex0.CBP = ColGsTex0.CBP;
+    mbcd_col->tim2_dat_pp->GsTex0 = *(u_long*)&MotGsTex0;
 }
-#endif
 
 static void MbarCharSetSub(void) {
     int i;
@@ -1372,10 +1369,10 @@ int MbarDispScene(void *para_pp, int frame, int first_f, int useDisp, int drDisp
     men_tmp = PrGetMendererRatio();
     PrSetMendererRatio(0.0f);
 
-    PR_SCOPE
+    PR_SCOPE()
     VCLR_PARA vclr_para = {};
     DrawVramClear(&vclr_para, 0, 0, DNUM_NON, DNUM_VRAM2);
-    PR_SCOPEEND
+    PR_SCOPEEND()
 
     ChangeDrawArea(DrawGetDrawEnvP(drDisp));
     MbarGifInit();
@@ -1442,10 +1439,10 @@ int MbarDispSceneDraw(void *para_pp, int frame, int first_f, int useDisp, int dr
     men_tmp = PrGetMendererRatio();
     PrSetMendererRatio(0.0f);
 
-    PR_SCOPE
+    PR_SCOPE()
     VCLR_PARA vclr_para = {};
     DrawVramClear(&vclr_para, 0, 0, DNUM_NON, DNUM_VRAM2);
-    PR_SCOPEEND
+    PR_SCOPEEND()
 
     ChangeDrawArea(DrawGetDrawEnvP(drDisp));
     MbarGifInit();
@@ -1494,7 +1491,7 @@ static void guidisp_init_pr(void) {
     int i;
 
     PrSetFrameRate(60.0f);
-    guime_hdl = PrInitializeScene(&DBufDc.draw01, "gui", 0xFFFFFFFF);
+    guime_hdl = PrInitializeScene(&DBufDc.draw01, "gui", -1);
     guime_camera_hdl = PrInitializeCamera(cmnfGetFileAdrs(72));
     PrSelectCamera(guime_camera_hdl, guime_hdl);
     PrAnimateSceneCamera(guime_hdl, 0.0f);
