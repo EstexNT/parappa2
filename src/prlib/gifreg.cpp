@@ -20,7 +20,7 @@ void PrDmaStripForSetGifRegister::Freeze(u_char id, const void* addr) {
     mTag.next = (sceDmaTag*)addr;
     mTag.p[0] = SCE_VIF1_SET_FLUSH(0);
     mTag.p[1] = SCE_VIF1_SET_DIRECT(mStripLen + 1, 0);
-    
+
     mGifTag.NLOOP = len;
     mGifTag.EOP = true;
     mGifTag.pad16 = 0;
@@ -53,7 +53,7 @@ void PrInitializeDmaStripGifRegister(sceGsZbuf zbuf) {
             break;
         case eGifRegisterMode_Unk0:
             zbuf.ZMSK = 0;
-        
+
             strip.Append(SCE_GS_TEST_1, SCE_GS_SET_TEST_1(1, 6, 0, 0, 0, 0, 1, 2));
             strip.Append(SCE_GS_ALPHA_1, SCE_GS_SET_ALPHA_1(0, 1, 0, 1, 128));
             strip.Append(SCE_GS_TEX1_1, SCE_GS_SET_TEX1_1(1, 0, 1, 1, 0, 0, 0));
@@ -62,7 +62,7 @@ void PrInitializeDmaStripGifRegister(sceGsZbuf zbuf) {
             break;
         case eGifRegisterMode_Unk1:
             zbuf.ZMSK = 1;
-    
+
             strip.Append(SCE_GS_ZBUF_1, *(u_long*)&zbuf);
             strip.Append(SCE_GS_ZBUF_2, *(u_long*)&zbuf);
             strip.Append(SCE_GS_ALPHA_1, SCE_GS_SET_ALPHA_1(0, 1, 0, 1, 128));

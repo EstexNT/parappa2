@@ -1418,7 +1418,7 @@ void Cl2MixTrans(int now_T, int max_T, u_char *cl2_0_pp, u_char *cl2_1_pp) {
         }
     }
 
-    PR_SCOPE
+    PR_SCOPE()
     u_short typemode[6] = {
         SCE_GS_PSMCT32, /* TIM2_NONE   */ /* No CLUT (ClutType only) */
         SCE_GS_PSMCT16, /* TIM2_RGB16  */
@@ -1433,7 +1433,7 @@ void Cl2MixTrans(int now_T, int max_T, u_char *cl2_0_pp, u_char *cl2_1_pp) {
 
     sceGsExecLoadImage(&l_image, (u_long128*)dat_pp);
     sceGsSyncPath(0, 0);
-    PR_SCOPEEND
+    PR_SCOPEEND()
 
     usrFree(dat_pp);
 }
@@ -1845,7 +1845,6 @@ int sceneConditionCheck(u_int cond_flag) {
     return (andor != 0);
 }
 
-
 static void DrawCtrlMain(void *x) {
     int        i, j, lsjkl;
     int        check_cnt;
@@ -1934,13 +1933,13 @@ static void DrawCtrlMain(void *x) {
                     PrSetMendererRatio(0.0f);
                 }
                 
-                scene_req_flag = 1;
+                scene_req_flag = TRUE;
                 DrawScenectrlReq(check_scenectrl[lsjkl], drawCurrentTime);
                 PrSetMendererRatio(men_tmp);
             } else {
                 if (!scene_req_flag) {
                     UsrPrSetScene();
-                    scene_req_flag = 1;
+                    scene_req_flag = TRUE;
                 }
 
                 DrawScenectrlReq(check_scenectrl[lsjkl], drawCurrentTime);
@@ -2311,13 +2310,13 @@ static void ddbg_event_sub_bmp(void) {
 
     VramTmpSave(dat1_pp, 640, 224, outbuf_idx ^ 1);
 
-    PR_SCOPE
+    PR_SCOPE()
     VCLR_PARA vclr_para = {};
         
     DrawVramClear(&vclr_para, 0, 0, DNUM_NON, DNUM_DRAW);
     DrawVramClear(&vclr_para, 0, 0, DNUM_NON, DNUM_VRAM2);
     DrawVramClear(&vclr_para, 0, 0, DNUM_NON, DNUM_ZBUFF);
-    PR_SCOPEEND
+    PR_SCOPEEND()
 
     sceGsSetHalfOffset(&DBufDc.draw11,  2048, 2048, 1);
     sceGsSetHalfOffset2(&DBufDc.draw12, 2048, 2048, 1);
@@ -2335,12 +2334,12 @@ static void ddbg_event_sub_bmp(void) {
 
     VramTmpSave(dat2_pp, 640, 224, outbuf_idx ^ 1);
 
-    PR_SCOPE
+    PR_SCOPE()
     char save_name[20];
 
     sprintf(save_name, "scr%04d.bmp", ddbg_bmp_frame);
     VramTmpSaveOutBMP(save_name, 640, 224, outbuf_idx ^ 1, dat1_pp, dat2_pp);
-    PR_SCOPEEND
+    PR_SCOPEEND()
 
     usrFree(dat2_pp);
     usrFree(dat1_pp);

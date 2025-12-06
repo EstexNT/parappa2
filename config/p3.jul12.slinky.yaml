@@ -630,7 +630,7 @@ segments:
       - { path: src/main/fadectrl.c.o }
       - { path: src/main/subt.c.o }
       - { path: asm/data/main/drawctrl.lit4.s.o }
-      - { path: asm/data/main/effect.lit4.s.o }
+      - { path: src/main/effect.c.o }
       - { path: src/main/mbar.c.o }
       - { path: src/main/pack.c.o }
       - { path: src/main/etc.c.o }

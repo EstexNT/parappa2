@@ -526,7 +526,7 @@ static void SpHatChangeSub(void) {
         hat_change_enum = HCNG_R4;
     }
 
-    PR_SCOPE
+    PR_SCOPE()
     int           rt2t_r1[3] = { 0xb6, 0xb7, 0xb8 };
     int           rt2t_r2[3] = { 0xb9, 0xba, 0xbb };
     int           rt2t_r3[3] = { 0xbc, 0xbd, 0xbe };
@@ -544,7 +544,7 @@ static void SpHatChangeSub(void) {
     for (i = 0; i < rt2trans_str_pp->num; i++) {
         Tim2Trans(GetIntAdrsCurrent(rt2trans_str_pp->data_pp[i]));
     }
-    PR_SCOPEEND
+    PR_SCOPEEND()
 }
 
 int selPlayDispTitleDisp(int sel_stage, int sel_disp, int ovl_load) {

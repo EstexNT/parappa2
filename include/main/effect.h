@@ -77,6 +77,13 @@ typedef struct { // 0x24
     /* 0x20 */ int texnum;
 } NOODLES_STR;
 
+typedef struct { // 0x10
+    /* 0x0 */ int xp;
+    /* 0x4 */ int yp;
+    /* 0x8 */ int u;
+    /* 0xc */ int v;
+} NDL_PRM;
+
 typedef struct { // 0x3
     /* 0x0 */ u_char pR;
     /* 0x1 */ u_char pG;
