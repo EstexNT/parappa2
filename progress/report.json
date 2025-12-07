@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 54.395763,
+    "fuzzy_match_percent": 55.55036,
     "total_code": "342284",
-    "matched_code": "180628",
-    "matched_code_percent": 52.771385,
+    "matched_code": "184580",
+    "matched_code_percent": 53.92598,
     "total_data": "26083376",
     "matched_data": "26033192",
     "matched_data_percent": 99.8076,
     "total_functions": 1429,
-    "matched_functions": 1040,
-    "matched_functions_percent": 72.77817,
+    "matched_functions": 1047,
+    "matched_functions_percent": 73.26802,
     "total_units": 70
   },
   "units": [
@@ -1792,14 +1792,14 @@
     {
       "name": "main/scrctrl",
       "measures": {
-        "fuzzy_match_percent": 72.56468,
+        "fuzzy_match_percent": 84.622284,
         "total_code": "32776",
-        "matched_code": "23240",
-        "matched_code_percent": 70.90554,
+        "matched_code": "27192",
+        "matched_code_percent": 82.96314,
         "total_data": "1468",
         "total_functions": 128,
-        "matched_functions": 116,
-        "matched_functions_percent": 90.625,
+        "matched_functions": 123,
+        "matched_functions_percent": 96.09375,
         "total_units": 1
       },
       "sections": [
@@ -1826,7 +1826,7 @@
         {
           "name": ".text",
           "size": "33024",
-          "fuzzy_match_percent": 72.56468,
+          "fuzzy_match_percent": 84.622284,
           "metadata": {}
         }
       ],
@@ -1953,6 +1953,7 @@
         {
           "name": "vsTapdatSet",
           "size": "552",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2408"
         },
@@ -2265,6 +2266,7 @@
         {
           "name": "on_th_make",
           "size": "640",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "11712"
         },
@@ -2410,6 +2412,7 @@
         {
           "name": "ExamScoreCheck",
           "size": "1028",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "15488"
         },
@@ -2444,6 +2447,7 @@
         {
           "name": "ScrMoveSetSub",
           "size": "568",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "17512"
         },
@@ -2478,6 +2482,7 @@
         {
           "name": "ScrMbarReq",
           "size": "412",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "25096"
         },
@@ -2554,12 +2559,14 @@
         {
           "name": "SetIndvCdChannel",
           "size": "380",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "27912"
         },
         {
           "name": "CheckIndvCdChannel",
           "size": "372",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "28296"
         },
@@ -13278,16 +13285,16 @@
     {
       "id": "main",
       "measures": {
-        "fuzzy_match_percent": 82.3519,
+        "fuzzy_match_percent": 85.53807,
         "total_code": "124036",
-        "matched_code": "98932",
-        "matched_code_percent": 79.76071,
+        "matched_code": "102884",
+        "matched_code_percent": 82.946884,
         "total_data": "66692",
         "matched_data": "56316",
         "matched_data_percent": 84.44191,
         "total_functions": 570,
-        "matched_functions": 530,
-        "matched_functions_percent": 92.98246,
+        "matched_functions": 537,
+        "matched_functions_percent": 94.210526,
         "total_units": 17
       }
     },

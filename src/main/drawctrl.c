@@ -646,11 +646,11 @@ void DrawObjdatInit(int size, OBJDAT *od_pp, PR_SCENEHANDLE prf) {
 const int drawctrl_rodata_padding[] = { 0, 0 };
 
 void DrawObjdatReset(int size, OBJDAT *od_pp) {
-    int i;
+    int   i;
+    void *tmp_adr;
 
     for (i = 0; i < size; i++, od_pp++) {
-        /* not assigned to any variables */
-        GetIntAdrsCurrent(od_pp->objdat_num);
+        tmp_adr = GetIntAdrsCurrent(od_pp->objdat_num);
 
         switch (od_pp->objdat_type) {
         case ODAT_SPA:
@@ -1047,8 +1047,7 @@ static int DrawObjStrDispTap(SCENE_OBJDATA *scn_pp, int num) {
 
             objactprg_tmp_pp->focal_lng = scn_pp->objdat_pp[objctrl_pp->dat[0]].subdat[0];
             objactprg_tmp_pp->defocus_lng = scn_pp->objdat_pp[objctrl_pp->dat[0]].subdat[1];
-            
-            
+
             if (objctrl_pp->objctrl_type == OCTRL_ANI) {
                 objactprg_tmp_pp->focal_lng = objctrl_pp->subDat;
                 objactprg_tmp_pp->end_time = scn_pp->objdat_pp[objctrl_pp->dat[1]].maxfr;
@@ -1069,7 +1068,7 @@ static int DrawObjStrDispTap(SCENE_OBJDATA *scn_pp, int num) {
                     break;
                 }
             }
-            
+
             if (objctrl_pp->status & 0x4) {
                 objactprg_tmp_pp->start_time = objctrl_pp->dat[2];
             }
@@ -1478,17 +1477,17 @@ int DrawSceneObjData(void *para_pp, int frame, int first_f, int useDisp, int drD
     int            i;
     SCENE_OBJDATA *scn_pp = (SCENE_OBJDATA*)para_pp;
 
-    if (first_f == -2) {
+    if (first_f == DRPRGF_INIT) {
         DrawSceneInit(&DBufDc.draw01, scn_pp, useDisp);
         return 0;
     }
 
-    if (first_f == -1) {
+    if (first_f == DRPRGF_RESET) {
         DrawSceneReset(scn_pp);
         return 0;
     }
 
-    if (first_f == 0) {
+    if (first_f == DRPRGF_FIRST) {
         DrawSceneFirstSet(scn_pp);
 
         for (i = 0; i < scn_pp->objstr_size; i++) {
@@ -1538,10 +1537,10 @@ int DrawVramClear(void *para_pp, int frame, int first_f, int useDisp, int drDisp
     VCLR_PARA    *vclr_para_pp = (VCLR_PARA*)para_pp; /* note: not in STABS. */
     sceGifPacket  gifpk;
 
-    if (first_f == -2) {
+    if (first_f == DRPRGF_INIT) {
         return 0;
     }
-    if (first_f == -1) {
+    if (first_f == DRPRGF_RESET) {
         return 0;
     }
 
@@ -1572,10 +1571,10 @@ int DrawAlphaBlendDisp(void *para_pp, int frame, int first_f, int useDisp, int d
     sceGsFrame   *use_pp;
     sceGifPacket  gifpk;
 
-    if (first_f == -2) {
+    if (first_f == DRPRGF_INIT) {
         return 0;
     }
-    if (first_f == -1) {
+    if (first_f == DRPRGF_RESET) {
         return 0;
     }
 
@@ -1597,10 +1596,10 @@ INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawPlphaIndex8Disp);
 int DrawTim2DIsp(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
     TIM2DISP_STR* tim2disp_pp = (TIM2DISP_STR*)para_pp; /* note: not in STABS. */
 
-    if (first_f == -2) {
+    if (first_f == DRPRGF_INIT) {
         return 0;
     }
-    if (first_f == -1) {
+    if (first_f == DRPRGF_RESET) {
         return 0;
     }
 
@@ -1624,7 +1623,7 @@ int DrawVramLocalCopy(void *para_pp, int frame, int first_f, int useDisp, int dr
     sceGsMoveImage mi;
     short          sbp, dbp;
 
-    if (first_f != 0) {
+    if (first_f != DRPRGF_FIRST) {
         return 0;
     }
 
@@ -1646,10 +1645,10 @@ int DrawVramLocalCopy2(void *para_pp, int frame, int first_f, int useDisp, int d
     sceGsMoveImage mi;
     short          sbp, dbp;
 
-    if (first_f == -1) {
+    if (first_f == DRPRGF_RESET) {
         return 0;
     }
-    if (first_f == -2) {
+    if (first_f == DRPRGF_INIT) {
         return 0;
     }
 
@@ -2124,7 +2123,7 @@ static void DrawSceneStrInit(SCENESTR *scstr_pp) {
             #endif
             }
         #endif
-            scstr_pp->scenectrl_pp[i].prg_pp(scstr_pp->scenectrl_pp[i].param_pp, 0, -2, scstr_pp->scenectrl_pp[i].useDisp, scstr_pp->scenectrl_pp[i].drDisp);
+            scstr_pp->scenectrl_pp[i].prg_pp(scstr_pp->scenectrl_pp[i].param_pp, 0, DRPRGF_INIT, scstr_pp->scenectrl_pp[i].useDisp, scstr_pp->scenectrl_pp[i].drDisp);
         }
     }
 }
@@ -2141,7 +2140,7 @@ static void DrawSceneStrReset(SCENESTR *scstr_pp) {
             scstr_pp->scenectrl_pp[i].use_flag = 0;
 
             if (scstr_pp->scenectrl_pp[i].prg_pp != NULL) {
-                scstr_pp->scenectrl_pp[i].prg_pp(scstr_pp->scenectrl_pp[i].param_pp, 0, -1, 0, 0);
+                scstr_pp->scenectrl_pp[i].prg_pp(scstr_pp->scenectrl_pp[i].param_pp, 0, DRPRGF_RESET, 0, 0);
             }
         }
     }

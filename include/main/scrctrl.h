@@ -379,6 +379,17 @@ typedef struct { // 0x66c
     /* 0x668 */ int otehon_all;
 } EXAM_CHECK;
 
+typedef struct { // 0x8
+    /* 0x0 */ int (*score_prg)(EXAM_CHECK *ec_pp);
+    /* 0x4 */ short int save_p;
+    /* 0x6 */ short int bairitu;
+} EXH_STR;
+
+typedef struct { // 0x8
+    /* 0x0 */ int size;
+    /* 0x4 */ EXH_STR *exh_str_pp;
+} SCRPRGSTR;
+
 typedef struct { // 0x18
     /* 0x00 */ int bank[2];
     /* 0x08 */ SNDREC *sndrec_pp[2];

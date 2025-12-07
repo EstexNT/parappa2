@@ -20,7 +20,7 @@ static void setMakinDataMoto(TAPDAT *tapdat_pp, int size, CM_STR *cm_str_pp) {
     int time;
 
     for (i = 0; i < size; i++, tapdat_pp++) {
-        if (tapdat_pp->KeyIndex != 0 && tapdat_pp->time >= 0) {
+        if (tapdat_pp->KeyIndex != KiNO && tapdat_pp->time >= 0) {
             time = tapdat_pp->time / 24;
             if (time < 32) {
                 cm_str_pp[time].keyId = tapdat_pp->KeyIndex;

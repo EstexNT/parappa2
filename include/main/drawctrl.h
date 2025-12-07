@@ -273,6 +273,13 @@ typedef struct { // 0x20
     /* 0x1c */ u_int condition;
 } SCENECTRL;
 
+typedef enum {
+    DRPRGF_INIT = -2,
+    DRPRGF_RESET = -1,
+    DRPRGF_FIRST = 0,
+    DRPRGF_TIMES = 1
+} DRAWPRG_FLAG;
+
 typedef struct { // 0x8
     /* 0x0 */ int scenectrl_num;
     /* 0x4 */ SCENECTRL *scenectrl_pp;
