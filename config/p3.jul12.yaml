@@ -353,7 +353,7 @@ segments:
 
         - [0x299360, .sdata, main/cdctrl]
         - [0x299378, sdata, main/stdat]
-        - [0x299438, sdata, main/scrctrl]
+        - [0x299438, .sdata, main/scrctrl]
         - [0x299504, .sdata, main/sprite]
         - [0x299508, .sdata, main/subt]
         - [0x299518, sdata, main/drawctrl]

@@ -25,17 +25,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* sdata 399438 */ extern int titleStartKey; /* static */
-/* sdata 39943c */ extern int fadeoutStartKey; /* static */
-/* sdata 399440 */ extern int gameEndWaitLoop; /* static */
-/* sdata 399444 */ extern int replayGuiOffFlag; /* static */
-/* sdata 399448 */ extern int jimakuWakuOff; /* static */
-/* sdata 39944c */ extern int currentTblNumber;
-/* sdata 399450 */ extern int vs_tapdat_tmp_cnt;
-/* sdata 399454 */ extern int scrJimakuLine;
-/* sdata 399458 */ extern int scrDrawLine;
-/* sdata 39945c */ extern int scrMbarLine;
-/* sdata 399460 */ extern int scrRefLineTime;
+static int titleStartKey = 0;
+static int fadeoutStartKey = 0;
+static int gameEndWaitLoop = 0;
+static int replayGuiOffFlag = 0;
+static int jimakuWakuOff = 0;
+int currentTblNumber = 0;
+int vs_tapdat_tmp_cnt = 0;
+int scrJimakuLine = 0;
+int scrDrawLine = 0;
+int scrMbarLine = 0;
+int scrRefLineTime = -1;
 // /* data 183258 */ static EXH_STR exh_str_normal[];
 // /* data 1832a8 */ static EXH_STR exh_str_original[];
 // /* data 1832e0 */ static EXH_STR exh_str_hane[];
@@ -2097,9 +2097,6 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth) {
     return (ret >= 0) ? -ret : ret;
 }
 
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", exh_yaku);
-#else /* Requires .sdata migration */
 static int exh_yaku(EXAM_CHECK *ec_pp, int hane_flag) {
     int i, j;
     int ofsT, ofsE;
@@ -2212,7 +2209,6 @@ static int exh_yaku(EXAM_CHECK *ec_pp, int hane_flag) {
     return ret;
     PR_SCOPEEND()
 }
-#endif
 
 /* static */ int exh_yaku_original(EXAM_CHECK *ec_pp) {
     return exh_yaku(ec_pp, FALSE);
@@ -3849,25 +3845,6 @@ static int otehonSetCheck(void) {
     return 0;
 }
 
-/* TODO: Match .sdata */
-extern const char D_00399478[];
-extern const char D_00399480[];
-extern const char D_00399488[];
-extern const char D_00399490[];
-extern const char D_00399498[];
-extern const char D_003994A0[];
-extern const char D_003994A8[];
-extern const char D_003994B0[];
-extern const char D_003994B8[];
-extern const char D_003994C0[];
-extern const char D_003994C8[];
-extern const char D_003994D0[];
-extern const char D_003994D8[];
-extern const char D_003994E0[];
-extern const char D_003994E8[];
-extern const char D_003994F0[];
-extern const char D_003994F8[];
-
 void ScrCtrlMainLoop(void *x) {
     int tmp_time;
     int rtime;
@@ -3970,23 +3947,15 @@ void ScrCtrlMainLoop(void *x) {
             global_data.play_step == PSTEP_BONUS) {
             sceGifPacket dbgPk;
             u_char *dbg_tbl_msg[17] = {
-                #if 0
                 "BASE",
                 "LV1",  "LV2",  "LV3",  "LV4",
                 "LV5",  "LV6",  "LV7",  "LV8",
                 "LV9",  "LV10", "LV11", "LV12",
                 "LV13", "LV14", "LV15", "LV16",
-                #else
-                (u_char*)D_00399478,
-                (u_char*)D_00399480, (u_char*)D_00399488, (u_char*)D_00399490, (u_char*)D_00399498,
-                (u_char*)D_003994A0, (u_char*)D_003994A8, (u_char*)D_003994B0, (u_char*)D_003994B8,
-                (u_char*)D_003994C0, (u_char*)D_003994C8, (u_char*)D_003994D0, (u_char*)D_003994D8,
-                (u_char*)D_003994E0, (u_char*)D_003994E8, (u_char*)D_003994F0, (u_char*)D_003994F8,
-                #endif
             };
             int    drtime;
             u_char timemsg[16];
-            /* sdata 399500 */ extern int dbgmsg_on_off;
+            static int dbgmsg_on_off = TRUE;
 
             if (pad[0].one & SCE_PADi) {
                 dbgmsg_on_off ^= 1;

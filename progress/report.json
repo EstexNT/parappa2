@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 56.749367,
+    "fuzzy_match_percent": 57.022823,
     "total_code": "342284",
-    "matched_code": "188684",
-    "matched_code_percent": 55.124985,
-    "total_data": "26087536",
-    "matched_data": "26037352",
+    "matched_code": "189620",
+    "matched_code_percent": 55.39844,
+    "total_data": "26087740",
+    "matched_data": "26037556",
     "matched_data_percent": 99.80763,
     "total_functions": 1429,
-    "matched_functions": 1050,
-    "matched_functions_percent": 73.47795,
+    "matched_functions": 1051,
+    "matched_functions_percent": 73.547935,
     "total_units": 70
   },
   "units": [
@@ -1792,14 +1792,16 @@
     {
       "name": "main/scrctrl",
       "measures": {
-        "fuzzy_match_percent": 97.14364,
+        "fuzzy_match_percent": 99.99939,
         "total_code": "32776",
-        "matched_code": "31296",
-        "matched_code_percent": 95.484505,
-        "total_data": "1468",
+        "matched_code": "32232",
+        "matched_code_percent": 98.34025,
+        "total_data": "1672",
+        "matched_data": "204",
+        "matched_data_percent": 12.200956,
         "total_functions": 128,
-        "matched_functions": 126,
-        "matched_functions_percent": 98.4375,
+        "matched_functions": 127,
+        "matched_functions_percent": 99.21875,
         "total_units": 1
       },
       "sections": [
@@ -1824,9 +1826,15 @@
           "metadata": {}
         },
         {
+          "name": ".sdata",
+          "size": "204",
+          "fuzzy_match_percent": 100.0,
+          "metadata": {}
+        },
+        {
           "name": ".text",
           "size": "33024",
-          "fuzzy_match_percent": 97.14364,
+          "fuzzy_match_percent": 99.99939,
           "metadata": {}
         }
       ],
@@ -2317,6 +2325,7 @@
         {
           "name": "exh_yaku",
           "size": "936",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "13096"
         },
@@ -13291,16 +13300,16 @@
     {
       "id": "main",
       "measures": {
-        "fuzzy_match_percent": 88.84679,
+        "fuzzy_match_percent": 89.6014,
         "total_code": "124036",
-        "matched_code": "106988",
-        "matched_code_percent": 86.25561,
-        "total_data": "66692",
-        "matched_data": "56316",
-        "matched_data_percent": 84.44191,
+        "matched_code": "107924",
+        "matched_code_percent": 87.01022,
+        "total_data": "66896",
+        "matched_data": "56520",
+        "matched_data_percent": 84.48936,
         "total_functions": 570,
-        "matched_functions": 540,
-        "matched_functions_percent": 94.73685,
+        "matched_functions": 541,
+        "matched_functions_percent": 94.91228,
         "total_units": 17
       }
     },

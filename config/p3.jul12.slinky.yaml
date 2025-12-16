@@ -737,7 +737,7 @@ segments:
 
       - { path: src/main/cdctrl.c.o }
       - { path: asm/data/main/stdat.sdata.s.o }
-      - { path: asm/data/main/scrctrl.sdata.s.o }
+      - { path: src/main/scrctrl.c.o }
       - { path: src/main/sprite.c.o }
       - { path: src/main/fadectrl.c.o }
       - { path: src/main/subt.c.o }
