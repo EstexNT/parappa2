@@ -569,7 +569,7 @@ subtSetNum                          = 0x00399510; // size:0x4
 kanji_pp                            = 0x00399a48; // size:0x4
 subtPkSpr                           = 0x01c6dba0; // size:0x10
 subt_code                           = 0x01c6dbb0; // size:0x80
-mcode_dat_pp                        = 0x01c6dc30; // size:0x400
+mcode_dat_pp                        = 0x01c6dc30; // size:0x400 allow_duplicated:true
 
 // main/drawctrl.c
 UseGsRegSet                         = 0x001105e8; // type:func
@@ -1694,7 +1694,7 @@ _PadArrowState                      = 0x00399894; // size:0x4
 _AnimeFontFlg                       = 0x00399b7c;
 kanji_pp_TmpMenuFont                = 0x00399b80;
 
-mcode_dat_pp_TmpMenuFont            = 0x01c81880; // size:0x1000
+mcode_dat_pp                        = 0x01c81880; // size:0x1000 allow_duplicated:true
 MnSubtFontInfo                      = 0x01c82880; // size:0x30
 
 // menu/pksprite.c

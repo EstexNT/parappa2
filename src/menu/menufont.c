@@ -18,8 +18,9 @@
 /* sdata 399894 */ extern int _PadArrowState; /* static */
 /* sbss 399b7c */ extern int _AnimeFontFlg; /* static */
 /* sbss 399b80 */ extern MCODE_STR *kanji_pp_TmpMenuFont; /* static */
-/* bss 1c81880 */ extern MCODE_CHAR mcode_dat_pp_TmpMenuFont[512]; /* static */
-/* bss 1c82880 */ extern MNFONT_INFO MnSubtFontInfo[3]; /* static */
+
+static MCODE_CHAR mcode_dat_pp[512];
+static MNFONT_INFO MnSubtFontInfo[3];
 
 static void _PKFontPut(SPR_PKT pk, SPR_PRM *spr, SUBT_CODE *psubt, int line_num, int xp, int yp, int pflg, int hsize, float rtx, float rty);
 static void _PADArrow_Put(SPR_PKT pk, SPR_PRM *spr, MCODE_DAT *pfnt, int x, int y);
@@ -232,7 +233,7 @@ static void _PKFontPut(SPR_PKT pk, SPR_PRM *spr, SUBT_CODE *psubt, int line_num,
         break;
     }
 
-    ppMcode = mcode_dat_pp_TmpMenuFont;
+    ppMcode = mcode_dat_pp;
     for (i = 0; i < line_num; i++) {
         int x;
         int y;
@@ -354,7 +355,7 @@ static int _JPFont_GetSubtCode(u_char *str, SUBT_CODE *subt_code) {
     }
 
     line_num = 0;
-    ppMcode = mcode_dat_pp_TmpMenuFont;
+    ppMcode = mcode_dat_pp;
 
     while (1) {
         dat0 = *str++;
@@ -422,7 +423,7 @@ static int _EGFont_GetSubtCode(u_char *str, SUBT_CODE *subt_code, MCODE_DAT *pfn
     }
 
     line_num = 0;
-    ppMcode = mcode_dat_pp_TmpMenuFont;
+    ppMcode = mcode_dat_pp;
 
     while (1) {
         c = *str++;

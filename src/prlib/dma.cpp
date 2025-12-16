@@ -47,10 +47,10 @@ void PrWaitDmaFinish(u_int channel) {
      *   1. Clear the DMA channel interrupt status (D_STAT.CISn).
      *   2. Save the priority control register (D_PCR).
      *   3. Set the appropriate COP control fields (D_PCR.CPCn).
-     *        This will start outputting the DMA channel status to CPCOND0.
+     *       * This will start outputting the DMA channel status to CPCOND0.
      *   4. Run an empty loop with the BC0F instruction.
-     *        The BC0xx family of instructions check the CPCOND0 signal.
-     *        When the DMA transfer finishes, the loop will break.
+     *       * The BC0xx family of instructions check the CPCOND0 signal.
+     *       * When the DMA transfer finishes, the loop will break.
      *   5. Restore the previously saved PCR register and
      *      clear the DMA channel interrupt status.
      */

@@ -627,23 +627,23 @@ void WipeInReqSame(void) {
 
 void WipeOutReq(void) {
     if (wipe_type == WIPE_TYPE_SAME) {
-        MtcKill(0xf);
+        MtcKill(MTC_TASK_WIPECTRL);
         wipe_end_flag = 1;
     } else if (wipe_type == WIPE_TYPE_YES_NO) {
-        MtcKill(0xf);
+        MtcKill(MTC_TASK_WIPECTRL);
         wipe_end_flag = 1;
     } else if (wipe_type == WIPE_TYPE_PARA) {
         wipeParaOutReq();
     } else if (wipe_type == WIPE_TYPE_BOXY) {
-        MtcKill(0xf);
+        MtcKill(MTC_TASK_WIPECTRL);
         wipe_end_flag = 1;
     } else if (wipe_type == WIPE_TYPE_BOXY_WAIT) {
         wipeSndStop();
-        MtcKill(0xf);
+        MtcKill(MTC_TASK_WIPECTRL);
         wipe_end_flag = 1;
     } else {
         wipe_end_flag = 0;
-        MtcExec(WipeLoadOutDisp, 0xf);        
+        MtcExec(WipeLoadOutDisp, MTC_TASK_WIPECTRL);        
     }
 }
 

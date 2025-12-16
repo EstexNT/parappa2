@@ -984,7 +984,7 @@ segments:
       - { path: asm/data/menu/p3mc.bss.s.o }
       - { path: asm/data/menu/memc.bss.s.o }
       - { path: src/menu/mntm2hed.c.o }
-      - { path: asm/data/menu/menufont.bss.s.o }
+      - { path: src/menu/menufont.c.o }
       - { path: src/menu/pksprite.c.o }
 
       - { path: src/iop_mdl/wp2cd_rpc.c.o }

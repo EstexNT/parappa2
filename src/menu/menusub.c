@@ -2852,7 +2852,7 @@ static void TsSCFADE_Flow(int flg, int prm) {
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsSCFADE_Draw);
 
 void _PkMCMsgPut(SPR_PKT pk, SPR_PRM *spr, int id, int x, int y, u_int abgr) {
-	int flg;
+    int flg;
 
     if (pP3GameState != NULL) {
         flg = pP3GameState->pGameStatus->language_type;

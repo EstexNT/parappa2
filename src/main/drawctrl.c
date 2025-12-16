@@ -51,11 +51,11 @@
 /* sbss 399a50 */ extern int scenectrl_outside_cnt; /* static */
 /* sbss 399a54 */ extern int scenectrl_outside_read_cnt; /* static */
 // /* sdata 399550 */ enum ANI_BLUMOVE_ENUM {
-// 	BLMV_NONE = 0,
-// 	BLMV_BLUR = 1,
-// 	BLMV_MOVE = 2,
-// 	BLMV_BLUR2 = 3,
-// 	BLMV_MAX = 4
+//  BLMV_NONE = 0,
+//  BLMV_BLUR = 1,
+//  BLMV_MOVE = 2,
+//  BLMV_BLUR2 = 3,
+//  BLMV_MAX = 4
 // };
 /* bss 1c6e230 */ extern BTHROW_CTRL bthrow_ctrl[2]; /* static */
 /* sbss 399a58 */ extern MOZAIKU_POLL_STR *mozaiku_poll_str_current_pp; /* static */
@@ -2084,7 +2084,7 @@ static void DrawSceneStrInit(SCENESTR *scstr_pp) {
     int i;
 
     for (i = 0; i < scstr_pp->scenectrl_num; i++) {
-        scstr_pp->scenectrl_pp[i].use_flag = 0;
+        scstr_pp->scenectrl_pp[i].use_flag = SC_UF_NOUSE;
 
         if (scstr_pp->scenectrl_pp[i].prg_pp != NULL) {
         #if defined(PRD_SHIFTABLE)
@@ -2136,8 +2136,8 @@ static void DrawSceneStrReset(SCENESTR *scstr_pp) {
     }
 
     for (i = 0; i < scstr_pp->scenectrl_num; i++) {
-        if (scstr_pp->scenectrl_pp[i].use_flag != 0) {
-            scstr_pp->scenectrl_pp[i].use_flag = 0;
+        if (scstr_pp->scenectrl_pp[i].use_flag != SC_UF_NOUSE) {
+            scstr_pp->scenectrl_pp[i].use_flag = SC_UF_NOUSE;
 
             if (scstr_pp->scenectrl_pp[i].prg_pp != NULL) {
                 scstr_pp->scenectrl_pp[i].prg_pp(scstr_pp->scenectrl_pp[i].param_pp, 0, DRPRGF_RESET, 0, 0);
@@ -2245,8 +2245,8 @@ int DrawTapReqTbl(int atap, PLAYER_INDEX pindx, u_char *prs_pp) {
         return 1;
     }
 
-    dr_tap_req[dr_tap_req_num].tap_id = (u_int)(atap & 0xff00) >> 0x8;
-    dr_tap_req[dr_tap_req_num].req_no = atap & 0xff;
+    dr_tap_req[dr_tap_req_num].tap_id = (u_int)(atap & 0xff00) >> 8;
+    dr_tap_req[dr_tap_req_num].req_no = atap & 0x00ff;
     dr_tap_req[dr_tap_req_num].player_index = pindx;
     dr_tap_req[dr_tap_req_num].pad_prs_pp = prs_pp;
     dr_tap_req_num++;
