@@ -187,8 +187,8 @@ typedef struct { // 0x10
 } OBJACTPRG_CTRL;
 
 typedef struct { // 0xc
-    /* 0x0 */ short int tap_id;
-    /* 0x2 */ short int req_no;
+    /* 0x0 */ short tap_id;
+    /* 0x2 */ short req_no;
     /* 0x4 */ PLAYER_INDEX player_index;
     /* 0x8 */ u_char *pad_prs_pp;
 } DR_TAP_REQ;
@@ -208,6 +208,11 @@ typedef struct { // 0x21c
     /* 0x02c */ OBJACTPRG_CTRL objactprg_ctrl;
     /* 0x03c */ DR_TAP_REQ dr_tap_req[40];
 } SCENE_OBJDATA;
+
+typedef enum {
+    SC_UF_NOUSE = 0,
+    SC_UF_USENOW = 1
+} SCENECTRL_USE_FLAG_ENUM;
 
 typedef enum {
     SBI_R1 = 0,

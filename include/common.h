@@ -32,6 +32,9 @@ typedef float f32;
 #define FALSE 0
 #endif
 
+#define min(x, y) (((x) < (y)) ? (x) : (y))
+#define max(x, y) (((x) > (y)) ? (x) : (y))
+
 #define GS_X_COORD(x) ((2048 - (640 / 2) + x) << 4)
 #define GS_Y_COORD(y) ((2048 - (224 / 2) + y) << 4)
 

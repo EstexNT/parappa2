@@ -381,8 +381,8 @@ typedef struct { // 0x66c
 
 typedef struct { // 0x8
     /* 0x0 */ int (*score_prg)(EXAM_CHECK *ec_pp);
-    /* 0x4 */ short int save_p;
-    /* 0x6 */ short int bairitu;
+    /* 0x4 */ short save_p;
+    /* 0x6 */ short bairitu;
 } EXH_STR;
 
 typedef struct { // 0x8
@@ -404,6 +404,45 @@ typedef struct { // 0x14
     /* 0x0c */ int go_loop_flag;
     /* 0x10 */ int mbar_flag;
 } SCORE_STR;
+
+typedef enum {
+    TCL_TYPE_EZ_TOP = 0,
+    TCL_TYPE_EZ_0 = 0,
+    TCL_TYPE_EZ_1 = 1,
+    TCL_TYPE_EZ_2 = 2,
+    TCL_TYPE_EZ_3 = 3,
+    TCL_TYPE_EZ_4 = 4,
+    TCL_TYPE_EZ_5 = 5,
+    TCL_TYPE_EZ_6 = 6,
+    TCL_TYPE_EZ_7 = 7,
+    TCL_TYPE_EZ_8 = 8,
+    TCL_TYPE_EZ_9 = 9,
+    TCL_TYPE_EZ_10 = 10,
+    TCL_TYPE_EZ_11 = 11,
+    TCL_TYPE_EZ_12 = 12,
+    TCL_TYPE_EZ_13 = 13,
+    TCL_TYPE_EZ_14 = 14,
+    TCL_TYPE_EZ_15 = 15,
+    TCL_TYPE_HD_TOP = 16,
+    TCL_TYPE_HD_0 = 16,
+    TCL_TYPE_HD_1 = 17,
+    TCL_TYPE_HD_2 = 18,
+    TCL_TYPE_HD_3 = 19,
+    TCL_TYPE_HD_4 = 20,
+    TCL_TYPE_HD_5 = 21,
+    TCL_TYPE_HD_6 = 22,
+    TCL_TYPE_HD_7 = 23,
+    TCL_TYPE_HD_8 = 24,
+    TCL_TYPE_HD_9 = 25,
+    TCL_TYPE_HD_10 = 26,
+    TCL_TYPE_HD_11 = 27,
+    TCL_TYPE_HD_12 = 28,
+    TCL_TYPE_HD_13 = 29,
+    TCL_TYPE_HD_14 = 30,
+    TCL_TYPE_HD_15 = 31,
+    TCL_TYPE_COOL = 32,
+    TCL_TYPE_MAX = 33
+} TCL_TYPE_ENUM;
 
 typedef enum {
     TCL_DO_NONE = 0,

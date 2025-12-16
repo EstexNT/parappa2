@@ -241,7 +241,7 @@ void GlobalPlySet(GLOBAL_DATA *gl_pp, PLAY_STEP stp, int stage_num) {
         ExamDispPlySet(gply_pp, 0);
         break;
     case PSTEP_GAME:
-        global_data.draw_tbl_top = 1;
+        global_data.draw_tbl_top = DTBL_ENUM_GAME_TOP;
         
         gply_pp = &global_data.global_ply[2];
         gply_pp->player_code = PCODE_BOXY;
@@ -274,7 +274,7 @@ void GlobalPlySet(GLOBAL_DATA *gl_pp, PLAY_STEP stp, int stage_num) {
         gply_pp->now_score    = 0;
         gply_pp->score        = 0;
         gply_pp->tap_lvl_tmp  = 0;
-        gply_pp->flags        = 1;
+        gply_pp->flags        = GPLAY_TBLCNG_REQ;
         ExamDispPlySet(gply_pp, 0);
         break;
     case PSTEP_BONUS:

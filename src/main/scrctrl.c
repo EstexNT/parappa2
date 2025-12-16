@@ -1,5 +1,6 @@
 #include "main/scrctrl.h"
 
+#include "common.h"
 #include "dbug/dbgmsg.h"
 
 #include "os/cmngifpk.h"
@@ -8,6 +9,7 @@
 #include "os/system.h"
 #include "os/usrmem.h"
 
+#include "main/commake.h"
 #include "main/main.h"
 #include "main/mbar.h"
 #include "main/mcctrl.h"
@@ -55,10 +57,10 @@
 /* sbss 399a3c */ extern int follow_scr_tap_memory_cnt_load; /* static */
 /* bss 1c63a68 */ extern SCR_TAP_MEMORY follow_scr_tap_memory[256]; /* static */
 /* bss 1c64668 */ extern TAP_GROUPE_STR tap_groupe_str[5]; /* static */
-// /* bss 1c646b8 */ static COMMAKE_STR commake_str[32];
-// /* sbss 399a40 */ static int commake_str_cnt;
+/* bss 1c646b8 */ extern COMMAKE_STR commake_str[32]; /* static */
+/* sbss 399a40 */ extern int commake_str_cnt; /* static */
 /* bss 1c647b8 */ extern EXAM_CHECK exam_check[3]; /* static */
-// /* bss 1c65b00 */ static u_char yaku_tmp_buf[36];
+/* bss 1c65b00 */ extern u_char yaku_tmp_buf[36]; /* static */
 /* bss 1c65b28 */ extern BNG_STR bng_str; /* static */
 
 static void exam_tbl_updownInit(SCORE_INDV_STR *sindv_pp);
@@ -84,7 +86,7 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth);
 /* static */ int  exh_mbar_key_out(EXAM_CHECK *ec_pp);
 /* static */ int  exh_mbar_time_out(EXAM_CHECK *ec_pp);
 /* static */ int  exh_mbar_num_out(EXAM_CHECK *ec_pp);
-/* static */ int  exh_yaku(EXAM_CHECK *ec_pp, int hane_flag);
+static int  exh_yaku(EXAM_CHECK *ec_pp, int hane_flag);
 /* static */ int  exh_yaku_original(EXAM_CHECK *ec_pp);
 /* static */ int  exh_yaku_hane(EXAM_CHECK *ec_pp);
 /* static */ int  exh_allkey_out(EXAM_CHECK *ec_pp);
@@ -229,7 +231,7 @@ void ScrTapReq(int id, int box, int num) {
         use_chan = scr_snd_dbuff.bank[id & 1];
     }
 
-    tp_pp = scr_sndtap_pp[use_chan] + num;
+    tp_pp = &scr_sndtap_pp[use_chan][num];
 
     TapCt(TAPCT_TAPVOLUME | use_chan, box, tp_pp->volume);
     TapCt(TAPCT_TAPREQ    | use_chan, box, tp_pp->prg + tp_pp->key * 256);
@@ -365,12 +367,12 @@ static int exam_tbl_updownChange(SCORE_INDV_STR *sindv_pp, TAP_CTRL_LEVEL_ENUM c
     }
 
     if (coolf) {
-        tcl_ctrl_pp = &tcl_ctrl[round][32];
+        tcl_ctrl_pp = &tcl_ctrl[round][TCL_TYPE_COOL];
     } else {
         if (sindv_pp->global_ply->exam_tbl_updown[0] < 0) {
             tcl_ctrl_pp = &tcl_ctrl[round][clv];
         } else {
-            tcl_ctrl_pp = &tcl_ctrl[round][clv + TCT_MAX];
+            tcl_ctrl_pp = &tcl_ctrl[round][clv + TCL_TYPE_HD_TOP];
         }
     }
 
@@ -936,185 +938,183 @@ void tapLevelChange(SCORE_INDV_STR *sindv_pp) {
     printf("            after [%d]\n\n", add_move);
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", ScrCtrlIndvNextRead);
-#if 0
-void ScrCtrlIndvNextRead(/* s0 16 */ SCORE_INDV_STR *sindv_pp, /* a1 5 */ int tap_res_f)
-{
-    int i;
-    /* s2 18 */ int endf;
-    /* v1 3 */ int j;
-    /* a3 7 */ short Rsub;
-    /* t0 8 */ int Rdata;
-    /* t1 9 */ int sj_data1;
-    /* t2 10 */ int sj_data2;
-    /* a0 4 */ int xx;
-    /* t4 12 */ int yari_ff;
-
-    SCRREC *scrrec_pp;
+void ScrCtrlIndvNextRead(SCORE_INDV_STR *sindv_pp, int tap_res_f) {
+    int endf;
+    int j;
 
     sindv_pp->keyCntCom = 0;
     sindv_pp->scr_tap_memory_cnt = 0;
     sindv_pp->scr_tap_vib_on = 0;
-    sindv_pp->cansel_flag = 0;
+    sindv_pp->cansel_flag = FALSE;
 
-    if (tap_res_f)
-    {
+    if (tap_res_f) {
         KeyCntClear(sindv_pp->keyCnt);
         tapReqGroupTapClear(Pcode2Pindex(sindv_pp->plycode));
     }
 
     ScrCtrlExamClearIndv(&sindv_pp->scr_exam_str);
 
-    if ((sindv_pp->status & 1) == 0)
-    {
+    if (!(sindv_pp->status & SCS_USE)) {
         sindv_pp->scrdat_pp = NULL;
         sindv_pp->sndId = -1;
 
-        for (i = 0; i < 24; i++)
-        {
-            sindv_pp->sjob[i] = -1;
+        for (j = 0; j < SCRSUBJ_MAX; j++) {
+            sindv_pp->sjob[j] = -1;
         }
 
         ScrCtrlExamClear(&sindv_pp->scr_exam_str);
         return;
     }
 
-    if (sindv_pp->tapset_pos == -1 || ScrCtrlIndvNextReadLine(sindv_pp, 0))
-    {
-        ScrCtrlExamClear(&sindv_pp->scr_exam_str);
+    if (sindv_pp->tapset_pos != -1) {
+        if (!ScrCtrlIndvNextReadLine(sindv_pp, 0)) {
+            return;
+        }
+    }
 
-        scrrec_pp = sindv_pp->current_scrrec_pp;
-        sindv_pp->scrdat_pp = NULL;
-        sindv_pp->sndId = -1;
+    ScrCtrlExamClear(&sindv_pp->scr_exam_str);
 
-        for (i = 0; i < 24; i++)
-        {
-            sindv_pp->sjob[i] = -1;
+    sindv_pp->scrdat_pp = 0;
+    sindv_pp->sndId = -1;
+
+    for (j = 0; j < SCRSUBJ_MAX; j++) {
+        sindv_pp->sjob[j] = -1;
+    }
+
+    while (1) {
+        if (sindv_pp->current_scrrec_pp->job == SCRRJ_ENDJOB) {
+            sindv_pp->status |= SCS_KILL_REQ;
+            sindv_pp->current_time = sindv_pp->current_scrrec_pp->data;
+            return;
+        }
+    
+        if (sindv_pp->current_scrrec_pp->job == SCRRJ_ENDGAME) {
+            sindv_pp->status |= SCS_END_REQ;
+            sindv_pp->current_time = sindv_pp->current_scrrec_pp->data;
+            return;
+        }
+    
+        if (sindv_pp->current_scrrec_pp->job == SCRRJ_PLY && (sindv_pp->current_scrrec_pp->sub & sindv_pp->plycode) != 0) {
+            sindv_pp->current_time = sindv_pp->current_scrrec_pp->data;
+            sindv_pp->cursor_num = sindv_pp->current_scrrec_pp->jobd1;
+            sindv_pp->tap_follow_enum = TAP_FOLLOW_NONE;
+            sindv_pp->current_scrrec_pp++;
+            break;
         }
 
-        while (1)
-        {
-            if (scrrec_pp->job == 7)
+        sindv_pp->current_scrrec_pp++;
+    }
+
+    endf = FALSE;
+
+    while (1) {
+        short Rsub     = sindv_pp->current_scrrec_pp->sub;
+        int   Rdata    = sindv_pp->current_scrrec_pp->data;
+        int   sj_data1 = sindv_pp->current_scrrec_pp->jobd1;
+        int   sj_data2 = sindv_pp->current_scrrec_pp->jobd2;
+
+        switch (sindv_pp->current_scrrec_pp->job) {
+        case SCRRJ_SCR:
+            sindv_pp->tap_follow_enum = Rsub;
+            sindv_pp->scrdat_pp = (SCRDAT*)Rdata;
+
+            if (*(int*)Rdata == 0) {
+                sindv_pp->sndId = -1;
                 break;
+            }
 
-            if (scrrec_pp->job != 0)
-            {
-                if (scrrec_pp->sub & sindv_pp->plycode)
-                {
-                    sindv_pp->current_time = scrrec_pp->data;
-                    sindv_pp->cursor_num = scrrec_pp->jobd1;
-                    sindv_pp->tap_follow_enum = TAP_FOLLOW_NONE;
+            sindv_pp->sndId = ScrTapDbuffSet(&score_str.stdat_dat_pp->scr_pp->sndrec_pp[*(int*)Rdata]);
+            break;
+        case SCRRJ_EXAM:
+            sindv_pp->scr_exam_str.exam_enum = Rsub;
+            sindv_pp->scr_exam_str.vsPlayer = Rdata;
+            sindv_pp->scr_exam_str.exam_start = 0;
+            break;
+        case SCRRJ_UP_LINE:
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_UP].goto_time = Rdata;
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_UP].goto_line = Rsub;
+            break;
+        case SCRRJ_UP_JOB:
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_UP].goto_job_time = Rdata;
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_UP].goto_job = Rsub;
+            break;
+        case SCRRJ_DOWN_LINE:
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_DOWN].goto_time = Rdata;
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_DOWN].goto_line = Rsub;
+            break;
+        case SCRRJ_DOWN_JOB:
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_DOWN].goto_job_time = Rdata;
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_DOWN].goto_job = Rsub;
+            break;
+        case SCRRJ_ADD_JOB:
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_ADD].goto_line = sj_data1;
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_ADD].goto_job_time = Rdata;
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_ADD].goto_job = Rsub;
+            break;
+        case SCRRJ_SUB_JOB:
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_SUB].goto_line = sj_data1;
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_SUB].goto_job_time = Rdata;
+            sindv_pp->scr_exam_str.scr_exam_job[SCREX_SUB].goto_job = Rsub;
+            break;
+        case SCRRJ_LINE:
+            sindv_pp->scr_exam_str.scr_exam_job[sj_data2].goto_time = Rdata;
+            sindv_pp->scr_exam_str.scr_exam_job[sj_data2].goto_line = Rsub;
+            break;
+        case SCRRJ_JOB:
+            sindv_pp->scr_exam_str.scr_exam_job[sj_data2].goto_job_time = Rdata;
+            sindv_pp->scr_exam_str.scr_exam_job[sj_data2].goto_job = Rsub;
+            break;
+        case SCRRJ_SUBJOB:
+            if (Rsub == SCRSUBJ_SPU_ON) {
+                int xx;
+                int yari_ff = FALSE;
 
-                    endf = 0;
-                    
-                    scrrec_pp++;
-
-                    while (1)
-                    {
-                        Rsub = scrrec_pp->sub;
-                        Rdata = scrrec_pp->data;
-                        sj_data1 = scrrec_pp->jobd1;
-                        sj_data2 = scrrec_pp->jobd2;
-
-                        switch (scrrec_pp->job)
-                        {
-                        case 0:
-                        case 7:
-                        case 8:
-                            endf = 1;
-                            break;
-                        case 2:
-                            sindv_pp->scr_exam_str.vsPlayer = Rdata;
-                            sindv_pp->scr_exam_str.exam_enum = Rsub;
-                            sindv_pp->scr_exam_str.exam_start = 0;
-                            break;
-                        case 3:
-                            sindv_pp->scr_exam_str.scr_exam_job[0].goto_time = Rdata;
-                            sindv_pp->scr_exam_str.scr_exam_job[0].goto_line = Rsub;
-                            break;
-                        case 4:
-                            sindv_pp->scr_exam_str.scr_exam_job[0].goto_job_time = Rdata;
-                            sindv_pp->scr_exam_str.scr_exam_job[0].goto_job = Rsub;
-                            break;
-                        case 5:
-                            sindv_pp->scr_exam_str.scr_exam_job[1].goto_time = Rdata;
-                            sindv_pp->scr_exam_str.scr_exam_job[1].goto_line = Rsub;
-                            break;
-                        case 6:
-                            sindv_pp->scr_exam_str.scr_exam_job[1].goto_job_time = Rdata;
-                            sindv_pp->scr_exam_str.scr_exam_job[1].goto_job = Rsub;
-                            break;
-                        case 9:
-                            if (Rsub == 9)
-                            {
-                                yari_ff = 0;
-
-                                for (j = 0; j < 4; i++)
-                                {
-                                    if (sindv_pp->sjob[j] != -1)
-                                    {
-                                        sindv_pp->sjob_data[j][0] = sj_data1;
-                                        sindv_pp->sjob_data[j][1] = sj_data2;
-                                        yari_ff = 1;
-                                    }
-                                }
-
-                                if (!yari_ff)
-                                    printf("ERROR! SUBJOB_NO_ID OVER!\n");
-                            }
-                            else
-                            {
-                                sindv_pp->sjob[Rsub] = Rdata;
-                                sindv_pp->sjob_data[Rsub][0] = sj_data1;
-                                sindv_pp->sjob_data[Rsub][1] = sj_data2;
-                            }
-                            break;
-                        case 0xB:
-                            sindv_pp->scr_exam_str.scr_exam_job[2].goto_line = sj_data1;
-                            sindv_pp->scr_exam_str.scr_exam_job[2].goto_job_time = Rdata;
-                            sindv_pp->scr_exam_str.scr_exam_job[2].goto_job = Rsub;
-                            break;
-                        case 0xC:
-                            sindv_pp->scr_exam_str.scr_exam_job[3].goto_line = sj_data1;
-                            sindv_pp->scr_exam_str.scr_exam_job[3].goto_job_time = Rdata;
-                            sindv_pp->scr_exam_str.scr_exam_job[3].goto_job = Rsub;
-                            break;
-                        case 0xD:
-                            sindv_pp->scr_exam_str.scr_exam_job[sj_data2].goto_line = Rsub;
-                            sindv_pp->scr_exam_str.scr_exam_job[sj_data2].goto_time = Rdata;
-                            break;
-                        case 0xE:
-                            sindv_pp->scr_exam_str.scr_exam_job[sj_data2].goto_job = Rsub;
-                            sindv_pp->scr_exam_str.scr_exam_job[sj_data2].goto_job_time = Rdata;
-                            break;
-                        default:
-                            break;
-                        }
-
-                        if (endf)
-                        {
-                            if (sindv_pp->global_ply == NULL)
-                                printf("global_play is NULL [%d]\n", sindv_pp->plycode);
-                            else
-                                tapLevelChange(sindv_pp);
-
-                            ScrCtrlIndvNextReadLine(sindv_pp, 0);
-                            return;
-                        }
-
-                        scrrec_pp++;
+                for (xx = 0; xx < 4; xx++) {
+                    if (sindv_pp->sjob[Rsub + xx] == -1) {
+                        sindv_pp->sjob[Rsub + xx] = Rdata + xx;
+                        sindv_pp->sjob_data[Rsub + xx][0] = sj_data1;
+                        sindv_pp->sjob_data[Rsub + xx][1] = sj_data2;
+                        yari_ff = TRUE;
+                        break;
                     }
                 }
 
-                scrrec_pp++;
+                if (!yari_ff) {
+                    printf("ERROR! SUBJOB_NO_ID OVER!\n");
+                }
+
+                break;
             }
+
+            sindv_pp->sjob[Rsub] = Rdata;
+            sindv_pp->sjob_data[Rsub][0] = sj_data1;
+            sindv_pp->sjob_data[Rsub][1] = sj_data2;
+            break;
+        case SCRRJ_PLY:
+        case SCRRJ_ENDJOB:
+        case SCRRJ_ENDGAME:
+            endf = TRUE;
+            break;
+        case SCRRJ_MSG_DISP:
+            break;
         }
 
-        sindv_pp->status |= 8;
-        sindv_pp->current_time = scrrec_pp->data;
+        if (endf) {
+            break;
+        }
+
+        sindv_pp->current_scrrec_pp++;
     }
+
+    if (sindv_pp->global_ply == NULL) {
+        printf("global_play is NULL [%d]\n", sindv_pp->plycode);
+    } else {
+        tapLevelChange(sindv_pp);
+    }
+
+    ScrCtrlIndvNextReadLine(sindv_pp, 0);
+
 }
-#endif
 
 void intIndvStatusSet(SCORE_INDV_STR *sindv_pp, u_int CKF, u_int STF, u_int UNF) {
     if (sindv_pp->status & CKF) {
@@ -1160,12 +1160,12 @@ void otherIndvTapReset(int num) {
         if (i != num) {
             if (sindv_pp->status & SCS_USE) {
                 KeyCntClear(sindv_pp->keyCnt);
-                    
+
                 sindv_pp->keyCntCom = 0;
                 sindv_pp->scr_tap_memory_cnt = 0;
                 sindv_pp->scr_tap_vib_on = 0;
-                sindv_pp->cansel_flag = 0;
-                    
+                sindv_pp->cansel_flag = FALSE;
+
                 tapReqGroupTapClear(Pcode2Pindex(sindv_pp->plycode));
             }
         }
@@ -1190,7 +1190,7 @@ void selectIndvTapResetPlay(int num) {
     sindv_pp->keyCntCom = 0;
     sindv_pp->scr_tap_memory_cnt = 0;
     sindv_pp->scr_tap_vib_on = 0;
-    sindv_pp->cansel_flag = 0;
+    sindv_pp->cansel_flag = FALSE;
 
     tapReqGroupTapClear(Pcode2Pindex(sindv_pp->plycode));
 }
@@ -1425,7 +1425,445 @@ void tapReqGroupPoll(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", tapEventCheck);
+void tapEventCheck(SCORE_INDV_STR *sindv_pp, int Ttime, int Ctime, int num) {
+    int padType;
+
+    int onKeyTime;
+    int onKeyOut;
+
+    TAPSET      *tapset_pp;
+    u_char      *tappress_pp;
+    TAPDAT      *tapdat_pp;
+
+    PLAYER_ENUM  player_enum_tmp;
+    u_char       othNumTmp;
+
+    onKeyOut = 0;
+
+    tappress_pp = NULL;
+    tapdat_pp   = NULL;
+
+    othNumTmp = 0;
+
+    if (sindv_pp->scrdat_pp == NULL) {
+        return;
+    }
+
+    if (global_data.play_step == PSTEP_HOOK) {
+        if (sindv_pp->global_ply != NULL) {
+            if (sindv_pp->global_ply->pad_type == PAD_1CON) {
+                if (pad[0].one & SCE_PADstart) {
+                    sindv_pp->cansel_flag = TRUE;
+                    sindv_pp->scr_exam_str.exam_enum = EXAM_CANCEL;
+                    return;
+                }
+            }
+        }
+    }
+
+    if (sindv_pp->scr_exam_str.exam_enum == EXAM_CANCEL) {
+        int paddata_tmp = 0;
+
+        if (sindv_pp->global_ply != NULL) {
+            padType = sindv_pp->global_ply->pad_type;
+
+            if (global_data.play_step == PSTEP_BONUS) {
+                padType = PAD_1CON;
+            }
+            if (global_data.play_step == PSTEP_VS && global_data.demo_flagL == DEMOF_REPLAY) {
+                padType = PAD_1CON;
+            }
+
+            if (padType == PAD_1CON || padType == PAD_2CON) {
+                paddata_tmp = pad[padType].one;
+            }
+
+            if (GetKeyCode2Index(paddata_tmp) != KiNO && !sindv_pp->cansel_flag) {
+                if (global_data.play_step == PSTEP_BONUS) {
+                    ScrTapReq(-1, 3, 0);
+                } else {
+                    ScrTapReq(-1, 3, 2);
+                }
+
+                sindv_pp->cansel_flag = TRUE;
+            }
+        }
+
+        return;
+    }
+
+    padType = PAD_DEMO;
+
+    if (sindv_pp->global_ply != NULL) {
+        padType = sindv_pp->global_ply->pad_type;
+    }
+
+    PR_SCOPE()
+    int tapset_pos_tmp = sindv_pp->tapset_pos;
+    if (tapset_pos_tmp == -1) {
+        ScrCtrlIndvNextReadLine(sindv_pp, 0);
+        if (tapset_pos_tmp == sindv_pp->tapset_pos) {
+            return;
+        }
+    }
+    PR_SCOPEEND()
+
+    if (sindv_pp->tapset_pos >= sindv_pp->scrdat_pp->tapstr[global_data.tapLevel].tapset_size) {
+        printf("TAP !! tap set pos is OVER!!\n");
+        return;
+    }
+
+    tapset_pp = &sindv_pp->scrdat_pp->tapstr[global_data.tapLevel].tapset_pp[sindv_pp->tapset_pos];
+
+    if (Ctime < (tapset_pp->taptimeStart - 24)) {
+        return;
+    }
+
+    player_enum_tmp = NON_PLAYER_NUM;
+    if (sindv_pp->plycode == PCODE_PARA) {
+        player_enum_tmp = PARA_PLAYER_NUM;
+    }
+    if (sindv_pp->plycode == PCODE_TEACHER) {
+        player_enum_tmp = TEACHER_PLAYER_NUM;
+    }
+    if (sindv_pp->plycode == PCODE_BOXY) {
+        player_enum_tmp = BOXY_PLAYER_NUM;
+    }
+
+    if (sindv_pp->scr_tap_vib_on == 0) {
+        if (tapset_pp->tapscode == TAPSCODE_QUESTION) {
+            vsTapdatSetMoto(sindv_pp);
+        } else {
+            if (tapset_pp->tapscode != TAPSCODE_NORMAL && padType == PAD_COM) {
+                commake_str_cnt = computerMaking(commake_str, PR_ARRAYSIZE(commake_str), vs_tapdat_tmp, vs_tapdat_tmp_cnt, tapset_pp, global_data.level_vs_enumL);
+            }
+        }
+
+        sindv_pp->scr_tap_vib_on++;
+    }
+
+    onKeyTime = -1;
+
+    switch (padType) {
+    case PAD_DEMO:
+        if (sindv_pp->tap_follow_enum == TAP_FOLLOW_LOAD) {
+            SCR_TAP_MEMORY *flt_mem_pp = followTapLoad(sindv_pp->keyCntCom, Ctime - tapset_pp->taptimeStart);
+            if (flt_mem_pp != NULL) {
+                tapdat_pp = &tapset_pp->tapdat_pp[flt_mem_pp->othNum];
+                othNumTmp = flt_mem_pp->othNum;
+                sindv_pp->keyCntCom++;
+                onKeyOut = TRUE;                
+                onKeyTime = flt_mem_pp->ofs_frame + tapset_pp->taptimeStart + sindv_pp->current_time;
+            }
+
+            break;
+        }
+
+        if (tapset_pp->tapdat_size > sindv_pp->keyCntCom) {
+            tapdat_pp = &tapset_pp->tapdat_pp[sindv_pp->keyCntCom];
+
+            if (Ctime < (tapdat_pp->time + tapset_pp->taptimeStart)) {
+                break;
+            }
+
+            othNumTmp = sindv_pp->keyCntCom;
+
+            sindv_pp->keyCntCom++;            
+            onKeyOut = TRUE;
+            onKeyTime = tapdat_pp->time + tapset_pp->taptimeStart + sindv_pp->current_time;
+        }
+
+        break;
+    case PAD_REPLAY: {
+        int keyId;
+        int keyId_x;
+
+        short paddata;
+
+        short key_num;
+        short key_max;
+
+        int time_tmp;
+
+        paddata = mccReqTapGet(Ttime, sindv_pp->useLine, &time_tmp, player_enum_tmp);
+
+        if (paddata == 0) {
+            break;
+        }
+
+        if (paddata & SCE_PADLleft) {
+            KeyCntClear(sindv_pp->keyCnt);
+        }
+
+        keyId = GetKeyCode2Index(paddata);
+        keyId_x = keyId;
+
+        if (keyId == KiNO) {
+            break;
+        }
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            keyId_x = KiTR;
+        }
+
+        if (!(paddata & SCE_PADLright)) {
+            sindv_pp->keyCnt[keyId_x]++;
+        }
+
+        key_num = sindv_pp->keyCnt[keyId_x];
+        if (key_num < 0) {
+            key_num = 0;
+        }
+
+        key_max = TapKeyCheckNum(tapset_pp, keyId_x, FALSE);
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            key_max = tapset_pp->tapdat_size;
+        }
+
+        if (key_max == 0) {
+            key_max = TapKeyCheckNum(tapset_pp, keyId_x, TRUE);
+
+            if (key_max == 0) {
+                break;
+            }
+
+            onKeyOut = FALSE;
+        } else {
+            onKeyOut = TRUE;
+        }
+
+        onKeyTime = time_tmp;
+        key_num %= key_max;
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            othNumTmp = key_num;
+            tapdat_pp = &tapset_pp->tapdat_pp[key_num];
+        } else {
+            tapdat_pp = TapKeyGetDatPP(tapset_pp, keyId_x, key_num, onKeyOut ^ 1, &othNumTmp);
+        }
+
+        break;
+    }
+    case PAD_COM: {
+        COMMAKE_STR *com_pp;
+        int          keyId_x;
+        short        key_num;
+        short        key_max;
+
+        if (commake_str_cnt <= sindv_pp->keyCntCom) {
+            break;
+        }
+
+        com_pp = &commake_str[sindv_pp->keyCntCom];
+
+        if (Ctime < (com_pp->time + tapset_pp->taptimeStart)) {
+            break;
+        }
+
+        onKeyTime = com_pp->time + tapset_pp->taptimeStart + sindv_pp->current_time;
+
+        sindv_pp->keyCntCom++;
+
+        keyId_x = com_pp->KeyIndex;
+
+        if (keyId_x == KiNO) {
+            break;
+        }
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            keyId_x = KiTR;
+        }
+
+        sindv_pp->keyCnt[keyId_x]++;
+
+        mccReqTapSet(Ttime, sindv_pp->useLine, keyId_x, player_enum_tmp);
+
+        key_num = sindv_pp->keyCnt[keyId_x];
+        if (key_num < 0) {
+            key_num = 0;
+        }
+
+        key_max = TapKeyCheckNum(tapset_pp, keyId_x, FALSE);
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            key_max = tapset_pp->tapdat_size;
+        }
+
+        if (key_max == 0) {
+            key_max = TapKeyCheckNum(tapset_pp, keyId_x, TRUE);
+
+            if (key_max == 0) {
+                break;
+            }
+
+            onKeyOut = FALSE;
+        } else {
+            onKeyOut = TRUE;
+        }
+
+        key_num %= key_max;
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            othNumTmp = key_num;
+            tapdat_pp = &tapset_pp->tapdat_pp[key_num];
+        } else {
+            tapdat_pp = TapKeyGetDatPP(tapset_pp, keyId_x, key_num, onKeyOut ^ 1, &othNumTmp);
+        }
+
+        break;
+    }
+    case PAD_1CON:
+    case PAD_2CON: {
+        int keyId;
+        int keyId_x;
+
+        u_short paddata;
+        u_short paddata_one;
+
+        short key_num;
+        short key_max;
+
+        if (padType != PAD_1CON && padType != PAD_2CON) {
+            onKeyTime = -1;
+            break;
+        }
+
+        paddata = pad[padType].shot;
+        paddata_one = pad[padType].one;
+
+        if (sindv_pp->scr_tap_vib_on < 3) {
+            if (game_status.vibration == VIBRATION_ON) {
+                pad[padType].padvib[0] = 1;
+            }
+
+            sindv_pp->scr_tap_vib_on++;
+        }
+
+        if (paddata & SCE_PADLleft) {
+            KeyCntClear(sindv_pp->keyCnt);
+            mccReqTapResetSet(player_enum_tmp);
+        }
+
+        keyId = GetKeyCode2Index(paddata_one);
+        if (keyId == KiNO) {
+            break;
+        }
+
+        keyId_x = keyId;
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            keyId_x = KiTR;
+        }
+
+        if (paddata & SCE_PADLright) {
+            mccReqTapHoldSet(player_enum_tmp);
+        } else {
+            sindv_pp->keyCnt[keyId_x]++;
+        }
+
+        mccReqTapSet(Ttime, sindv_pp->useLine, keyId_x, player_enum_tmp);
+
+        key_num = sindv_pp->keyCnt[keyId_x];
+        if (key_num < 0) {
+            key_num = 0;
+        }
+
+        key_max = TapKeyCheckNum(tapset_pp, keyId_x, FALSE);
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            key_max = tapset_pp->tapdat_size;
+        }
+
+        if (key_max == 0) {
+            key_max = TapKeyCheckNum(tapset_pp, keyId_x, TRUE);
+
+            if (key_max == 0) {
+                break;
+            }
+
+            onKeyOut = FALSE;
+        } else {
+            onKeyOut = TRUE;
+        }
+
+        onKeyTime = Ttime;
+        key_num %= key_max;
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            othNumTmp = key_num;
+            tapdat_pp = &tapset_pp->tapdat_pp[key_num];
+        } else {
+            tapdat_pp = TapKeyGetDatPP(tapset_pp, keyId_x, key_num, onKeyOut ^ 1, &othNumTmp);
+        }
+
+        if (GetIndex2PressId(keyId) >= 0) {
+            tappress_pp = &pad[padType].press[GetIndex2PressId(keyId)];
+        }
+
+        break;
+    }
+    case PAD_UNUSE:
+        onKeyTime = -1;
+        break;
+    }
+
+    if (onKeyTime < 0) {
+        return;
+    }
+
+    tapReqGroup(tapdat_pp->tapct, Pcode2Pindex(sindv_pp->plycode), (onKeyOut) ? sindv_pp->sndId : -1, tappress_pp);
+
+    if (tapdat_pp->KeyIndex != KiNO) {
+        SCR_TAP_MEMORY *mkey_pp = &sindv_pp->scr_tap_memory[sindv_pp->scr_tap_memory_cnt];
+
+        mkey_pp->key       = tapdat_pp->KeyIndex;
+        mkey_pp->othNum    = othNumTmp;
+        mkey_pp->ofs_frame = onKeyTime - tapset_pp->taptimeStart - sindv_pp->current_time;
+        mkey_pp->onKey     = onKeyOut;
+
+        sindv_pp->scr_tap_memory_cnt++;
+        if (sindv_pp->scr_tap_memory_cnt > 255) {
+            sindv_pp->scr_tap_memory_cnt = 255;
+            printf(" KEY STACK OVER!!\n");
+        }
+
+        if (global_data.play_typeL == PLAY_TYPE_ONE) {
+            mkey_pp->key = KiTR;
+        }
+
+        PR_SCOPE()
+        int local_map;
+        int xx;
+
+        local_map = MapNormalNumGet(mkey_pp->ofs_frame + 96);
+
+        mkey_pp->othOn = FALSE;
+
+        for (xx = 0; xx < tapset_pp->tapdat_size; xx++) {
+            int map = MapNormalNumGet(tapset_pp->tapdat_pp[xx].time + 96);
+            if (local_map == map) {
+                if (global_data.play_typeL == PLAY_TYPE_ONE) {
+                    mkey_pp->othOn = TRUE;
+                    break;
+                }
+
+                if (tapset_pp->tapdat_pp[xx].KeyIndex == mkey_pp->key) {
+                    mkey_pp->othOn = TRUE;
+                    break;
+                }
+            }
+        }
+
+        if (mkey_pp->othOn) {
+            MbarHookUseOK();
+        } else {
+            MbarHookUseNG();
+        }
+    
+        PR_SCOPEEND()
+    }
+}
 
 static int otehon_all_make(EXAM_CHECK *ec_pp) {
     int i;
@@ -1659,14 +2097,129 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth) {
     return (ret >= 0) ? -ret : ret;
 }
 
+#ifndef NON_MATCHING
 INCLUDE_ASM("asm/nonmatchings/main/scrctrl", exh_yaku);
+#else /* Requires .sdata migration */
+static int exh_yaku(EXAM_CHECK *ec_pp, int hane_flag) {
+    int i, j;
+    int ofsT, ofsE;
+    int ret;
+
+    WorkClear(yaku_tmp_buf, sizeof(yaku_tmp_buf));
+
+    ofsT = ec_pp->top_ofs / 2;
+    ofsE = ec_pp->end_ofs / 2;
+
+    for (i = 0; i < (PR_ARRAYSIZE(yaku_tmp_buf) * 2); i++) {
+        if (i < ofsT || i > ofsE) {
+            if ((i % 2) != 0) {
+                yaku_tmp_buf[i / 2] &= 0xf0;
+                yaku_tmp_buf[i / 2] |= 0x02;
+            } else {
+                yaku_tmp_buf[i / 2] &= 0x0f;
+                yaku_tmp_buf[i / 2] |= 0x20;
+            }
+        }
+    }
+
+    for (i = 0; i < ec_pp->ted_num; i++) {
+        int bufID = ec_pp->ted[i].th_num / 2;
+
+        if ((ec_pp->ted[i].th_num % 2) == 0 && (GetIndex2KeyCode(ec_pp->ted[i].key) & ec_pp->otehon_all) != 0) {
+            u_char setD;
+            if ((bufID % 2) != 0) {
+                setD = 0x01;
+
+                if ((yaku_tmp_buf[bufID / 2] & 0x0f) != 0) {
+                    setD = 0x02;
+                }
+
+                yaku_tmp_buf[bufID / 2] &= 0xf0;
+                yaku_tmp_buf[bufID / 2] |= setD;
+            } else {
+                setD = 0x10;
+
+                if ((yaku_tmp_buf[bufID / 2] & 0xf0) != 0) {
+                    setD = 0x20;
+                }
+
+                yaku_tmp_buf[bufID / 2] &= 0x0f;
+                yaku_tmp_buf[bufID / 2] |= setD;
+            }
+        } else {
+            if ((bufID % 2) != 0) {
+                yaku_tmp_buf[bufID / 2] &= 0xf0;
+                yaku_tmp_buf[bufID / 2] |= 0x02;
+            } else {
+                yaku_tmp_buf[bufID / 2] &= 0x0f;
+                yaku_tmp_buf[bufID / 2] |= 0x20;
+            }
+        }
+    }
+
+    PR_SCOPE()
+    u_char yaku_map[4] = { 16, 17, 1,  0  };
+    u_char yaku_scr[4] = { 6,  9,  15, 18 };
+    u_char yaku_cnt[4] = {};
+    u_char ymin, ymax;
+
+    for (i = 0; i < PR_ARRAYSIZE(yaku_tmp_buf); i++) {
+        for (j = 0; j < 4; j++) {
+            if (yaku_tmp_buf[i] == yaku_map[j]) {
+                yaku_cnt[j]++;
+            }
+        }
+    }
+
+    if (!hane_flag) {
+        ymin = 0;
+
+        for (i = 0; i < 3; i++) {
+            if (yaku_cnt[i] != 0) {
+                ymin++;
+            }
+        }
+
+        if (ymin == 0 || ymin == 1) {
+            yaku_cnt[3] = 0;
+            yaku_cnt[2] = 0;
+            yaku_cnt[1] = 0;
+            yaku_cnt[0] = 0;
+        }
+    }
+
+    ymax = min(min(yaku_cnt[0], yaku_cnt[1]), yaku_cnt[2]);
+
+    if (hane_flag) {
+        if (yaku_cnt[1] == 0 && yaku_cnt[2] == 0) {
+            yaku_cnt[3] = 0;
+            yaku_cnt[2] = 0;
+            yaku_cnt[1] = 0;
+            yaku_cnt[0] = 0;
+        }
+    }
+
+    if (yaku_cnt[3] > ymax) {
+        yaku_cnt[3] = ymax;
+    }
+
+    ret = 0;
+
+    for (i = 0; i < 4; i++) {
+        ret += yaku_cnt[i] * yaku_scr[i];
+    }
+
+    return ret;
+    PR_SCOPEEND()
+}
+#endif
 
 /* static */ int exh_yaku_original(EXAM_CHECK *ec_pp) {
-    return exh_yaku(ec_pp, 0);
+    return exh_yaku(ec_pp, FALSE);
 }
 
 /* static */ int exh_yaku_hane(EXAM_CHECK *ec_pp) {
-    return exh_yaku(ec_pp, 1);
+    return exh_yaku(ec_pp, TRUE);
 }
 
 /* static */ int exh_allkey_out(EXAM_CHECK *ec_pp) {
@@ -1930,11 +2483,11 @@ static void ExamScoreCheck(SCORE_INDV_STR *sindv_pp) {
             ret = scrprgstr_pp->exh_str_pp[j].score_prg(exam_check_pp);
 
             if (sindv_pp->global_ply->rank_level == RLVL_HK_COOL || sindv_pp->global_ply->rank_level == RLVL_HK_COOL_GOOD) {
-                if (scrprgstr_pp->exh_str_pp[j].save_p == 7 ||
-                    scrprgstr_pp->exh_str_pp[j].save_p == 5 ||
-                    scrprgstr_pp->exh_str_pp[j].save_p == 3 ||
-                    scrprgstr_pp->exh_str_pp[j].save_p == 10 ||
-                    scrprgstr_pp->exh_str_pp[j].save_p == 4) {
+                if (scrprgstr_pp->exh_str_pp[j].save_p == EXH_ALLKEY_OUT ||
+                    scrprgstr_pp->exh_str_pp[j].save_p == EXH_MBAR_NUM_OUT ||
+                    scrprgstr_pp->exh_str_pp[j].save_p == EXH_MBAR_KEY_OUT ||
+                    scrprgstr_pp->exh_str_pp[j].save_p == EXH_MANE ||
+                    scrprgstr_pp->exh_str_pp[j].save_p == EXH_MBAR_TIME_OUT) {
                     ret = 0;
                 }
             }
@@ -1961,11 +2514,11 @@ static void ExamScoreCheck(SCORE_INDV_STR *sindv_pp) {
                 ret = scrprgstr_pp->exh_str_pp[j].score_prg(exam_check_pp);
 
                 if (sindv_pp->global_ply->rank_level == RLVL_COOL || sindv_pp->global_ply->rank_level == RLVL_COOL_GOOD) {
-                    if (scrprgstr_pp->exh_str_pp[j].save_p == 7 ||
-                        scrprgstr_pp->exh_str_pp[j].save_p == 5 ||
-                        scrprgstr_pp->exh_str_pp[j].save_p == 3 ||
-                        scrprgstr_pp->exh_str_pp[j].save_p == 10 ||
-                        scrprgstr_pp->exh_str_pp[j].save_p == 4) {
+                    if (scrprgstr_pp->exh_str_pp[j].save_p == EXH_ALLKEY_OUT ||
+                        scrprgstr_pp->exh_str_pp[j].save_p == EXH_MBAR_NUM_OUT ||
+                        scrprgstr_pp->exh_str_pp[j].save_p == EXH_MBAR_KEY_OUT ||
+                        scrprgstr_pp->exh_str_pp[j].save_p == EXH_MANE ||
+                        scrprgstr_pp->exh_str_pp[j].save_p == EXH_MBAR_TIME_OUT) {
                         ret = 0;
                     }
                 }
@@ -1978,8 +2531,8 @@ static void ExamScoreCheck(SCORE_INDV_STR *sindv_pp) {
     sum = 0;
 
     for (i = 0; i < 3; i++) {
-        sindv_pp->global_ply->exam_score[i] = exam_check[i].each_point[11];
-        sum += exam_check[i].each_point[11];
+        sindv_pp->global_ply->exam_score[i] = exam_check[i].each_point[EXH_TOTAL];
+        sum += exam_check[i].each_point[EXH_TOTAL];
     }
 
     sindv_pp->global_ply->now_score = sum;
@@ -2025,7 +2578,7 @@ static int ExamScoreCheckSame(SCORE_INDV_STR *sindv_pp) {
                 scr_tap_memory_pp->key = tapdat_pp->KeyIndex;
             }
 
-            scr_tap_memory_pp->onKey = 1;
+            scr_tap_memory_pp->onKey = TRUE;
             scr_tap_memory_pp->ofs_frame = tapdat_pp->time;
 
             sindv_tmp.scr_tap_memory_cnt++;
@@ -3355,7 +3908,7 @@ void ScrCtrlMainLoop(void *x) {
         MbarDispSceneVsDrawInit();
 
         outsideDrawSceneClear();
-        
+
         GlobalTimeJob();
         ScrTimeRenew(score_str.stdat_dat_pp->scr_pp);
 
@@ -3451,7 +4004,7 @@ void ScrCtrlMainLoop(void *x) {
                 CmnGifCloseCmnPk(&dbgPk, 0xf);
             }
         }
-        
+
         MtcWait(1);
     }
 }
@@ -3658,7 +4211,7 @@ void ScrCtrlInit(STDAT_DAT *sdat_pp, void *data_top) {
 
     ScrCtrlIndvInit(sdat_pp);
     for (i = 0; i < PR_ARRAYSIZE(score_indv_str); i++) {
-        ScrCtrlIndvNextRead(&score_indv_str[i], 1);
+        ScrCtrlIndvNextRead(&score_indv_str[i], TRUE);
     }
 
     ttype = GetTimeType(global_data.draw_tbl_top);
@@ -3835,7 +4388,133 @@ static int bonus_pls_point_sub(int wtime) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/scrctrl", bonusGameCtrl);
+static void bonusGameCtrl(int time) {
+    int         actnum;
+    int         mochimono_ofs;
+    BNG_KOTAMA *bng_kotama_pp;
+
+    mochimono_ofs = ingame_common_str.bonusType * 4;
+
+    bng_str.now_time = time;
+
+    if (time < bng_str.st_time || time >= bng_str.end_time) {
+        return;
+    }
+
+    actnum = GetKeyCode2Index(pad[0].one);
+    switch (actnum) {
+    case KiTR:
+    case KiCI:
+    case KiXX:
+    case KiSQ:
+        actnum -= 1;
+        bng_kotama_pp = &bng_str.bng_kotama[actnum];
+
+        switch (bng_kotama_pp->bng_kotama_act_enum) {
+        case BNGKA_LIFT:
+        case BNGKA_LIFT_NG: {
+            int kotamatime = bng_kotama_pp->wait_time;
+
+            bonusGameKoamaReq(actnum, BNGAKE_4_TOP);
+
+            bng_kotama_pp->wait_time = 0;
+            bng_kotama_pp->bng_kotama_act_enum = BNGKA_BLOW;
+
+            bonusGameParaReq(actnum + 4);
+
+            bng_str.ng_cnt += bonus_minus_point_sub(kotamatime);
+            bng_str.renzoku_cnt = 0;            
+            break;
+        }
+        case BNGKA_LIFTED: {
+            int kotamatime = bng_kotama_pp->wait_time;
+
+            bonusGameKoamaReq(actnum, mochimono_ofs + BNGAKE_3_TOP);
+
+            bng_kotama_pp->wait_time = 0;
+            bng_kotama_pp->bng_kotama_act_enum = BNGKA_BREAK;
+
+            bonusGameParaReq(actnum);
+
+            bng_str.ok_cnt += bonus_pls_point_sub(kotamatime);
+            bng_str.renzoku_cnt++;
+            break;
+        }
+        default:
+            bonusGameParaReq(actnum + 4);
+            break;
+        }
+    }
+
+    PR_SCOPE()
+    int         i;
+    BNG_KOTAMA *bng_kotama_pp = bng_str.bng_kotama;
+
+    for (i = 0; i < 4; i++, bng_kotama_pp++) {
+        bng_kotama_pp->wait_time++;
+
+        switch (bng_kotama_pp->bng_kotama_act_enum) {
+        case BNGKA_NOTHING:
+            bonusGameKoamaReq(i, BNGAKE_5_TOP);
+            bng_kotama_pp->wait_time = 0;
+            bng_kotama_pp->bng_kotama_act_enum = BNGKA_LIFT;
+            break;
+        case BNGKA_LIFT: {
+            int randam_num;
+
+            if (bng_kotama_pp->wait_time == 1) {
+                randam_num = (rand() % 130);
+                randam_num -= bng_str.renzoku_cnt;
+
+                if (randam_num < 0) {
+                    randam_num = 0;
+                }
+
+                randam_num += 10;
+
+                bng_kotama_pp->wait_next_time = randam_num;
+            } else {
+                randam_num = bng_kotama_pp->wait_next_time;
+            }
+
+            if (bng_kotama_pp->wait_time > randam_num) {
+                if ((rand() % 2) != 0) {
+                    bonusGameKoamaReq(i, mochimono_ofs);
+                    bng_kotama_pp->bng_kotama_act_enum = BNGKA_LIFTED;
+                } else {
+                    bonusGameKoamaReq(i, BNGAKE_2_TOP);
+                    bng_kotama_pp->bng_kotama_act_enum = BNGKA_LIFT_NG;
+                }
+
+                bng_kotama_pp->wait_time = 0;
+            }
+
+            break;
+        }
+        case BNGKA_LIFT_NG:
+            if (bng_kotama_pp->wait_time >= 24) {
+                bng_kotama_pp->bng_kotama_act_enum = BNGKA_NOTHING;
+                bng_kotama_pp->wait_time = 0;
+            }
+            break;
+        case BNGKA_BLOW:
+            if (bng_kotama_pp->wait_time >= 180) {
+                bng_kotama_pp->bng_kotama_act_enum = BNGKA_NOTHING;
+                bng_kotama_pp->wait_time = 0;
+            }
+            break;
+        case BNGKA_BREAK:
+            if (bng_kotama_pp->wait_time >= 36) {
+                bng_kotama_pp->bng_kotama_act_enum = BNGKA_NOTHING;
+                bng_kotama_pp->wait_time = 0;
+            }
+            break;
+        case BNGKA_LIFTED:
+            break;
+        }
+    }
+    PR_SCOPEEND()
+}
 
 static u_long hex2dec(u_long data) {
     u_long ret = 0;
