@@ -135,7 +135,7 @@ static void clrColorBuffer(int id) {
     cbp = PR_TEX0(tim2_dat_pp).CBP;
 
     sceGsSetDefLoadImage(&tp_tmp_72, cbp, 1, cpsm, 0, 0, 8, 2);
-    FlushCache(0);
+    FlushCache(WRITEBACK_DCACHE);
 
     sceGsExecLoadImage(&tp_tmp_72, (u_long128*)tr_adr);
     sceGsSyncPath(0, 0);

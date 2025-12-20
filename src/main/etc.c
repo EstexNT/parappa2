@@ -191,7 +191,7 @@ void GlobalPlySet(GLOBAL_DATA *gl_pp, PLAY_STEP stp, int stage_num) {
 
     switch (stp) {
     case PSTEP_SERIAL:
-        global_data.draw_tbl_top = 0;
+        global_data.draw_tbl_top = DTBL_ENUM_SERIAL_TOP;
         
         gply_pp = &global_data.global_ply[3];
         gply_pp->player_code = PCODE_NONE;
@@ -202,7 +202,7 @@ void GlobalPlySet(GLOBAL_DATA *gl_pp, PLAY_STEP stp, int stage_num) {
         gply_pp->tap_lvl_tmp = 0;
         break;
     case PSTEP_XTR:
-        global_data.draw_tbl_top = 0;
+        global_data.draw_tbl_top = DTBL_ENUM_SERIAL_TOP;
         
         gply_pp = &global_data.global_ply[3];
         gply_pp->player_code = PCODE_NONE;
@@ -278,7 +278,7 @@ void GlobalPlySet(GLOBAL_DATA *gl_pp, PLAY_STEP stp, int stage_num) {
         ExamDispPlySet(gply_pp, 0);
         break;
     case PSTEP_BONUS:
-        global_data.draw_tbl_top = 0;
+        global_data.draw_tbl_top = DTBL_ENUM_BN_TOP;
         
         gply_pp = &global_data.global_ply[1];
         gply_pp->player_code = PCODE_TEACHER;
@@ -298,7 +298,7 @@ void GlobalPlySet(GLOBAL_DATA *gl_pp, PLAY_STEP stp, int stage_num) {
         ExamDispPlySet(gply_pp, 0);
         break;
     case PSTEP_VS:
-        global_data.draw_tbl_top = 0;
+        global_data.draw_tbl_top = DTBL_ENUM_VS_TOP;
         
         gply_pp = &global_data.global_ply[2];
         gply_pp->player_code = PCODE_BOXY;
@@ -659,8 +659,8 @@ HKLV_SNDREC_ENUM inCmnHookMaxLinePknum(int stg, int line) {
 
 int inCmnHookSet(int stg) {
     int cnt, ret;
-    
-    ret = 0;
+
+    ret = DTBL_ENUM_HOOK_TOP;
     cnt = inCmnHookMaxLineCnt(stg);
 
     if (cnt == 0) {

@@ -130,7 +130,7 @@ void TsDrawUPacket(TsUSERPKT *up) {
     up->btop = up->ptop = PR_UNCACHED(up->pkt[up->idx].PaketTop);
 
     PktChan = sceDmaGetChan(SCE_DMA_GIF);
-    FlushCache(0);
+    FlushCache(WRITEBACK_DCACHE);
 
     sceDmaSync(PktChan, 0, 0);
     sceDmaSend(PktChan, pk);

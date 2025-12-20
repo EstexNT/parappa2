@@ -656,6 +656,11 @@ typedef struct { // 0x20
     /* 0x0c */ u_char map[10][2];
 } BN_NUM_TYPE;
 
+enum {
+    BN_KANJI_TXT = 0,
+    BN_SUUJI_TXT = 1
+};
+
 int GetCurrentTblNumber(void);
 
 DISP_LEVEL RANK_LEVEL2DISP_LEVEL(RANK_LEVEL lvl);

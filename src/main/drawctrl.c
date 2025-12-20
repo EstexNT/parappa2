@@ -1429,7 +1429,7 @@ void Cl2MixTrans(int now_T, int max_T, u_char *cl2_0_pp, u_char *cl2_1_pp) {
     };
 
     sceGsSetDefLoadImage(&l_image, trTbp0, trTbw, typemode[trType0], 0, 0, trW, trH);
-    FlushCache(0);
+    FlushCache(WRITEBACK_DCACHE);
 
     sceGsExecLoadImage(&l_image, (u_long128*)dat_pp);
     sceGsSyncPath(0, 0);
@@ -1633,7 +1633,7 @@ int DrawVramLocalCopy(void *para_pp, int frame, int first_f, int useDisp, int dr
     dbp = DrawGetTbpPos(drDisp);
 
     GGsSetLocalMoveImage(&mi, dbp, 10, SCE_GS_PSMCT32, 0, 0, sbp, 10, SCE_GS_PSMCT32, 0, 0, 640, 224, 0);
-    FlushCache(0);
+    FlushCache(WRITEBACK_DCACHE);
 
     GGsExecLocalMoveImage(&mi);
     sceGsSyncPath(0, 0);
@@ -1658,7 +1658,7 @@ int DrawVramLocalCopy2(void *para_pp, int frame, int first_f, int useDisp, int d
     dbp = DrawGetTbpPos(drDisp);
 
     GGsSetLocalMoveImage(&mi, dbp, 10, SCE_GS_PSMCT32, 0, 0, sbp, 10, SCE_GS_PSMCT32, 0, 0, 640, 224, 0);
-    FlushCache(0);
+    FlushCache(WRITEBACK_DCACHE);
 
     GGsExecLocalMoveImage(&mi);
     sceGsSyncPath(0, 0);

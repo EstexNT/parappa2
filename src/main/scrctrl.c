@@ -1,6 +1,5 @@
 #include "main/scrctrl.h"
 
-#include "common.h"
 #include "dbug/dbgmsg.h"
 
 #include "os/cmngifpk.h"
@@ -25,44 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int titleStartKey = 0;
-static int fadeoutStartKey = 0;
-static int gameEndWaitLoop = 0;
-static int replayGuiOffFlag = 0;
-static int jimakuWakuOff = 0;
-int currentTblNumber = 0;
-int vs_tapdat_tmp_cnt = 0;
-int scrJimakuLine = 0;
-int scrDrawLine = 0;
-int scrMbarLine = 0;
-int scrRefLineTime = -1;
-// /* data 183258 */ static EXH_STR exh_str_normal[];
-// /* data 1832a8 */ static EXH_STR exh_str_original[];
-// /* data 1832e0 */ static EXH_STR exh_str_hane[];
-// /* data 183310 */ static EXH_STR exh_str_hook[];
-/* data 183320 */ static u_int thnum_tbl[]; /* static */
-/* data 183330 */ extern TCL_CTRL tcl_ctrl[4][33];
-/* data 183b70 */ extern SCRPRGSTR scrprgstr[]; /* static */
-/* data 183b88 */ extern SCRPRGSTR scrprgstr_hook[]; /* static */
-// /* data 183b90 */ static TIM2_DAT tim2spr_tbl[];
-/* data 183bd0 */ extern BN_NUM_TYPE bn_num_type[]; /* static */
-/* data 183c10 */ extern LERO_TIM2_PT lero_tim2_pt[]; /* static */
-/* data 183c68 */ extern LERO_POS_STR lero_pos_str[][2]; /* static */
-/* data 183d58 */ extern SCR_SND_DBUFF scr_snd_dbuff;
-/* bss 1c5f030 */ extern SNDTAP *scr_sndtap_pp[4]; /* static */
-/* data 183d70 */ extern SCORE_STR score_str;
-/* bss 1c5f040 */ extern SCORE_INDV_STR score_indv_str[5];
-/* data 183d88 */ extern TAPDAT vs_tapdat_tmp[64];
-/* sbss 399a38 */ extern int follow_scr_tap_memory_cnt; /* static */
-/* sbss 399a3c */ extern int follow_scr_tap_memory_cnt_load; /* static */
-/* bss 1c63a68 */ extern SCR_TAP_MEMORY follow_scr_tap_memory[256]; /* static */
-/* bss 1c64668 */ extern TAP_GROUPE_STR tap_groupe_str[5]; /* static */
-/* bss 1c646b8 */ extern COMMAKE_STR commake_str[32]; /* static */
-/* sbss 399a40 */ extern int commake_str_cnt; /* static */
-/* bss 1c647b8 */ extern EXAM_CHECK exam_check[3]; /* static */
-/* bss 1c65b00 */ extern u_char yaku_tmp_buf[36]; /* static */
-/* bss 1c65b28 */ extern BNG_STR bng_str; /* static */
-
 static void exam_tbl_updownInit(SCORE_INDV_STR *sindv_pp);
 static void exam_tbl_updownSet(SCORE_INDV_STR *sindv_pp, int now, int sikiichi, int oth);
 static int  exam_tbl_updownChange(SCORE_INDV_STR *sindv_pp, TAP_CTRL_LEVEL_ENUM clv, TAP_ROUND_ENUM round, int coolf);
@@ -80,23 +41,23 @@ static int  treateTimeChange(int time);
 static int  thnum_get(int p96_num, CK_TH_ENUM ckth);
 static int  MapNormalNumGet(int time);
 static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth);
-/* static */ int  exh_normal_add(EXAM_CHECK *ec_pp);
-/* static */ int  exh_normal_sub(EXAM_CHECK *ec_pp);
-/* static */ int  exh_nombar_sub(EXAM_CHECK *ec_pp);
-/* static */ int  exh_mbar_key_out(EXAM_CHECK *ec_pp);
-/* static */ int  exh_mbar_time_out(EXAM_CHECK *ec_pp);
-/* static */ int  exh_mbar_num_out(EXAM_CHECK *ec_pp);
+static int  exh_normal_add(EXAM_CHECK *ec_pp);
+static int  exh_normal_sub(EXAM_CHECK *ec_pp);
+static int  exh_nombar_sub(EXAM_CHECK *ec_pp);
+static int  exh_mbar_key_out(EXAM_CHECK *ec_pp);
+static int  exh_mbar_time_out(EXAM_CHECK *ec_pp);
+static int  exh_mbar_num_out(EXAM_CHECK *ec_pp);
 static int  exh_yaku(EXAM_CHECK *ec_pp, int hane_flag);
-/* static */ int  exh_yaku_original(EXAM_CHECK *ec_pp);
-/* static */ int  exh_yaku_hane(EXAM_CHECK *ec_pp);
-/* static */ int  exh_allkey_out(EXAM_CHECK *ec_pp);
-/* static */ int  exh_allkey_out_nh(EXAM_CHECK *ec_pp);
-/* static */ int  exh_command(EXAM_CHECK *ec_pp);
-/* static */ int  exh_renda_out(EXAM_CHECK *ec_pp);
+static int  exh_yaku_original(EXAM_CHECK *ec_pp);
+static int  exh_yaku_hane(EXAM_CHECK *ec_pp);
+static int  exh_allkey_out(EXAM_CHECK *ec_pp);
+static int  exh_allkey_out_nh(EXAM_CHECK *ec_pp);
+static int  exh_command(EXAM_CHECK *ec_pp);
+static int  exh_renda_out(EXAM_CHECK *ec_pp);
 static int  manemane_check_sub(EXAM_CHECK *ec_pp);
-/* static */ int  manemane_check(EXAM_CHECK *ec_pp);
-/* static */ int  exh_mane(EXAM_CHECK *ec_pp);
-/* static */ int  exh_all_add(EXAM_CHECK *ec_pp);
+static int  manemane_check(EXAM_CHECK *ec_pp);
+static int  exh_mane(EXAM_CHECK *ec_pp);
+static int  exh_all_add(EXAM_CHECK *ec_pp);
 static TAPSET* IndvGetTapSetAdrs(SCORE_INDV_STR *sindv_pp);
 static int  nextExamTime(void);
 static SCORE_INDV_STR* GetSindvPcodeLine(PLAYER_CODE pcode);
@@ -121,6 +82,369 @@ static void bnNumberDisp(sceGifPacket *gif_pp, long score, short x, short y, int
 static void bonusScoreDraw(void);
 static void set_lero_gifset(sceGifPacket *gifpk_pp, LERO_TIM2_PT *let2_pp, short xp, short yp);
 static void LessonRoundDisp(SCRRJ_LESSON_ROUND_ENUM type);
+
+static int titleStartKey = FALSE;
+static int fadeoutStartKey = FALSE;
+static int gameEndWaitLoop = FALSE;
+static int replayGuiOffFlag = FALSE;
+static int jimakuWakuOff = FALSE;
+
+int currentTblNumber = 0;
+int vs_tapdat_tmp_cnt = 0;
+int scrJimakuLine = 0;
+int scrDrawLine = 0;
+int scrMbarLine = 0;
+int scrRefLineTime = -1;
+
+static EXH_STR exh_str_normal[] = {
+    { .score_prg = exh_normal_add,    .save_p = EXH_NORMAL_ADD,    .bairitu = 48 },
+    { .score_prg = exh_normal_sub,    .save_p = EXH_NORMAL_SUB,    .bairitu = 48 },
+    { .score_prg = exh_nombar_sub,    .save_p = EXH_NOMBAR_SUB,    .bairitu = 48 },
+    { .score_prg = exh_mbar_key_out,  .save_p = EXH_MBAR_KEY_OUT,  .bairitu = 48 },
+    { .score_prg = exh_mbar_time_out, .save_p = EXH_MBAR_TIME_OUT, .bairitu = 48 },
+    { .score_prg = exh_mbar_num_out,  .save_p = EXH_MBAR_NUM_OUT,  .bairitu = 32 },
+    { .score_prg = exh_allkey_out_nh, .save_p = EXH_ALLKEY_OUT,    .bairitu = 32 },
+    { .score_prg = exh_renda_out,     .save_p = EXH_RENDA_OUT,     .bairitu = 32 },
+    { .score_prg = exh_mane,          .save_p = EXH_MANE,          .bairitu = 8  },
+    { .score_prg = exh_all_add,       .save_p = EXH_TOTAL,         .bairitu = 16 },
+};
+
+static EXH_STR exh_str_original[] = {
+    { .score_prg = exh_nombar_sub,    .save_p = EXH_NOMBAR_SUB,    .bairitu = 48 },
+    { .score_prg = exh_mbar_key_out,  .save_p = EXH_MBAR_KEY_OUT,  .bairitu = 16 },
+    { .score_prg = exh_allkey_out,    .save_p = EXH_ALLKEY_OUT,    .bairitu = 48 },
+    { .score_prg = exh_renda_out,     .save_p = EXH_RENDA_OUT,     .bairitu = 48 },
+    { .score_prg = exh_yaku_original, .save_p = EXH_YAKU,          .bairitu = 16 },
+    { .score_prg = exh_command,       .save_p = EXH_COMMAND,       .bairitu = 16 },
+    { .score_prg = exh_all_add,       .save_p = EXH_TOTAL,         .bairitu = 16 },
+};
+
+static EXH_STR exh_str_hane[] = {
+    { .score_prg = exh_nombar_sub,    .save_p = EXH_NOMBAR_SUB,    .bairitu = 48 },
+    { .score_prg = exh_mbar_key_out,  .save_p = EXH_MBAR_KEY_OUT,  .bairitu = 16 },
+    { .score_prg = exh_allkey_out,    .save_p = EXH_ALLKEY_OUT,    .bairitu = 16 },
+    { .score_prg = exh_renda_out,     .save_p = EXH_RENDA_OUT,     .bairitu = 16 },
+    { .score_prg = exh_yaku_hane,     .save_p = EXH_YAKU,          .bairitu = 24 },
+    { .score_prg = exh_all_add,       .save_p = EXH_TOTAL,         .bairitu = 16 },
+};
+
+static EXH_STR exh_str_hook[] = {
+    { .score_prg = manemane_check,    .save_p = EXH_MANE,          .bairitu = 16 },
+    { .score_prg = exh_all_add,       .save_p = EXH_TOTAL,         .bairitu = 16 },
+};
+
+static u_int thnum_tbl[] = { 0x00e79e79, 0x00f3cf3c, 0x00c1cc1c, 0x00000000 };
+
+TCL_CTRL tcl_ctrl[4][33] = {
+    /* TRND_R1 */
+    {
+        /* TCL_TYPE_EZ_0  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_1  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_2  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_3  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_4  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_5  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_6  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_7  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = -1, .max = 0xf },
+        /* TCL_TYPE_EZ_8  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 1, .max = 0xf },
+        /* TCL_TYPE_EZ_9  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 2, .max = 0xf },
+        /* TCL_TYPE_EZ_10 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 3, .max = 0xf },
+        /* TCL_TYPE_EZ_11 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 4, .max = 0xf },
+        /* TCL_TYPE_EZ_12 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 5, .max = 0xf },
+        /* TCL_TYPE_EZ_13 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 6, .max = 0xf },
+        /* TCL_TYPE_EZ_14 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 7, .max = 0xf },
+        /* TCL_TYPE_EZ_15 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 8, .max = 0xf },
+
+        /* TCL_TYPE_HD_0  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_1  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_2  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_3  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_4  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_5  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_6  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_7  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = -1, .max = 0xf },
+        /* TCL_TYPE_HD_8  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 1, .max = 0xf },
+        /* TCL_TYPE_HD_9  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 2, .max = 0xf },
+        /* TCL_TYPE_HD_10 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 3, .max = 0xf },
+        /* TCL_TYPE_HD_11 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 4, .max = 0xf },
+        /* TCL_TYPE_HD_12 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 5, .max = 0xf },
+        /* TCL_TYPE_HD_13 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 6, .max = 0xf },
+        /* TCL_TYPE_HD_14 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 7, .max = 0xf },
+        /* TCL_TYPE_HD_15 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 8, .max = 0xf },
+
+        /* TCL_TYPE_COOL  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_COOL_OVER, .min = 0xf, .max = 0xf },
+    },
+    /* TRND_R2 */
+    {
+        /* TCL_TYPE_EZ_0  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_1  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_2  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_3  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_4  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_5  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_6  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_7  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = -1, .max = 0xf },
+        /* TCL_TYPE_EZ_8  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 1, .max = 0xf },
+        /* TCL_TYPE_EZ_9  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 2, .max = 0xf },
+        /* TCL_TYPE_EZ_10 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 3, .max = 0xf },
+        /* TCL_TYPE_EZ_11 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 4, .max = 0xf },
+        /* TCL_TYPE_EZ_12 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 5, .max = 0xf },
+        /* TCL_TYPE_EZ_13 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 6, .max = 0xf },
+        /* TCL_TYPE_EZ_14 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 7, .max = 0xf },
+        /* TCL_TYPE_EZ_15 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 8, .max = 0xf },
+
+        /* TCL_TYPE_HD_0  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_1  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_2  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_3  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_4  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_5  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_6  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_7  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = -1, .max = 0xf },
+        /* TCL_TYPE_HD_8  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 1, .max = 0xf },
+        /* TCL_TYPE_HD_9  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 2, .max = 0xf },
+        /* TCL_TYPE_HD_10 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 3, .max = 0xf },
+        /* TCL_TYPE_HD_11 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 4, .max = 0xf },
+        /* TCL_TYPE_HD_12 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 5, .max = 0xf },
+        /* TCL_TYPE_HD_13 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 6, .max = 0xf },
+        /* TCL_TYPE_HD_14 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 7, .max = 0xf },
+        /* TCL_TYPE_HD_15 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 8, .max = 0xf },
+
+        /* TCL_TYPE_COOL  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_COOL_OVER, .min = 0xf, .max = 0xf },
+    },
+    /* TRND_R3 */
+    {
+        /* TCL_TYPE_EZ_0  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_1  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_2  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_3  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_4  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_5  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_6  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_7  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = -1, .max = 0xf },
+        /* TCL_TYPE_EZ_8  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 1, .max = 0xf },
+        /* TCL_TYPE_EZ_9  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 2, .max = 0xf },
+        /* TCL_TYPE_EZ_10 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 3, .max = 0xf },
+        /* TCL_TYPE_EZ_11 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 4, .max = 0xf },
+        /* TCL_TYPE_EZ_12 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 5, .max = 0xf },
+        /* TCL_TYPE_EZ_13 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 6, .max = 0xf },
+        /* TCL_TYPE_EZ_14 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 7, .max = 0xf },
+        /* TCL_TYPE_EZ_15 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 8, .max = 0xf },
+
+        /* TCL_TYPE_HD_0  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_1  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_2  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_3  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_4  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_5  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_6  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_7  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = -1, .max = 0xf },
+        /* TCL_TYPE_HD_8  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 1, .max = 0xf },
+        /* TCL_TYPE_HD_9  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 2, .max = 0xf },
+        /* TCL_TYPE_HD_10 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 3, .max = 0xf },
+        /* TCL_TYPE_HD_11 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 4, .max = 0xf },
+        /* TCL_TYPE_HD_12 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 5, .max = 0xf },
+        /* TCL_TYPE_HD_13 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 6, .max = 0xf },
+        /* TCL_TYPE_HD_14 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 7, .max = 0xf },
+        /* TCL_TYPE_HD_15 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 8, .max = 0xf },
+
+        /* TCL_TYPE_COOL  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_COOL_OVER, .min = 0xf, .max = 0xf },
+    },
+    /* TRND_R4 */
+    {
+        /* TCL_TYPE_EZ_0  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_1  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_2  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_3  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_4  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_5  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_6  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_EZ_7  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = -1, .max = 0xf },
+        /* TCL_TYPE_EZ_8  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 1, .max = 0xf },
+        /* TCL_TYPE_EZ_9  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 2, .max = 0xf },
+        /* TCL_TYPE_EZ_10 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 3, .max = 0xf },
+        /* TCL_TYPE_EZ_11 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 4, .max = 0xf },
+        /* TCL_TYPE_EZ_12 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 5, .max = 0xf },
+        /* TCL_TYPE_EZ_13 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 6, .max = 0xf },
+        /* TCL_TYPE_EZ_14 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 7, .max = 0xf },
+        /* TCL_TYPE_EZ_15 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 8, .max = 0xf },
+
+        /* TCL_TYPE_HD_0  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_1  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_2  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_3  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_4  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_5  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_6  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH_MORE, .min = -1, .max = -1 },
+        /* TCL_TYPE_HD_7  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = -1, .max = 0xf },
+        /* TCL_TYPE_HD_8  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 1, .max = 0xf },
+        /* TCL_TYPE_HD_9  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 2, .max = 0xf },
+        /* TCL_TYPE_HD_10 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 3, .max = 0xf },
+        /* TCL_TYPE_HD_11 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 4, .max = 0xf },
+        /* TCL_TYPE_HD_12 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 5, .max = 0xf },
+        /* TCL_TYPE_HD_13 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 6, .max = 0xf },
+        /* TCL_TYPE_HD_14 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 7, .max = 0xf },
+        /* TCL_TYPE_HD_15 */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_OTH2COOL_MORE, .min = 8, .max = 0xf },
+
+        /* TCL_TYPE_COOL  */ { .tcl_do_enum_down = TCL_DO_ZERO_UPTO, .tcl_do_enum_up = TCL_DO_COOL_OVER, .min = 0xf, .max = 0xf },
+    },
+};
+
+static SCRPRGSTR scrprgstr[] = {
+    { .size = 0xa, .exh_str_pp = exh_str_normal },
+    { .size = 0x7, .exh_str_pp = exh_str_original },
+    { .size = 0x6, .exh_str_pp = exh_str_hane },
+};
+
+static SCRPRGSTR scrprgstr_hook[] = {
+    { .size = 0x2, .exh_str_pp = exh_str_hook },
+};
+
+static TIM2_DAT tim2spr_tbl[] = {
+    /* BN_KANJI_TXT */
+    {
+        .GsTex0 = 0x2006d885a14136b0,
+        .GsTex1 = 0x260,
+        .GsRegs = 0x0,
+        .GsTexClut = 0x0,
+        .w = 160,
+        .h = 64,
+    },
+    /* BN_SUUJI_TXT */
+    {
+        .GsTex0 = 0x2006d8a55d40b6c0,
+        .GsTex1 = 0x260,
+        .GsRegs = 0x0,
+        .GsTexClut = 0x0,
+        .w = 120,
+        .h = 24,
+    },
+};
+
+static BN_NUM_TYPE bn_num_type[] = {
+    /* BN_KANJI_TXT */
+    {
+        .tim2_dat_pp = &tim2spr_tbl[0],
+        .w = 32,
+        .h = 32,
+        .map = {
+            { 0,   0  },
+            { 32,  0  },
+            { 64,  0  },
+            { 96,  0  },
+            { 128, 0  },
+            { 0,   32 },
+            { 32,  32 },
+            { 64,  32 },
+            { 96,  32 },
+            { 128, 32 },
+        }
+    },
+    /* BN_SUUJI_TXT */
+    {
+        .tim2_dat_pp = &tim2spr_tbl[1],
+        .w = 12,
+        .h = 24,
+        .map = {
+            { 0,   0 },
+            { 12,  0 },
+            { 24,  0 },
+            { 36,  0 },
+            { 48,  0 },
+            { 60,  0 },
+            { 72,  0 },
+            { 84,  0 },
+            { 96,  0 },
+            { 108, 0 },
+        }
+    },
+};
+
+static LERO_TIM2_PT lero_tim2_pt[] = {
+    /* LERO_ENUM_1 */
+    { .u0 = 248, .v0 = 0, .u1 = 264, .v1 = 32, .w = 32,  .h = 32 },
+    /* LERO_ENUM_2 */
+    { .u0 = 264, .v0 = 0, .u1 = 288, .v1 = 32, .w = 48,  .h = 32 },
+    /* LERO_ENUM_3 */
+    { .u0 = 288, .v0 = 0, .u1 = 312, .v1 = 32, .w = 48,  .h = 32 },
+    /* LERO_ENUM_4 */
+    { .u0 = 312, .v0 = 0, .u1 = 344, .v1 = 32, .w = 64,  .h = 32 },
+    /* LERO_ENUM_5 */
+    { .u0 = 344, .v0 = 0, .u1 = 376, .v1 = 32, .w = 64,  .h = 32 },
+    /* LERO_ENUM_LESSON */
+    { .u0 = 0,   .v0 = 0, .u1 = 128, .v1 = 32, .w = 256, .h = 32 },
+    /* LERO_ENUM_ROUND */
+    { .u0 = 128, .v0 = 0, .u1 = 248, .v1 = 32, .w = 240, .h = 32 },
+};
+
+static LERO_POS_STR lero_pos_str[][2] = {
+    /* SCRRJ_LR_LESSON_1 */
+    {
+        { .tim2_num = LERO_ENUM_LESSON, .posx = -160, .posy = -16 },
+        { .tim2_num = LERO_ENUM_1,      .posx =  112, .posy = -16 }
+    },
+    /* SCRRJ_LR_LESSON_2 */
+    {
+        { .tim2_num = LERO_ENUM_LESSON, .posx = -160, .posy = -16 },
+        { .tim2_num = LERO_ENUM_2,      .posx =  104, .posy = -16 }
+    },
+    /* SCRRJ_LR_LESSON_3 */
+    {
+        { .tim2_num = LERO_ENUM_LESSON, .posx = -160, .posy = -16 },
+        { .tim2_num = LERO_ENUM_3,      .posx =  104, .posy = -16 }
+    },
+    /* SCRRJ_LR_LESSON_4 */
+    {
+        { .tim2_num = LERO_ENUM_LESSON, .posx = -160, .posy = -16 },
+        { .tim2_num = LERO_ENUM_4,      .posx =  96,  .posy = -16 }
+    },
+    /* SCRRJ_LR_LESSON_5 */
+    {
+        { .tim2_num = LERO_ENUM_LESSON, .posx = -160, .posy = -16 },
+        { .tim2_num = LERO_ENUM_5,      .posx =  96,  .posy = -16 }
+    },
+
+    /* SCRRJ_LR_ROUND_1 */
+    {
+        { .tim2_num = LERO_ENUM_ROUND,  .posx = -152, .posy = -48 },
+        { .tim2_num = LERO_ENUM_1,      .posx =  104, .posy = -48 }
+    },
+    /* SCRRJ_LR_ROUND_2 */
+    {
+        { .tim2_num = LERO_ENUM_ROUND,  .posx = -152, .posy = -48 },
+        { .tim2_num = LERO_ENUM_2,      .posx =  96,  .posy = -48 }
+    },
+    /* SCRRJ_LR_ROUND_3 */
+    {
+        { .tim2_num = LERO_ENUM_ROUND,  .posx = -152, .posy = -48 },
+        { .tim2_num = LERO_ENUM_3,      .posx =  96,  .posy = -48 }
+    },
+    /* SCRRJ_LR_ROUND_4 */
+    {
+        { .tim2_num = LERO_ENUM_ROUND,  .posx = -152, .posy = -48 },
+        { .tim2_num = LERO_ENUM_4,      .posx =  88,  .posy = -48 }
+    },
+    /* SCRRJ_LR_ROUND_5 */
+    {
+        { .tim2_num = LERO_ENUM_ROUND,  .posx = -152, .posy = -48 },
+        { .tim2_num = LERO_ENUM_5,      .posx =  88,  .posy = -48 }
+    },
+};
+
+SCR_SND_DBUFF scr_snd_dbuff = {};
+static SNDTAP *scr_sndtap_pp[4];
+SCORE_STR score_str = {};
+static SCORE_INDV_STR score_indv_str[5];
+TAPDAT vs_tapdat_tmp[64] = {};
+static int follow_scr_tap_memory_cnt;
+static int follow_scr_tap_memory_cnt_load;
+static SCR_TAP_MEMORY follow_scr_tap_memory[256];
+static TAP_GROUPE_STR tap_groupe_str[5];
+static COMMAKE_STR commake_str[32];
+static int commake_str_cnt;
+static EXAM_CHECK exam_check[3];
+static u_char yaku_tmp_buf[36];
+static BNG_STR bng_str;
 
 int GetCurrentTblNumber(void) {
     return currentTblNumber;
@@ -261,99 +585,99 @@ static void exam_tbl_updownSet(SCORE_INDV_STR *sindv_pp, int now, int sikiichi /
     }
 
     if (oth >= sikiichi / 2) {
-        sindv_pp->global_ply->exam_tbl_updown[0]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_NONE]++;
     } else {
-        sindv_pp->global_ply->exam_tbl_updown[0]--;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_NONE]--;
     }
 
     hikaku = sikiichi / 2;
 
     if (now > hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[1]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_COOLHF_OVER]++;
     }
     if (now >= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[2]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_COOLHF_MORE]++;
     }
     if (now <= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[3]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_COOLHF_UPTO]++;
     }
     if (now < hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[4]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_COOLHF_UNDER]++;
     }
 
     hikaku = oth;
 
     if (now > hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[5]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTH_OVER]++;
     }
     if (now >= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[6]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTH_MORE]++;
     }
     if (now <= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[7]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTH_UPTO]++;
     }
     if (now < hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[8]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTH_UNDER]++;
     }
 
     hikaku = 0;
 
     if (now > hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[9]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_ZERO_OVER]++;
     }
     if (now >= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[10]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_ZERO_MORE]++;
     }
     if (now <= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[11]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_ZERO_UPTO]++;
     }
     if (now < hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[12]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_ZERO_UNDER]++;
     }
 
     hikaku = sikiichi;
 
     if (now > hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[13]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_COOL_OVER]++;
     }
     if (now >= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[14]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_COOL_MORE]++;
     }
     if (now <= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[15]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_COOL_UPTO]++;
     }
     if (now < hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[16]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_COOL_UNDER]++;
     }
 
     hikaku = (sikiichi - oth) / 2 + oth;
 
     if (now > hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[17]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTH2COOL_OVER]++;
     }
     if (now >= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[18]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTH2COOL_MORE]++;
     }
     if (now <= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[19]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTH2COOL_UPTO]++;
     }
     if (now < hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[20]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTH2COOL_UNDER]++;
     }
 
     hikaku = oth / 2;
 
     if (now > hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[21]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTHHF_OVER]++;
     }
     if (now >= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[22]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTHHF_MORE]++;
     }
     if (now <= hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[23]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTHHF_UPTO]++;
     }
     if (now < hikaku) {
-        sindv_pp->global_ply->exam_tbl_updown[24]++;
+        sindv_pp->global_ply->exam_tbl_updown[TCL_DO_OTHHF_UNDER]++;
     }
 }
 
@@ -369,7 +693,7 @@ static int exam_tbl_updownChange(SCORE_INDV_STR *sindv_pp, TAP_CTRL_LEVEL_ENUM c
     if (coolf) {
         tcl_ctrl_pp = &tcl_ctrl[round][TCL_TYPE_COOL];
     } else {
-        if (sindv_pp->global_ply->exam_tbl_updown[0] < 0) {
+        if (sindv_pp->global_ply->exam_tbl_updown[TCL_DO_NONE] < 0) {
             tcl_ctrl_pp = &tcl_ctrl[round][clv];
         } else {
             tcl_ctrl_pp = &tcl_ctrl[round][clv + TCL_TYPE_HD_TOP];
@@ -3916,18 +4240,18 @@ void ScrCtrlMainLoop(void *x) {
 
         if (score_str.mbar_flag) {
             ScrMbarReq(ScrDrawTimeGet(scrMbarLine));
-            outsideDrawSceneReq(MbarDispScene, 0xdc, 0, DNUM_VRAM2, NULL);
-            if (replayGuiOffFlag == 0) {
+            outsideDrawSceneReq(MbarDispScene, 0xdc, DNUM_NON, DNUM_VRAM2, NULL);
+            if (!replayGuiOffFlag) {
                 if (otehonSetCheck()) {
-                    outsideDrawSceneReq(MbarDispGuiScene, 0xf0, 2, DNUM_DRAW, NULL);
+                    outsideDrawSceneReq(MbarDispGuiScene, 0xf0, DNUM_DRAW, DNUM_DRAW, NULL);
                 } else {
-                    outsideDrawSceneReq(MbarDispGuiScene, 0xf0, 0, DNUM_DRAW, NULL);
+                    outsideDrawSceneReq(MbarDispGuiScene, 0xf0, DNUM_NON, DNUM_DRAW, NULL);
                 }
             } else {
-                outsideDrawSceneReq(MbarDispGuiSceneMbarArea, 0xf0, 0, DNUM_DRAW, NULL);
+                outsideDrawSceneReq(MbarDispGuiSceneMbarArea, 0xf0, DNUM_NON, DNUM_DRAW, NULL);
             }
-        } else if (jimakuWakuOff == 0) {
-            outsideDrawSceneReq(MbarDispGuiScene, 0xf0, 0, DNUM_DRAW, NULL);
+        } else if (!jimakuWakuOff) {
+            outsideDrawSceneReq(MbarDispGuiScene, 0xf0, DNUM_NON, DNUM_DRAW, NULL);
             if (game_status.subtitle == SUBTITLE_ON) {
                 ExamDispSubt();
             }
@@ -4176,7 +4500,7 @@ void ScrCtrlInit(STDAT_DAT *sdat_pp, void *data_top) {
             }
         }
     }
-    FlushCache(0);
+    FlushCache(WRITEBACK_DCACHE);
 
     ScrCtrlIndvInit(sdat_pp);
     for (i = 0; i < PR_ARRAYSIZE(score_indv_str); i++) {
@@ -4522,10 +4846,10 @@ static void bnNumberDisp(sceGifPacket *gif_pp, long score, short x, short y, int
 
         if (num != 0 || first_f || i == (keta - 1)) {
             sceGifPkAddGsAD(gif_pp, SCE_GS_UV, SCE_GS_SET_UV(bn_num_type_pp->map[num][0] << 4, bn_num_type_pp->map[num][1] << 4));
-            sceGifPkAddGsAD(gif_pp, SCE_GS_XYZ2, SCE_GS_SET_XYZ((x << 0x4) + GS_X_COORD(0), (y << 0x4) + GS_Y_COORD(0), 1));
+            sceGifPkAddGsAD(gif_pp, SCE_GS_XYZ2, SCE_GS_SET_XYZ((x << 4) + GS_X_COORD(0), (y << 4) + GS_Y_COORD(0), 1));
 
             sceGifPkAddGsAD(gif_pp, SCE_GS_UV, SCE_GS_SET_UV((bn_num_type_pp->map[num][0] + bn_num_type_pp->w) << 4, (bn_num_type_pp->map[num][1] + bn_num_type_pp->h) << 4));
-            sceGifPkAddGsAD(gif_pp, SCE_GS_XYZ2, SCE_GS_SET_XYZ(((x + (GS_X_COORD(0)>>4)) + bn_num_type_pp->w) << 0x4, ((y + (GS_Y_COORD(0)>>4)) + bn_num_type_pp->h) << 0x4, 1));
+            sceGifPkAddGsAD(gif_pp, SCE_GS_XYZ2, SCE_GS_SET_XYZ(((x + (GS_X_COORD(0)>>4)) + bn_num_type_pp->w) << 4, ((y + (GS_Y_COORD(0)>>4)) + bn_num_type_pp->h) << 4, 1));
 
             first_f = TRUE;
         }
@@ -4546,7 +4870,7 @@ static void bonusScoreDraw(void) {
     sceGifPacket bn_gif;
     VCLR_PARA    vclr_para = {};
 
-    DrawVramClear(&vclr_para, 0, 0, 0, DNUM_VRAM2);
+    DrawVramClear(&vclr_para, 0, FALSE, DNUM_NON, DNUM_VRAM2);
     ChangeDrawArea(DrawGetDrawEnvP(DNUM_VRAM2));
 
     CmnGifADPacketMake(&bn_gif, NULL);
@@ -4562,17 +4886,17 @@ static void bonusScoreDraw(void) {
     scr_stg = ingame_common_str.SingleScore;
     scr_add = scr_stg + scr_bn;
 
-    bnNumberDisp(&bn_gif, scr_stg,  0,  0, 5, 1, 0);
-    bnNumberDisp(&bn_gif, scr_stg, 96, 32, 5, 0, 1);
+    bnNumberDisp(&bn_gif, scr_stg,  0,  0, 5, TRUE, BN_KANJI_TXT);
+    bnNumberDisp(&bn_gif, scr_stg, 96, 32, 5, FALSE, BN_SUUJI_TXT);
 
-    bnNumberDisp(&bn_gif, scr_bn,  32,  0, 5, 1, 0);
-    bnNumberDisp(&bn_gif, scr_bn,  96, 56, 5, 0, 1);
+    bnNumberDisp(&bn_gif, scr_bn,  32,  0, 5, TRUE, BN_KANJI_TXT);
+    bnNumberDisp(&bn_gif, scr_bn,  96, 56, 5, FALSE, BN_SUUJI_TXT);
 
-    bnNumberDisp(&bn_gif, scr_add, 64,  0, 5, 1, 0);
-    bnNumberDisp(&bn_gif, scr_add, 96, 80, 5, 0, 1);
+    bnNumberDisp(&bn_gif, scr_add, 64,  0, 5, TRUE, BN_KANJI_TXT);
+    bnNumberDisp(&bn_gif, scr_add, 96, 80, 5, FALSE, BN_SUUJI_TXT);
 
-    bnNumberDisp(&bn_gif, ingame_common_str.BonusStage, 96,  0, 1, 0, 0);
-    bnNumberDisp(&bn_gif, ingame_common_str.BonusStage, 128, 0, 1, 0, 1);
+    bnNumberDisp(&bn_gif, ingame_common_str.BonusStage, 96,  0, 1, FALSE, BN_KANJI_TXT);
+    bnNumberDisp(&bn_gif, ingame_common_str.BonusStage, 128, 0, 1, FALSE, BN_SUUJI_TXT);
 
     CmnGifADPacketMakeTrans(&bn_gif);
 }

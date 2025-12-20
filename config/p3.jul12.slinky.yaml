@@ -277,7 +277,8 @@ segments:
 
       - { path: src/main/cdctrl.c.o }
       - { path: asm/data/main/stdat.data.s.o }
-      - { path: asm/data/main/scrctrl.data.s.o }
+      #- { path: asm/data/main/scrctrl.data.s.o }
+      - { path: src/main/scrctrl.c.o }
       - { path: src/main/sprite.c.o }
       - { path: src/main/fadectrl.c.o }
       - { path: asm/data/main/subt.data.s.o }
@@ -849,7 +850,7 @@ segments:
 
       - { path: src/main/cdctrl.c.o }
       - { path: src/main/stdat.c.o }
-      - { path: asm/data/main/scrctrl.sbss.s.o }
+      - { path: src/main/scrctrl.c.o }
       - { path: src/main/sprite.c.o }
       - { path: src/main/fadectrl.c.o }
       - { path: src/main/subt.c.o }
@@ -961,7 +962,7 @@ segments:
 
       - { path: asm/data/main/cdctrl.bss.s.o }
       - { path: src/main/stdat.c.o }
-      - { path: asm/data/main/scrctrl.bss.s.o }
+      - { path: src/main/scrctrl.c.o }
       - { path: src/main/sprite.c.o }
       - { path: src/main/fadectrl.c.o }
       - { path: src/main/subt.c.o }

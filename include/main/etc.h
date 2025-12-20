@@ -143,7 +143,7 @@ typedef enum {
     DTBL_ENUM_VS_2_ABATTLE2_1 = 47,
     DTBL_ENUM_VS_2_ABATTLE2_2 = 48,
     DTBL_ENUM_MAX_CNT = 49,
-    DTBL_ENUM_VS_TOP = 0
+    DTBL_ENUM_VS_TOP = 0,
 } DRAW_TBL_ENUM;
 
 typedef enum {
