@@ -739,8 +739,7 @@ static void uramenFileSearchEnd(void) {
 /* note: has inline from 'data/logo/logo_tm2.h' */
 void startUpDisp(void) {
     /* Splash screens TIM2 data */
-    /* TODO: match .data (see symbol_addrs.txt) */
-    static TIM2_DAT tim2spr_tbl_tmp0[2] = {
+    static TIM2_DAT tim2spr_tbl[2] = {
         /* NanaOn-Sha */
         {
             .GsTex0 = SCE_GS_SET_TEX0(10240, 6, SCE_GS_PSMT8, 9, 8, 0, 0, 10320, SCE_GS_PSMCT32, 0, 0, 1),
@@ -773,8 +772,8 @@ void startUpDisp(void) {
     MenuMemCardCheck();
 
     uramenFileSearchSet();
-    logoDispOne(&spr_prim[0], &tim2spr_tbl_tmp0[1]);
-    logoDispOne(&spr_prim[1], &tim2spr_tbl_tmp0[0]);
+    logoDispOne(&spr_prim[0], &tim2spr_tbl[1]);
+    logoDispOne(&spr_prim[1], &tim2spr_tbl[0]);
     uramenFileSearchEnd();
 
     UsrMemClear();

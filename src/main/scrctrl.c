@@ -2315,8 +2315,7 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth) {
     }
 }
 
-/* TODO(poly): Make these static once .data is migrated */
-/* static */ int exh_normal_add(EXAM_CHECK *ec_pp) {
+static int exh_normal_add(EXAM_CHECK *ec_pp) {
     int i;
     int ret = 0;
 
@@ -2331,7 +2330,7 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth) {
     return ret;
 }
 
-/* static */ int exh_normal_sub(EXAM_CHECK *ec_pp) {
+static int exh_normal_sub(EXAM_CHECK *ec_pp) {
     int i;
     int ret = 0;
 
@@ -2344,7 +2343,7 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth) {
     return ret;
 }
 
-/* static */ int exh_nombar_sub(EXAM_CHECK *ec_pp) {
+static int exh_nombar_sub(EXAM_CHECK *ec_pp) {
     int i;
     int ret;
     int bai, otehon;
@@ -2382,7 +2381,7 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth) {
     return ret;
 }
 
-/* static */ int exh_mbar_key_out(EXAM_CHECK *ec_pp) {
+static int exh_mbar_key_out(EXAM_CHECK *ec_pp) {
     int ret;
 
     if (global_data.play_typeL == PLAY_TYPE_ONE) {
@@ -2401,7 +2400,7 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth) {
     return ret;
 }
 
-/* static */ int exh_mbar_time_out(EXAM_CHECK *ec_pp) {
+static int exh_mbar_time_out(EXAM_CHECK *ec_pp) {
     int ret;
 
     ret = -ec_pp->oth_num;
@@ -2416,7 +2415,7 @@ static void on_th_make(EXAM_CHECK *ec_pp, CK_TH_ENUM ckth) {
     return ret;
 }
 
-/* static */ int exh_mbar_num_out(EXAM_CHECK *ec_pp) {
+static int exh_mbar_num_out(EXAM_CHECK *ec_pp) {
     int ret = ec_pp->ted_num - ec_pp->oth_num;
     return (ret >= 0) ? -ret : ret;
 }
@@ -2534,15 +2533,15 @@ static int exh_yaku(EXAM_CHECK *ec_pp, int hane_flag) {
     PR_SCOPEEND()
 }
 
-/* static */ int exh_yaku_original(EXAM_CHECK *ec_pp) {
+static int exh_yaku_original(EXAM_CHECK *ec_pp) {
     return exh_yaku(ec_pp, FALSE);
 }
 
-/* static */ int exh_yaku_hane(EXAM_CHECK *ec_pp) {
+static int exh_yaku_hane(EXAM_CHECK *ec_pp) {
     return exh_yaku(ec_pp, TRUE);
 }
 
-/* static */ int exh_allkey_out(EXAM_CHECK *ec_pp) {
+static int exh_allkey_out(EXAM_CHECK *ec_pp) {
     int use_bit;
     int i;
 
@@ -2561,7 +2560,7 @@ static int exh_yaku(EXAM_CHECK *ec_pp, int hane_flag) {
     }
 }
 
-/* static */ int exh_allkey_out_nh(EXAM_CHECK *ec_pp) {
+static int exh_allkey_out_nh(EXAM_CHECK *ec_pp) {
     int use_bit;
     int i;
 
@@ -2578,11 +2577,11 @@ static int exh_yaku(EXAM_CHECK *ec_pp, int hane_flag) {
     }
 }
 
-/* static */ int exh_command(EXAM_CHECK *ec_pp) {
+static int exh_command(EXAM_CHECK *ec_pp) {
     return 0;
 }
 
-/* static */ int exh_renda_out(EXAM_CHECK *ec_pp) {
+static int exh_renda_out(EXAM_CHECK *ec_pp) {
     int renda_ck;
 
     renda_ck = ec_pp->tapset_pp->taptimeEnd - ec_pp->tapset_pp->taptimeStart;
@@ -2621,7 +2620,7 @@ static int manemane_check_sub(EXAM_CHECK *ec_pp) {
     return (mane_cnt * 2) - ec_pp->ted_num;
 }
 
-/* static */ int manemane_check(EXAM_CHECK *ec_pp) {
+static int manemane_check(EXAM_CHECK *ec_pp) {
     int mane_cnt;
     int i, j;
 
@@ -2646,7 +2645,7 @@ static int manemane_check_sub(EXAM_CHECK *ec_pp) {
     return (mane_cnt * 2) - ec_pp->ted_num - abs(ec_pp->oth_num - ec_pp->ted_num);
 }
 
-/* static */ int exh_mane(EXAM_CHECK *ec_pp) {
+static int exh_mane(EXAM_CHECK *ec_pp) {
     int normal_point;
     int late_point;
 
@@ -2663,7 +2662,7 @@ static int manemane_check_sub(EXAM_CHECK *ec_pp) {
     return late_point;
 }
 
-/* static */ int exh_all_add(EXAM_CHECK *ec_pp) {
+static int exh_all_add(EXAM_CHECK *ec_pp) {
     int i;
     int total;
 
@@ -3158,8 +3157,8 @@ int ScrExamSetCheck(SCORE_INDV_STR *sindv_pp, int Pnum, int ctime_next, int indv
 
     l_2d8:
         if (scex_pp->exam_enum != EXAM_NONE) {
-            int rank_saki = 0;
-            int rank_moto = 0;
+            int rank_saki = RLVL_COOL;
+            int rank_moto = RLVL_COOL;
 
             if (global_data.demo_flagL == DEMOF_REPLAY) {
                 PLAYER_ENUM player_enum_tmp = NON_PLAYER_NUM;
@@ -4713,7 +4712,7 @@ static void bonusGameCtrl(int time) {
             bng_kotama_pp->wait_time = 0;
             bng_kotama_pp->bng_kotama_act_enum = BNGKA_BLOW;
 
-            bonusGameParaReq(actnum + 4);
+            bonusGameParaReq(actnum + BNGAPE_A_NG);
 
             bng_str.ng_cnt += bonus_minus_point_sub(kotamatime);
             bng_str.renzoku_cnt = 0;            
@@ -4734,7 +4733,7 @@ static void bonusGameCtrl(int time) {
             break;
         }
         default:
-            bonusGameParaReq(actnum + 4);
+            bonusGameParaReq(actnum + BNGAPE_A_NG);
             break;
         }
     }

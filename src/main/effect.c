@@ -8,8 +8,8 @@
 #include <math.h>
 #include <stdio.h>
 
-extern sceGsStoreImage gs_simage_EFFECTTMP;
-extern sceGsLoadImage gs_loadimg;
+static sceGsStoreImage gs_simage;
+static sceGsLoadImage gs_loadimg;
 
 #define WV_SCREEN_W (640)
 #define WV_SCREEN_H (224)
@@ -391,10 +391,10 @@ void FD_MonocroDisp(MONOCRO_STR *mono_pp, int tbp, int w, int h) {
             }
 
             dat_pp = (u_char*)0x70000000;
-            sceGsSetDefStoreImage(&gs_simage_EFFECTTMP, tbp, w / 64, 0, j, i, sizew, sizeh);
+            sceGsSetDefStoreImage(&gs_simage, tbp, w / 64, 0, j, i, sizew, sizeh);
             FlushCache(WRITEBACK_DCACHE);
 
-            if (sceGsExecStoreImage(&gs_simage_EFFECTTMP, (u_long128*)0x70000000) < 0) {
+            if (sceGsExecStoreImage(&gs_simage, (u_long128*)0x70000000) < 0) {
                 printf("vramsave Timeout error!!\n");
                 return;
             }

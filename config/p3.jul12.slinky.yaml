@@ -967,7 +967,7 @@ segments:
       - { path: src/main/fadectrl.c.o }
       - { path: src/main/subt.c.o }
       - { path: asm/data/main/drawctrl.bss.s.o }
-      - { path: asm/data/main/effect.bss.s.o }
+      - { path: src/main/effect.c.o }
       - { path: asm/data/main/mbar.bss.s.o }
       - { path: src/main/pack.c.o }
       - { path: src/main/etc.c.o }

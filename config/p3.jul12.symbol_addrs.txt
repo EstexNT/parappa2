@@ -41,7 +41,7 @@ SyoriLineCnt                        = 0x00100848; // type:func
 SyoriLineDisp                       = 0x00100850; // type:func
 
 tim2setinfo                         = 0x0017b9e0; // size:0x40
-gs_simage                           = 0x0017ba20; // size:0x70
+gs_simage                           = 0x0017ba20; // size:0x70 allow_duplicated:true
 
 // dbug/vramsave.c
 BekiDat                             = 0x00100858; // type:func
@@ -737,8 +737,7 @@ FD_MonocroDisp                      = 0x00117e90; // type:func
 D_00393400                          = 0x00393400; // type:u64
 D_00393408                          = 0x00393408; // type:u64 can_reference:false
 
-// TODO: use original name (gs_simage) once it's defined on the C side
-gs_simage_EFFECTTMP                 = 0x01c6fef0; // size:0x70
+gs_simage                           = 0x01c6fef0; // size:0x70 allow_duplicated:true
 gs_loadimg                          = 0x01c6ff60; // size:0x60
 
 FLT_00398F38                        = 0x00398f38;
@@ -829,7 +828,7 @@ lessonCl2InfoGet                    = 0x0011bbb8; // type:func
 MbarDemoCharDisp                    = 0x0011bc18; // type:func
 
 // TODO: match .data to get rid of temporary name
-tim2spr_tbl_tmp1                    = 0x00186288; // size:0x7e0 can_reference:false
+tim2spr_tbl_tmp1                    = 0x00186288; // size:0x7e0 allow_duplicated:true can_reference:false
 tmpColor                            = 0x00186a68; // size:0x40
 niko_chan_str_hook                  = 0x00186aa8; // size:0x50 can_reference:false
 niko_chan_str_vs                    = 0x00186af8; // size:0x30 can_reference:false
@@ -1056,8 +1055,7 @@ dbg_tbl_msg                         = 0x00187410; // size:0x48
 dbg_score_msg                       = 0x00187458; // size:0x8
 dbg_mode_str                        = 0x00187460; // size:0x50
 
-// TODO: migrate .data (and .sdata) and remove the temp name
-tim2spr_tbl_tmp0                    = 0x001874b0; // size:0x40 allow_duplicated:true can_reference:false
+tim2spr_tbl                         = 0x001874b0; // size:0x40 allow_duplicated:true can_reference:false
 
 D_00393AA0                          = 0x00393aa0; // type:s16 size:0x10
 D_00393AB0                          = 0x00393ab0; // type:s16 size:0x10
