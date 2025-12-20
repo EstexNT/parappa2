@@ -2375,14 +2375,18 @@ sceCdReadClock                      = 0x00163a20; // type:func
 // libmc.c
 sceMcInit                           = 0x00163b18; // type:func
 sceMcOpen                           = 0x00163e78; // type:func
+sceMcMkdir                          = 0x00163fb0; // type:func
 sceMcClose                          = 0x00163fe8; // type:func
+sceMcSeek                           = 0x001640a0; // type:func
 sceMcRead                           = 0x00164208; // type:func
+sceMcWrite                          = 0x00164328; // type:func
 sceMcSync                           = 0x00164518; // type:func
 sceMcGetInfo                        = 0x00164650; // type:func
 sceMcGetDir                         = 0x001647d8; // type:func
 sceMcChdir                          = 0x001649b8; // type:func
 sceMcFormat                         = 0x00164b08; // type:func
 sceMcDelete                         = 0x00164bd0; // type:func
+sceMcFlush                          = 0x00164cf8; // type:func
 
 // sce/ee/gcc/src/newlib/libm/math/sf_cos.c
 cosf                                = 0x001652d0; // type:func

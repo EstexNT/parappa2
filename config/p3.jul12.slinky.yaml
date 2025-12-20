@@ -8,7 +8,7 @@ settings:
     - .shstrtab
     - .symtab
     - .strtab
-  
+
   #sections_start_alignment: {
   #  .vutext: 64,
   #  .reginfo: 16,
@@ -277,7 +277,6 @@ segments:
 
       - { path: src/main/cdctrl.c.o }
       - { path: asm/data/main/stdat.data.s.o }
-      #- { path: asm/data/main/scrctrl.data.s.o }
       - { path: src/main/scrctrl.c.o }
       - { path: src/main/sprite.c.o }
       - { path: src/main/fadectrl.c.o }
@@ -759,7 +758,7 @@ segments:
       - { path: src/menu/menu_mdl.c.o }
       - { path: asm/data/menu/menusub.sdata.s.o }
       - { path: asm/data/menu/p3mc.sdata.s.o }
-      - { path: asm/data/menu/memc.sdata.s.o }
+      - { path: src/menu/memc.c.o }
       - { path: src/menu/mntm2hed.c.o }
       - { path: asm/data/menu/menufont.sdata.s.o }
       - { path: src/menu/pksprite.c.o }
