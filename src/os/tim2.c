@@ -156,7 +156,7 @@ int Tim2SetLoadImageI(TIM2INFO *info_pp, int img_pos, sceGsLoadImage *img_pp, in
 
     w = info_pp->picturH->ImageWidth;
     h = info_pp->picturH->ImageHeight;
-    
+
     h = HsizeAdj(w, h, dpsm);
     sceGsSetDefLoadImage(img_pp, img_pos, dbw & 0x3f, dpsm, ofsx, ofsy, w, h);
     return w * h;

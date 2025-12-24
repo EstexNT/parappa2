@@ -418,7 +418,7 @@ int selPlayDisp(int sel_stage, int sel_disp, int firstf) {
     CdctrlReadWait();
     printf("overlay module load out\n");
 
-    asm("sync.l");
+    asm volatile("sync.l");
     FlushCache(WRITEBACK_DCACHE);
 
     stdat_dat_pp = &stdat_rec[sel_stage].stdat_dat_pp[sel_disp];
@@ -561,7 +561,7 @@ int selPlayDispTitleDisp(int sel_stage, int sel_disp, int ovl_load) {
         printf("overlay module load out\n");
     }
 
-    asm("sync.l");
+    asm volatile("sync.l");
     FlushCache(WRITEBACK_DCACHE);
 
     stdat_dat_pp = &stdat_rec[sel_stage].stdat_dat_pp[sel_disp];

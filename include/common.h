@@ -61,6 +61,7 @@ typedef float f32;
 
 #define PR_BREAK() asm("break")
 
+/* 3.14159265358979323846f */
 #define PR_PI (float)M_PI
 
 #endif /* COMMON_H */

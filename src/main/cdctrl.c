@@ -41,7 +41,7 @@ int PackIntDecode(u_char *fp_r, u_char *fp_w) {
 
     int          i, c, c1, c2;
     
-    asm("sync.l");
+    asm volatile("sync.l");
 
     moto_size = *(u_int*)fp_r;
     fp_w = (u_char*)PR_UNCACHED(fp_w);
@@ -82,7 +82,7 @@ int PackIntDecode(u_char *fp_r, u_char *fp_w) {
         }
     }
 
-    asm("sync.l");
+    asm volatile("sync.l");
     return 0;
 }
 
@@ -96,7 +96,7 @@ int PackIntDecodeWait(u_char *fp_r, u_char *fp_w, int wait_hline) {
     int          i, c, c1, c2;
     
     printf("decode moto[%08x] saki[%08x]\n", fp_r, fp_w);
-    asm("sync.l");
+    asm volatile("sync.l");
 
     moto_size = *(u_int*)fp_r;
     fp_w = (u_char*)PR_UNCACHED(fp_w);
@@ -149,7 +149,7 @@ int PackIntDecodeWait(u_char *fp_r, u_char *fp_w, int wait_hline) {
         }
     }
 
-    asm("sync.l");
+    asm volatile("sync.l");
     return 0;
 }
 

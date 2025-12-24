@@ -82,16 +82,16 @@ void UG_WaveDisp(WAVE_STR *wstr, sceGsFrame *frame_pp, sceGifPacket *wavePkSpr) 
             haba_now_u = 0;
         }
 
-        tmp_u = wstr->addU * i + wstr->u;
-        tmp_v = wstr->addV * i + wstr->v;
+        tmp_u = (wstr->addU * i) + wstr->u;
+        tmp_v = (wstr->addV * i) + wstr->v;
         sceGifPkAddGsAD(wavePkSpr, SCE_GS_UV,   SCE_GS_SET_UV((tmp_u << 4) + haba_now_u, (tmp_v << 4) + haba_now_v));
 
-        tmp_x = wstr->x + wstr->addW * i;
-        tmp_y = wstr->y + wstr->addH * i;
+        tmp_x = wstr->x + (wstr->addW * i);
+        tmp_y = wstr->y + (wstr->addH * i);
         sceGifPkAddGsAD(wavePkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ(tmp_x << 4, tmp_y << 4, 1));
 
-        tmp_u += (wstr->sizeW - wstr->mvSize * 2);
-        tmp_v += (wstr->sizeH - wstr->mvSize * 2);
+        tmp_u += wstr->sizeW - (wstr->mvSize * 2);
+        tmp_v += wstr->sizeH - (wstr->mvSize * 2);
         sceGifPkAddGsAD(wavePkSpr, SCE_GS_UV,   SCE_GS_SET_UV((tmp_u << 4) + haba_now_u, (tmp_v << 4) + haba_now_v));
         sceGifPkAddGsAD(wavePkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ((tmp_x + wstr->sizeW) << 4, (tmp_y + wstr->sizeH) << 4, 1));
 
@@ -374,8 +374,8 @@ void CG_NoodlesDisp(NOODLES_STR *ndl_pp, sceGsFrame *frame_pp, int pri, int time
 
 void FD_MonocroDisp(MONOCRO_STR *mono_pp, int tbp, int w, int h) {
     u_char *dat_pp;
-    int i, j, k;
-    short sizew, sizeh;
+    int     i, j, k;
+    short   sizew, sizeh;
     u_short ctmp;
     
     for (i = 0; i < h; i += 32) {
