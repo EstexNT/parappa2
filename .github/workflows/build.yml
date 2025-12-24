@@ -42,7 +42,7 @@ jobs:
       run: sudo dpkg --add-architecture i386
 
     - name: Install Ubuntu packages
-      run: sudo apt-get update && sudo apt-get install -y gcc-mipsel-linux-gnu binutils-mips-linux-gnu ninja-build libc6:i386 libncurses5:i386 libstdc++6:i386
+      run: sudo apt-get update && sudo apt-get install -y gcc-mipsel-linux-gnu binutils-mips-linux-gnu ninja-build libc6:i386 libstdc++6:i386
 
     - name: Install Python modules
       run: python3 -m pip install --upgrade -r requirements.txt
