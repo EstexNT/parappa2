@@ -1,0 +1,116 @@
+preset_registers:
+    NOP                                     LQ.xyzw VF24, 40(VI00)
+    NOP                                     LQ.xyzw VF17,  0(VI00)
+    NOP                                     LQ.xyzw VF18,  1(VI00)
+    NOP                                     LQ.xyzw VF19,  2(VI00)
+    NOP                                     LQ.xyzw VF20,  3(VI00)
+    MULAx.xyzw ACC, VF17, VF24x             LQ.xyzw VF25, 41(VI00)
+    MADDAy.xyzw ACC, VF18, VF24y            LQ.xyzw VF26, 42(VI00)
+    MADDAz.xyzw ACC, VF19, VF24z            LQ.xyzw VF27, 43(VI00)
+    MADDw.xyzw VF05, VF20, VF24w            LQ.xyzw VF28, 40(VI00)
+    MULAx.xyzw ACC, VF17, VF25x             LQ.xyzw VF29, 41(VI00)
+    MADDAy.xyzw ACC, VF18, VF25y            LQ.xyzw VF30, 42(VI00)
+    MADDAz.xyzw ACC, VF19, VF25z            LQ.xyzw VF31, 43(VI00)
+    MADDw.xyzw VF06, VF20, VF25w            LQ.xyzw VF10, 44(VI00)
+    MULAx.xyzw ACC, VF17, VF26x             LQ.xyzw VF09, 12(VI00)
+    MADDAy.xyzw ACC, VF18, VF26y            IADDIU VI14, VI00, 0x48
+    MADDAz.xyzw ACC, VF19, VF26z            SQ.x VF00x, 93(VI00)
+    MADDw.xyzw VF07, VF20, VF26w            MOVE.xyzw VF22, VF10
+    MULAx.xyzw ACC, VF17, VF27x             LQ.xyzw VF17, 4(VI00)
+    MADDAy.xyzw ACC, VF18, VF27y            LQ.xyzw VF18, 5(VI00)
+    MADDAz.xyzw ACC, VF19, VF27z            LQ.xyzw VF19, 6(VI00)
+    MADDw.xyzw VF08, VF20, VF27w            LQ.xyzw VF20, 7(VI00)
+    MULAx.xyzw ACC, VF17, VF24x             MR32.xyzw VF22, VF22
+    MADDAy.xyzw ACC, VF18, VF24y            MOVE.x VF23, VF00
+    MADDAz.xyzw ACC, VF19, VF24z            FCSET 0
+    MADDw.xyzw VF01, VF20, VF24w            IADDIU VI07, VI00, 0x74
+    MULAx.xyzw ACC, VF17, VF25x             MR32.xyzw VF22, VF22
+    MADDAy.xyzw ACC, VF18, VF25y            IADDIU VI08, VI00, 0x9a
+    MADDAz.xyzw ACC, VF19, VF25z            MFIR.xz VF24, VI07
+    MADDw.xyzw VF02, VF20, VF25w            NOP
+    MULAx.xyzw ACC, VF17, VF26x             MOVE.zw VF22, VF10
+    MADDAy.xyzw ACC, VF18, VF26y            NOP
+    MADDAz.xyzw ACC, VF19, VF26z            MFIR.yw VF24, VI08
+    MADDw.xyzw VF03, VF20, VF26w            NOP
+    MULAx.xyzw ACC, VF17, VF27x             NOP
+    MADDAy.xyzw ACC, VF18, VF27y            NOP
+    MADDAz.xyzw ACC, VF19, VF27z            JR VI15
+    MADDw.xyzw VF04, VF20, VF27w            SQ.xyzw VF24, 92(VI00)
+
+preset_registers_scissor:
+    NOP                                     LQ.xyzw VF24, 40(VI00)
+    NOP                                     LQ.xyzw VF17,  0(VI00)
+    NOP                                     LQ.xyzw VF18,  1(VI00)
+    NOP                                     LQ.xyzw VF19,  2(VI00)
+    NOP                                     LQ.xyzw VF20,  3(VI00)
+    MULAx.xyzw ACC, VF17, VF24x             LQ.xyzw VF25, 41(VI00)
+    MADDAy.xyzw ACC, VF18, VF24y            LQ.xyzw VF26, 42(VI00)
+    MADDAz.xyzw ACC, VF19, VF24z            LQ.xyzw VF27, 43(VI00)
+    MADDw.xyzw VF05, VF20, VF24w            LQ.xyzw VF28, 40(VI00)
+    MULAx.xyzw ACC, VF17, VF25x             LQ.xyzw VF29, 41(VI00)
+    MADDAy.xyzw ACC, VF18, VF25y            LQ.xyzw VF30, 42(VI00)
+    MADDAz.xyzw ACC, VF19, VF25z            LQ.xyzw VF31, 43(VI00)
+    MADDw.xyzw VF06, VF20, VF25w            LQ.xyzw VF10, 44(VI00)
+    MULAx.xyzw ACC, VF17, VF26x             LQ.xyzw VF09, 12(VI00)
+    MADDAy.xyzw ACC, VF18, VF26y            IADDIU VI14, VI00, 0x48
+    MADDAz.xyzw ACC, VF19, VF26z            SQ.x VF00, 93(VI00)
+    MADDw.xyzw VF07, VF20, VF26w            MOVE.xyzw VF22, VF10
+    MULAx.xyzw ACC, VF17, VF27x             LQ.xyzw VF17, 13(VI00)
+    MADDAy.xyzw ACC, VF18, VF27y            LQ.xyzw VF18, 14(VI00)
+    MADDAz.xyzw ACC, VF19, VF27z            LQ.xyzw VF19, 15(VI00)
+    MADDw.xyzw VF08, VF20, VF27w            LQ.xyzw VF20, 16(VI00)
+    MULAx.xyzw ACC, VF17, VF24x             MR32.xyzw VF22, VF22
+    MADDAy.xyzw ACC, VF18, VF24y            MOVE.x VF23, VF00
+    MADDAz.xyzw ACC, VF19, VF24z            FCSET 0
+    MADDw.xyzw VF01, VF20, VF24w            IADDIU VI07, VI00, 0x74
+    MULAx.xyzw ACC, VF17, VF25x             MR32.xyzw VF22, VF22
+    MADDAy.xyzw ACC, VF18, VF25y            IADDIU VI08, VI00, 0x9a
+    MADDAz.xyzw ACC, VF19, VF25z            MFIR.xz VF24, VI07
+    MADDw.xyzw VF02, VF20, VF25w            NOP
+    MULAx.xyzw ACC, VF17, VF26x             MOVE.zw VF22, VF10
+    MADDAy.xyzw ACC, VF18, VF26y            NOP
+    MADDAz.xyzw ACC, VF19, VF26z            MFIR.yw VF24, VI08
+    MADDw.xyzw VF03, VF20, VF26w            NOP
+    MULAx.xyzw ACC, VF17, VF27x             NOP
+    MADDAy.xyzw ACC, VF18, VF27y            NOP
+    MADDAz.xyzw ACC, VF19, VF27z            JR VI15
+    MADDw.xyzw VF04, VF20, VF27w            SQ.xyzw VF24, 92(VI00)
+
+preset_registers_screen:
+    NOP                                     LQ.xyzw VF24, 40(VI00)
+    NOP                                     LQ.xyzw VF17, 22(VI00)
+    NOP                                     LQ.xyzw VF18, 23(VI00)
+    NOP                                     LQ.xyzw VF19, 24(VI00)
+    NOP                                     LQ.xyzw VF20, 25(VI00)
+    MULAx.xyzw ACC, VF17, VF24x             LQ.xyzw VF25, 41(VI00)
+    MADDAy.xyzw ACC, VF18, VF24y            LQ.xyzw VF26, 42(VI00)
+    MADDAz.xyzw ACC, VF19, VF24z            LQ.xyzw VF27, 43(VI00)
+    MADDw.xyzw VF05, VF20, VF24w            LQ.xyzw VF28, 40(VI00)
+    MULAx.xyzw ACC, VF17, VF25x             LQ.xyzw VF29, 41(VI00)
+    MADDAy.xyzw ACC, VF18, VF25y            LQ.xyzw VF30, 42(VI00)
+    MADDAz.xyzw ACC, VF19, VF25z            LQ.xyzw VF31, 43(VI00)
+    MADDw.xyzw VF06, VF20, VF25w            LQ.xyzw VF10, 44(VI00)
+    MULAx.xyzw ACC, VF17, VF26x             LQ.xyzw VF09, 12(VI00)
+    MADDAy.xyzw ACC, VF18, VF26y            IADDIU VI14, VI00, 0x48
+    MADDAz.xyzw ACC, VF19, VF26z            SQ.x VF00, 93(VI00)
+    MADDw.xyzw VF07, VF20, VF26w            MOVE.xyzw VF22, VF10
+    MULAx.xyzw ACC, VF17, VF27x             LQ.xyzw VF17, 18(VI00)
+    MADDAy.xyzw ACC, VF18, VF27y            LQ.xyzw VF18, 19(VI00)
+    MADDAz.xyzw ACC, VF19, VF27z            LQ.xyzw VF19, 20(VI00)
+    MADDw.xyzw VF08, VF20, VF27w            LQ.xyzw VF20, 21(VI00)
+    MULAx.xyzw ACC, VF17, VF24x             MR32.xyzw VF22, VF22
+    MADDAy.xyzw ACC, VF18, VF24y            MOVE.x VF23, VF00
+    MADDAz.xyzw ACC, VF19, VF24z            FCSET 0
+    MADDw.xyzw VF01, VF20, VF24w            IADDIU VI07, VI00, 0x74
+    MULAx.xyzw ACC, VF17, VF25x             MR32.xyzw VF22, VF22
+    MADDAy.xyzw ACC, VF18, VF25y            IADDIU VI08, VI00, 0x9a
+    MADDAz.xyzw ACC, VF19, VF25z            MFIR.xz VF24, VI07
+    MADDw.xyzw VF02, VF20, VF25w            NOP
+    MULAx.xyzw ACC, VF17, VF26x             MOVE.zw VF22, VF10
+    MADDAy.xyzw ACC, VF18, VF26y            NOP
+    MADDAz.xyzw ACC, VF19, VF26z            MFIR.yw VF24, VI08
+    MADDw.xyzw VF03, VF20, VF26w            NOP
+    MULAx.xyzw ACC, VF17, VF27x             NOP
+    MADDAy.xyzw ACC, VF18, VF27y            NOP
+    MADDAz.xyzw ACC, VF19, VF27z            JR VI15
+    MADDw.xyzw VF04, VF20, VF27w            SQ.xyzw VF24, 92(VI00)

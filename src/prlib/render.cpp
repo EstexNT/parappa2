@@ -8,7 +8,7 @@
 
 #include <nalib/namatrix.h>
 
-float D_FLT_003998E4;
+/* float D_FLT_003998E4; */
 
 extern PrSPRAM_DATA* prSpramData;
 

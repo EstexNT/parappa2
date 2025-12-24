@@ -1,0 +1,515 @@
+vump_menderer_draw_mesh:
+    NOP                                     LQ.xyzw VF30, 0(VI00)
+    SUB.xyzw VF01, VF00, VF00               LQ.xyzw VF29, 1(VI00)
+    NOP                                     LQ.xyzw VF28, 2(VI00)
+    NOP                                     LQ.xyzw VF27, 3(VI00)
+    NOP                                     LQ.xyzw VF26, 4(VI00)
+    NOP                                     LQ.xyzw VF23, 5(VI00)
+    NOP                                     LQ.xyzw VF22, 6(VI00)
+    NOP                                     LQ.xyzw VF21, 7(VI00)
+    NOP                                     LQ.xyzw VF20, 8(VI00)
+    NOP                                     LQ.xyzw VF19, 9(VI00)
+    NOP                                     LQ.xyzw VF18, 10(VI00)
+    NOP                                     LQ.xyzw VF11, 11(VI00)
+    NOP                                     LQ.xyzw VF10, 12(VI00)
+    NOP                                     LQ.xyzw VF17, 13(VI00)
+    NOP                                     LQ.xyzw VF16, 14(VI00)
+    NOP                                     LQ.xyzw VF09, 15(VI00)
+    NOP                                     IADDIU VI07, VI00, 0x10
+    NOP                                     IADDIU VI08, VI00, 0x41
+    NOP[i]                                  LOI 24.0
+    MINIi.xyzw VF08, VF09, I                MFIR.xz VF31, VI07
+    NOP                                     MFIR.yw VF31, VI08
+    NOP                                     IADDIU VI07, VI00, 3
+
+menderer_draw_sincos_loop:
+    NOP                                     ESIN P, VF27x
+    NOP                                     MR32.xyzw VF27, VF27
+    ADDAx.w ACC, VF00, VF00x                MR32.xyzw VF24, VF24
+    MSUB.w VF01, VF26, VF26                 NOP
+    SUB.w VF24, VF00, VF00                  SQRT Q, VF01w
+    NOP                                     WAITP
+    ADDq.w VF24, VF24, Q                    MFP.w VF27, P
+    NOP                                     ESIN P, VF26x
+    NOP                                     MR32.xyzw VF26, VF26
+    ADDAx.w ACC, VF00, VF00x                MR32.xyzw VF25, VF25
+    MSUB.w VF01, VF27, VF27                 NOP
+    SUB.w VF25, VF00, VF00                  SQRT Q, VF01w
+    NOP                                     WAITP
+    ADDq.w VF25, VF25, Q                    MFP.w VF26, P
+    NOP                                     IBNE VI07, VI00, menderer_draw_sincos_loop
+    NOP                                     ISUBIU VI07, VI07, 1
+    ADDAx.w ACC, VF00, VF00x                MR32.xyzw VF24, VF24
+    MSUB.w VF01, VF26, VF26                 NOP
+    SUB.w VF24, VF00, VF00                  SQRT Q, VF01w
+    ADDq.w VF24, VF24, Q                    WAITQ
+    ADDAw.xyzw ACC, VF23, VF00w             NOP
+    MADD.xyzw VF27, VF27, VF19              NOP
+    ADDAw.xyzw ACC, VF22, VF00w             NOP
+    MADD.xyzw VF26, VF26, VF18              NOP
+    ADDAw.xyzw ACC, VF21, VF00w             NOP
+    MADD.xyzw VF25, VF25, VF11              NOP
+    ADDAw.xyzw ACC, VF20, VF00w             MOVE.xyzw VF07, VF00
+    MADD.xyzw VF24, VF24, VF10              IADDIU VI05, VI00, 15
+
+menderer_draw_loopy:
+    ADDx[i].xyzw VF15, VF27, VF00x          LOI 0.083333336
+    SUBi.xyzw VF25, VF25, I                 MTIR VI03, VF31x
+    SUBi.xyzw VF24, VF24, I                 IADDIU VI06, VI00, 0x18
+    ADDx.xyzw VF14, VF26, VF00x             MTIR VI04, VF31x
+    ADDx.x VF07, VF00, VF00x                NOP
+    MUL.xyzw VF13, VF25, VF25               SQI.xyzw VF30, (VI03++)
+    MUL.xyzw VF12, VF24, VF24               MR32.xyzw VF31, VF31
+
+menderer_draw_loopx:
+    NOP[i]                                  LOI 0.0625
+    SUBi.xyzw VF15, VF15, I                 NOP
+    SUBi.xyzw VF14, VF14, I                 NOP
+    ADDAx.xyzw ACC, VF13, VF00x             NOP
+    MADD.xyzw VF01, VF15, VF15              NOP
+    ADDAx.xyzw ACC, VF12, VF00x             NOP
+    MADD.xyzw VF02, VF14, VF14              NOP
+    MUL[i].xyzw VF01, VF01, VF29            LOI 96.5
+
+menderer_draw_loopx2:
+    MUL.xyzw VF02, VF02, VF28               MOVE.xyzw VF05, VF07
+    ADDAx.w ACC, VF09, VF00x                EEXP P, VF01x
+    ADDw.x VF07, VF07, VF00w                WAITP
+    NOP                                     MFP.w VF03, P
+    NOP                                     EEXP P, VF01y
+    MSUBAx.w ACC, VF03, VF17x               WAITP
+    FTOI4.xyzw VF05, VF05                   MFP.w VF03, P
+    NOP                                     EEXP P, VF01z
+    MSUBAy.w ACC, VF03, VF17y               WAITP
+    NOP                                     MFP.w VF03, P
+    NOP                                     EEXP P, VF01w
+    MSUBAz.w ACC, VF03, VF17z               WAITP
+    NOP                                     MFP.w VF03w, P
+    NOP                                     EEXP P, VF02x
+    MSUBAw.w ACC, VF03, VF17w               WAITP
+    NOP                                     MFP.w VF03, P
+    NOP                                     EEXP P, VF02y
+    MSUBAx.w ACC, VF03, VF16x               WAITP
+    NOP                                     MFP.w VF03, P
+    NOP                                     EEXP P, VF02z
+    MSUBAy.w ACC, VF03, VF16y               WAITP
+    NOP                                     MFP.w VF03, P
+    SUB.xyz VF06, VF00, VF00                EEXP P, VF02w
+    MSUBAz.w ACC, VF03, VF16z               WAITP
+    NOP                                     MFP.w VF03, P
+    MSUBw.w VF06, VF03, VF16w               NOP
+    NOP[i]                                  LOI 0.0625
+    SUBi.xyzw VF15, VF15, I                 NOP
+    SUBi[i].xyzw VF14, VF14, I              LOI 24.0
+    MAX.w VF06, VF06, VF08                  ISUBIU VI06, VI06, 1
+    ADDAx.xyzw ACC, VF13, VF00x             NOP
+    MADD.xyzw VF01, VF15, VF15              NOP
+    ADDAx.xyzw ACC, VF12, VF00x             NOP
+    FTOI0.xyzw VF06, VF06                   NOP
+    MADD.xyzw VF02, VF14, VF14              NOP
+    MUL[i].xyzw VF01, VF01, VF29            LOI 127.5
+    NOP                                     SQI.xyzw VF06, (VI03++)
+    NOP                                     IBNE VI06, VI00, menderer_draw_loopx2
+    NOP                                     SQI.xyzw VF05, (VI03++)
+    ADDw.y VF07, VF07, VF00w                XGKICK VI04
+    NOP                                     IBNE VI05, VI00, menderer_draw_loopy
+    NOP                                     ISUBIU VI05, VI05, 1
+    NOP[e]                                  NOP
+    NOP                                     NOP
+
+scissor_edge:
+    NOP                                     LQ.xyzw VF01, 72(VI04)
+    NOP                                     MR32.xyzw VF25, VF05
+    NOP                                     LQ.xyzw VF02, 72(VI05)
+    ADDw.x VF24, VF00, VF00w                IADD VI11, VI04, VI04
+    MUL.zw VF26, VF01, VF05                 IADD VI11, VI11, VI04
+    MULA.x ACC, VF05, VF01                  IADD VI11, VI11, VI03
+    MUL.xyzw VF27, VF02, VF05               IADD VI12, VI05, VI05
+    MADDAy.x ACC, VF25, VF01y               IADD VI12, VI12, VI05
+    MADDAz.x ACC, VF24, VF26z               IADD VI12, VI12, VI03
+    MADDw.x VF25, VF24, VF26w               LQ.xyzw VF07, 2(VI11)
+    MADDaw.x ACC, VF24, VF26w               LQ.xyzw VF08, 2(VI12)
+    MSUBA.x ACC, VF24, VF27                 LQ.xyzw VF09, 0(VI11)
+    MSUBAy.x ACC, VF24, VF27y               LQ.xyzw VF10, 0(VI12)
+    MSUBAz.x ACC, VF24, VF27z               LQ.xyzw VF11, 1(VI11)
+    MSUBw.x VF24, VF24, VF27w               LQ.xyzw VF12, 1(VI12)
+    SUB.xyzw VF08, VF08, VF07               NOP
+    SUB.xy VF10, VF10, VF09                 NOP
+    SUB.xyzw VF12, VF12, VF11               NOP
+    SUB.xyzw VF02, VF02, VF01               DIV Q, VF25x, VF24x
+    ADDAx.xyzw ACC, VF07, VF00x             NOP
+    MADDq.xyzw VF08, VF08, Q                WAITQ
+    ADDAx.xyzw ACC, VF01, VF00x             NOP
+    MADDq.xyzw VF02, VF02, Q                NOP
+    ADDAx.xy ACC, VF09, VF00x               NOP
+    MADDq.xy VF10, VF10, Q                  DIV Q, VF00w, VF08w
+    ADDAx.xyzw ACC, VF11, VF00x             SQ.xyzw VF08, 2(VI12)
+    CLIPw.xyz VF02, VF02w                   SQ.xyzw VF02, 72(VI05)
+    MADDq.xyzw VF12, VF12, Q                NOP
+    NOP                                     NOP
+    NOP                                     NOP
+    SUB.w VF10, VF00, VF00                  FCGET VI11
+    ADDq.z VF10, VF00, Q                    ISW.x VI11, 81(VI05)
+    NOP                                     SQ.xyzw VF12, 1(VI12)
+    NOP                                     NOP
+    NOP                                     JR VI13
+    NOP                                     SQ.xyzw VF10, 0(VI12)
+
+scissor_clip_plane:
+    NOP                                     ILW.x VI07, 90(VI00)
+    NOP                                     IAND VI07, VI07, VI06
+    NOP                                     IADDIU VI13, VI00, 0
+    NOP                                     IADDIU VI07, VI00, 0
+    NOP                                     ILW.x VI10, 80(VI02)
+    NOP                                     IAND VI10, VI10, VI06
+    NOP                                     IADDI VI14, VI00, -2
+    NOP                                     ILW.x VI08, 81(VI07)x
+
+cross_detection_loop:
+    NOP                                     IAND VI09, VI08, VI06
+    NOP                                     IOR VI13, VI13, VI08
+    NOP                                     IBEQ VI09, VI10, cross_detection_same
+    NOP                                     IADDIU VI07, VI07, 1
+    NOP                                     IBEQ VI09, VI00, cross_detection_in
+    NOP                                     IADDIU VI14, VI14, 1
+
+cross_detection_out:
+    NOP                                     B cross_detection_same
+    NOP                                     ISUBIU VI05, VI07, 1
+
+cross_detection_in:
+    NOP                                     ISUBIU VI04, VI07, 1
+
+cross_detection_same:
+    NOP                                     IADD VI10, VI09, VI00
+    NOP                                     IBNE VI07, VI02, cross_detection_loop
+    NOP                                     ILW.x VI08, 81(VI07)
+    NOP                                     IBGEZ VI14, cross_detection_intersection
+    NOP                                     ISW.xyzw VI13, 90(VI00)
+    NOP                                     IBEQ VI10, VI00, scissor_clip_plane_epilogue
+    NOP                                     NOP
+
+cross_detection_all_external:
+    NOP                                     B scissor_restore_registers
+    NOP                                     IADDIU VI02, VI00, 0
+
+cross_detection_intersection:
+    NOP                                     IBEQ VI14, VI00, cross_not_degenerated
+    NOP                                     NOP
+
+cross_not_degenerated:
+    NOP                                     ISUB VI14, VI04, VI05
+    NOP                                     NOP
+    NOP                                     IBGEZ VI14, cross_adjust_skip
+    NOP                                     IADDIU VI07, VI00, 1
+    NOP                                     IADD VI14, VI14, VI02
+
+cross_adjust_skip:
+    NOP                                     NOP
+    NOP                                     IBEQ VI14, VI07, cross_insert_output_vertex
+    NOP                                     ISUBIU VI14, VI14, 2
+
+cross_reduce_output_vertex:
+    NOP                                     ISUB VI07, VI05, VI04
+    NOP                                     IBEQ VI14, VI00, reduce_output_vertex_epilogue10
+    NOP                                     IADDIU VI08, VI00, 1
+    NOP                                     IBGEZ VI07, reduce_output_vertex_next10
+    NOP                                     IADDIU VI11, VI05, 1
+
+reduce_output_vertex_shift10:
+    NOP                                     IADD VI12, VI11, VI14
+    NOP                                     IADD VI09, VI11, VI11
+    NOP                                     IADD VI09, VI09, VI11
+    NOP                                     IADD VI09, VI09, VI03
+    NOP                                     IADD VI10, VI12, VI12
+    NOP                                     IADD VI10, VI10, VI12
+    NOP                                     IADD VI10, VI10, VI03
+
+reduce_output_vertex_shift_loop10:
+    NOP                                     LQ.xyzw VF24, 72(VI12)
+    NOP                                     LQ.xyzw VF25, 81(VI12)
+    NOP                                     LQI.xyzw VF26, (VI10++)
+    NOP                                     IADDIU VI12, VI12, 1
+    NOP                                     SQ.xyzw VF24, 72(VI11)
+    NOP                                     LQI.xyzw VF24, (VI10++)
+    NOP                                     SQ.xyzw VF25, 81(VI11)
+    NOP                                     SQI.xyzw VF26, (VI09++)
+    NOP                                     LQI.xyzw VF25, (VI10++)
+    NOP                                     SQI.xyzw VF24, (VI09++)
+    NOP                                     IADDIU VI11, VI11, 1
+    NOP                                     IBNE VI12, VI02, reduce_output_vertex_shift_loop10
+    NOP                                     SQI.xyzw VF25, (VI09++)
+    NOP                                     B reduce_output_vertex_pre_epilogue10
+    NOP                                     IADDIU VI04, VI05, 2
+
+reduce_output_vertex_next10:
+    NOP                                     IBNE VI04, VI00, reduce_output_vertex_next210
+    NOP                                     ISUBIU VI12, VI04, 1
+
+reduce_output_vertex_copy_tail10:
+    NOP                                     ISUBIU VI12, VI02, 1
+    NOP                                     IADD VI10, VI12, VI12
+    NOP                                     IADD VI10, VI10, VI12
+    NOP                                     IADD VI10, VI10, VI03
+    NOP                                     LQ.xyzw VF24, 72(VI12)
+    NOP                                     LQ.xyzw VF25, 81(VI12)
+    NOP                                     LQ.xyzw VF26, 0(VI10)
+    NOP                                     IADD VI09, VI11, VI11
+    NOP                                     IADD VI09, VI09, VI11
+    NOP                                     IADD VI09, VI09, VI03
+    NOP                                     SQ.xyzw VF24, 72(VI11)
+    NOP                                     LQ.xyzw VF24, 1(VI10)
+    NOP                                     SQ.xyzw VF25, 81(VI11)
+    NOP                                     LQ.xyzw VF25, 2(VI10)
+    NOP                                     SQ.xyzw VF26, 0(VI09)
+    NOP                                     SQ.xyzw VF24, 1(VI09)
+    NOP                                     B reduce_output_vertex_pre_epilogue10
+    NOP                                     SQ.xyzw VF25, 2(VI09)
+
+reduce_output_vertex_next210:
+    NOP                                     IBEQ VI04, VI08, reduce_output_vertex_pre_epilogue10
+    NOP                                     IADDIU VI11, VI00, 0
+
+reduce_output_vertex_rotate10:
+    NOP                                     IADD VI09, VI11, VI11
+    NOP                                     IADD VI09, VI09, VI11
+    NOP                                     IADD VI09, VI09, VI03
+    NOP                                     IADD VI10, VI12, VI12
+    NOP                                     IADD VI10, VI10, VI12
+    NOP                                     IADD VI10, VI10, VI03
+    NOP                                     IADDIU VI07, VI05, 1
+
+reduce_output_vertex_rotate_loop10:
+    NOP                                     LQ.xyzw VF24, 72(VI12)
+    NOP                                     LQ.xyzw VF25, 81(VI12)
+    NOP                                     LQI.xyzw VF26, (VI10++)
+    NOP                                     IADDIU VI12, VI12, 1
+    NOP                                     SQ.xyzw VF24, 72(VI11)
+    NOP                                     LQI.xyzw VF24, (VI10++)
+    NOP                                     SQ.xyzw VF25, 81(VI11)
+    NOP                                     SQI.xyzw VF26, (VI09++)
+    NOP                                     LQI.xyzw VF25, (VI10++)
+    NOP                                     IADDIU VI11, VI11, 1
+    NOP                                     SQI.xyzw VF24, (VI09++)
+    NOP                                     IBNE VI12, VI07, reduce_output_vertex_rotate_loop10
+    NOP                                     SQI.xyzw VF25, (VI09++)
+    NOP                                     ISUBIU VI05, VI11, 1
+    NOP                                     IADDIU VI04, VI00, 1
+
+reduce_output_vertex_pre_epilogue10:
+    NOP                                     ISUB VI02, VI02, VI14
+
+reduce_output_vertex_epilogue10:
+    NOP                                     B cross_adjust_exit
+    NOP                                     NOP
+
+cross_insert_output_vertex:
+    NOP                                     IBEQ VI05, VI02, insert_output_vertex_exit_11
+    NOP                                     IADD VI11, VI02, VI02
+    NOP                                     IADD VI11, VI11, VI02
+    NOP                                     IADD VI11, VI11, VI03
+    NOP                                     IADDIU VI12, VI02, 0x48
+    NOP                                     IADD VI07, VI05, VI00
+    NOP                                     ISUB VI08, VI04, VI05
+
+insert_output_vertex_loop_11:
+    NOP                                     LQD.xyzw VF24, (--VI11)
+    NOP                                     LQD.xyzw VF25, (--VI11)
+    NOP                                     LQD.xyzw VF26, (--VI11)
+    NOP                                     IADDIU VI07, VI07, 1
+    NOP                                     SQ.xyzw VF24, 5(VI11)
+    NOP                                     LQD.xyzw VF24, (--VI12)
+    NOP                                     SQ.xyzw VF25, 4(VI11)
+    NOP                                     LQ.xyzw VF25, 9(VI12)
+    NOP                                     SQ.xyzw VF26, 3(VI11)
+    NOP                                     SQ.xyzw VF24, 1(VI12)
+    NOP                                     IBNE VI07, VI02, insert_output_vertex_loop_11
+    NOP                                     SQ.xyzw VF25, 10(VI12)
+
+insert_output_vertex_exit_11:
+    NOP                                     IBLTZ VI08, cross_adjust_exit
+    NOP                                     IADDIU VI02, VI02, 1
+    NOP                                     IADDIU VI04, VI04, 1
+
+cross_adjust_exit:
+insert_output_vertex_exit2_11:
+    NOP                                     IADD VI14, VI05, VI00
+    NOP                                     IBNE VI04, VI00, cross_interpolate_in
+    NOP                                     ISUBIU VI05, VI04, 1
+    NOP                                     ISUBIU VI05, VI02, 1
+
+cross_interpolate_in:
+    NOP                                     BAL VI13, scissor_edge
+    NOP                                     NOP
+    NOP                                     IBNE VI14, VI00, cross_interpolate_out
+    NOP                                     ISUBIU VI04, VI14, 1
+    NOP                                     ISUBIU VI04, VI02, 1
+
+cross_interpolate_out:
+    NOP                                     BAL VI13, scissor_edge
+    NOP                                     IADD VI05, VI14, VI00
+
+scissor_clip_plane_epilogue:
+    NOP                                     JR VI15
+    NOP                                     NOP
+
+scissor_polygon:
+    NOP                                     FCOR vi01, 0xfdf7df
+    NOP                                     IBNE VI01, VI00, scissor_epilogue
+    NOP                                     FCOR VI01, 0xff7df7
+    NOP                                     IBNE VI01, VI00, scissor_epilogue
+    NOP                                     FCOR VI01, 0xffbefb
+    NOP                                     IBNE VI01, VI00, scissor_epilogue
+    NOP                                     FCOR VI01, 0xffdf7d
+    NOP                                     IBNE VI01, VI00, scissor_epilogue
+    NOP                                     FCOR VI01, 0xffefbe
+    NOP                                     IBNE VI01, VI00, scissor_epilogue
+    NOP                                     FCOR VI01, 0xfefbef
+    NOP                                     IBNE VI01, VI00, scissor_epilogue
+    MADDx.xyzw VF24, VF00, VF00x            SQ.xyzw VF10, 94(VI00)
+    MULAx.xyzw ACC, VF05, VF25x             SQ.xyzw VF11, 95(VI00)
+    MADDAy.xyzw ACC, VF06, VF25y            SQ.xyzw VF12, 96(VI00)
+    MADDAz.xyzw ACC, VF07, VF25z            SQ.xyzw VF13, 97(VI00)
+    MADDw.xyzw VF10, VF08, VF25w            SQ.xyzw VF14, 98(VI00)
+    MULAx.xyzw ACC, VF05, VF26x             SQ.xyzw VF15, 99(VI00)
+    MADDAy.xyzw ACC, VF06, VF26y            SQ.xyzw VF16, 100(VI00)
+    MADDAz.xyzw ACC, VF07, VF26z            SQ.xyzw VF24, 101(VI00)
+    MADDw.xyzw VF11, VF08, VF26w            SQ.xyzw VF25, 102(VI00)
+    MULAx.xyzw ACC, VF05, VF27x             SQ.xyzw VF26, 103(VI00)
+    MADDAy.xyzw ACC, VF06, VF27y            SQ.xyzw VF27, 104(VI00)
+    MADDAz.xyzw ACC, VF07, VF27z            SQ.xyzw VF01, 105(VI00)
+    MADDw.xyzw VF12, VF08, VF27w            SQ.xyzw VF02, 106(VI00)
+    MULAx.xyzw ACC, VF01, VF25x             SQ.xyzw VF03, 107(VI00)
+    MADDAy.xyzw ACC, VF02, VF25y            SQ.xyzw VF04, 108(VI00)
+    MADDAz.xyzw ACC, VF03, VF25z            SQ.xyzw VF05, 109(VI00)
+    MADDw.xyzw VF25, VF04, VF25w            SQ.xyzw VF06, 110(VI00)
+    MULAx.xyzw ACC, VF01, VF26x             SQ.xyzw VF07, 111(VI00)
+    MADDAy.xyzw ACC, VF02, VF26y            SQ.xyzw VF08, 112(VI00)
+    MADDAz.xyzw ACC, VF03, VF26z            SQ.xyzw VF09, 113(VI00)
+    MADDw.xyzw VF26, VF04, VF26w            ISW.w VI05, 114(VI00)
+    MULAx.xyzw ACC, VF01, VF27x             ISW.z VI04, 114(VI00)
+    MADDAy.xyzw ACC, VF02, VF27y            ISW.y VI03, 114(VI00)
+    MADDAz.xyzw ACC, VF03, VF27z            ISW.x VI02, 114(VI00)
+    MADDw.xyzw VF27, VF04, VF27w            ISW.z VI15, 115(VI00)
+    NOP                                     ISW.y VI14, 115(VI00)
+    CLIPw.xyz VF25, VF25w                   ISW.x VI06, 115(VI00)
+    CLIPw.xyz VF26, VF26w                   SQ.xyzw VF25, 72(VI00)
+    CLIPw.xyz VF27, VF27w                   SQ.xyzw VF26, 73(VI00)
+    NOP                                     SQ.xyzw VF27, 74(VI00)
+    NOP                                     FCGET VI08
+    NOP                                     FCGET VI09
+    NOP                                     FCGET VI10
+    NOP                                     ISW.xyzw VI08, 81(VI00)
+    NOP                                     ISW.xyzw VI09, 82(VI00)
+    NOP                                     ISW.xyzw VI10, 83(VI00)
+    NOP                                     IADDIU VI02, VI00, 3
+    NOP                                     IOR VI08, VI08, VI09
+    NOP                                     IOR VI08, VI08, VI10
+    NOP                                     ISW.x VI08, 90(VI00)
+
+scissor_initialize:
+    NOP                                     LQ.xyzw VF06, 92(VI00)
+    NOP                                     ILW.x VI03, 92(VI00)
+    NOP                                     XTOP VI11
+    NOP                                     ILW.x VI07, 0(VI11)
+    NOP                                     IADDIU VI11, VI11, 4
+    NOP                                     IBEQ VI07, VI00, setup_gs_packet_header_exit13
+    NOP                                     LQ.xyzw VF27, -3(VI11)
+
+setup_gs_packet_header_loop13:
+    NOP                                     LQI.xyzw VF24, (VI11++)
+    NOP                                     LQI.xyzw VF25, (VI11++)
+    NOP                                     LQI.xyzw VF26, (VI11++)
+    NOP                                     ISUBIU VI07, VI07, 1
+    NOP                                     SQI.xyzw VF24, (VI03++)
+    NOP                                     SQI.xyzw VF25, (VI03++)
+    NOP                                     IBNE VI07, VI00, setup_gs_packet_header_loop13
+    NOP                                     SQI.xyzw VF26, (VI03++)
+
+setup_gs_packet_header_exit13:
+    NOP                                     SQI.xyzw VF27, (VI03++)
+    NOP                                     MR32.xyzw VF06, VF06
+    NOP                                     LQ.xyz VF24, 0(VI13)
+    MULx.w VF24, VF00, VF00x                LQ.xyz VF25, 3(VI13)
+    MULx.w VF25, VF00, VF00x                LQ.xyz VF26, 6(VI13)
+    MULx.w VF26, VF00, VF00x                LQ.xyzw VF27, 1(VI13)
+    NOP                                     LQ.xyzw VF01, 4(VI13)
+    MULw.xy VF24, VF24, VF10w               LQ.xyzw VF02, 7(VI13)
+    MULw.xy VF25, VF25, VF11w               SQ.xyzw VF10, 2(VI03)
+    MULw.xy VF26, VF26, VF12w               SQ.xyzw VF11, 5(VI03)
+    ITOF0.xyzw VF27, VF27                   SQ.xyzw VF12, 8(VI03)
+    ITOF0.xyzw VF01, VF01                   SQ.xyzw VF24, 0(VI03)
+    ITOF0.xyzw VF02, VF02                   SQ.xyzw VF25, 3(VI03)
+    NOP                                     SQ.xyzw VF26, 6(VI03)
+    NOP                                     SQ.xyzw VF27, 1(VI03)
+    NOP                                     SQ.xyzw VF01, 4(VI03)
+    NOP                                     SQ.xyzw VF02, 7(VI03)
+
+scissor_main:
+    ADDx[i].xy VF05, VF00, VF00x            LOI -2.0
+    ADDI.w VF05, VF00, I                    BAL VI15, scissor_clip_plane
+    ADDw.z VF05, VF00, VF00w                IADDIU VI06, VI00, 0x10
+    ADDz.z VF05, VF00, VF00z                BAL VI15, scissor_clip_plane
+    ADDw.x VF05, VF00, VF00w                IADDIU VI06, VI00, 1
+    ADDx.x VF05, VF00, VF00x                BAL VI15, scissor_clip_plane
+    ADDw.y VF05, VF00, VF00w                IADDIU VI06, VI00, 4
+    ADDy.w VF05, VF00, VF00y                BAL VI15, scissor_clip_plane
+    NOP                                     IADDIU VI06, VI00, 8
+    ADDy.y VF05, VF00, VF00y                BAL VI15, scissor_clip_plane
+    ADDw.x VF05, VF00, VF00w                IADDIU VI06, VI00, 2
+    ADDx.x VF05, VF00, VF00x                BAL VI15, scissor_clip_plane
+    ADDw.z VF05, VF00, VF00w                IADDIU VI06, VI00, 0x20
+
+scissor_output:
+    NOP                                     LQ.xyzw VF03, 95(VI00)
+    NOP                                     LQ.xyzw VF24, 0(VI03)
+    NOP                                     LQ.xyzw VF26, 2(VI03)
+    NOP                                     LQ.xyzw VF25, 1(VI03)
+    SUBA.xyzw ACC, VF00, VF00               IADDIU VI11, VI03, 0
+    ADDAx.z ACC, VF00, VF03x                IADDIU VI07, VI00, 0
+
+normalize_output_data_loop14:
+    MADDz.xyz VF02, VF26, VF24z             NOP
+    MULz.xy VF27, VF24, VF24z               IADDIU VI07, VI07, 1
+    FTOI0.xyzw VF01, VF25                   LQ.xyzw VF24, 3(VI11)
+    SUB.w VF02, VF00, VF00                  LQ.xyzw VF25, 4(VI11)
+    FTOI4.xyz VF02, VF02                    LQ.xyzw VF26, 5(VI11)
+    NOP                                     SQI.xy VF27, (VI11++)
+    NOP                                     SQI.xyzw VF01, (VI11++)
+    SUBA.xyzw ACC, VF00, VF00               IBNE VI07, VI02, normalize_output_data_loop14
+    ADDAx.z ACC, VF00, VF03x                SQI.xyzw VF02, (VI11++)
+    NOP                                     MTIR VI11, VF06y
+    NOP                                     IADDIU VI07, VI02, 0x4000
+    NOP                                     IADDIU VI07, VI07, 0x4000
+    NOP                                     ISW.x VI07, -1(VI03)
+    NOP                                     SQ.xyzw VF06, 92(VI00)
+    NOP                                     XGKICK VI11
+
+scissor_restore_registers:
+    NOP                                     LQ.xyzw VF25, 102(VI00)
+    NOP                                     LQ.xyzw VF01, 105(VI00)
+    NOP                                     LQ.xyzw VF02, 106(VI00)
+    NOP                                     LQ.xyzw VF03, 107(VI00)
+    NOP                                     LQ.xyzw VF04, 108(VI00)
+    MULAx.xyzw ACC, VF01, VF25x             LQ.xyzw VF26, 103(VI00)
+    MADDAy.xyzw ACC, VF02, VF25y            LQ.xyzw VF27, 104(VI00)
+    MADDAz.xyzw ACC, VF03, VF25z            LQ.xyzw VF05, 109(VI00)
+    MADDw.xyzw VF25, VF04, VF25w            LQ.xyzw VF06, 110(VI00)
+    MULAx.xyzw ACC, VF01, VF26x             LQ.xyzw VF07, 111(VI00)
+    MADDAy.xyzw ACC, VF02, VF26y            LQ.xyzw VF08, 112(VI00)
+    MADDAz.xyzw ACC, VF03, VF26z            LQ.xyzw VF09, 113(VI00)
+    MADDw.xyzw VF26, VF04, VF26w            LQ.xyzw VF10, 94(VI00)
+    MULAx.xyzw ACC, VF01, VF27x             LQ.xyzw VF11, 95(VI00)
+    MADDAy.xyzw ACC, VF02, VF27y            LQ.xyzw VF12, 96(VI00)
+    MADDAz.xyzw ACC, VF03, VF27z            ILW.x VI02, 114(VI00)
+    MADDw.xyzw VF27, VF04, VF27w            LQ.xyzw VF24, 101(VI00)
+    NOP                                     ILW.y VI03, 114(VI00)
+    CLIPw.xyz VF25, VF25w                   ILW.z VI04, 114(VI00)
+    CLIPw.xyz VF26, VF26w                   ILW.w VI05, 114(VI00)
+    CLIPw.xyz VF27, VF27w                   ILW.x VI06, 115(VI00)
+    NOP                                     ILW.y VI14, 115(VI00)
+    ADDAx.xyzw ACC, VF24, VF00x             ILW.z VI15, 115(VI00)
+
+scissor_epilogue:
+    NOP                                     JR VI15
+    NOP                                     NOP

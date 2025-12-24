@@ -1,6 +1,5 @@
 name: PaRappa the Rapper 2 (NTSC-J) (July 12th prototype)
-#sha1: e693c3968afc22dfcb4cc4529aceb7c4f4921a94
-sha1: 6883b00102f831881b6dcdea38b30ee1e91ee0a3
+sha1: 8e7899f42ff2690362889da6cbf957e0faac608a
 options:
     # paths
     basename: SCPS_150.17
@@ -52,7 +51,7 @@ segments:
       subsegments:
         # .text
         - [0x0,      asm, sdk/crt0]
-        - [0xC8,     asm, sdk/tmp]
+        - [0xC8,     asm, sdk/libgcc]
 
         - [0x130,    c, dbug/dbgmsg]
         - [0x838,    c, dbug/syori]
@@ -181,11 +180,10 @@ segments:
         - [0x652D0,  asm, sdk/newlib]
 
         # .vutext
-        - [0x78040,  vutext, vutext]
-        # - [0x7A890,  databin, pad]
+        - { start: 0x78040, type: vutext, use_src_path: True, name: prlib/vu1/vump_common }
 
         # .data
-        - [0x7A900,  data, sdk/tmp]
+        - [0x7A900,  data, sdk/libgcc]
 
         - [0x7A970, .data, dbug/dbgmsg]
         - [0x7B9E0, .data, dbug/vramsave]

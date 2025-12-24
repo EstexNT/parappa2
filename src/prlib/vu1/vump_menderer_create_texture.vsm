@@ -1,0 +1,193 @@
+vump_menderer_create_texture:
+    NOP                                     IADDIU VI05, VI00, 5
+    NOP                                     IADDIU VI02, VI00, 0
+
+menderer_process_texture:
+    ADDx.xyzw VF25, VF00, VF00x             LQI.xyzw VF30, (VI02++)
+    ADDw[i].y VF22, VF00, VF00w             LOI 0.2734375
+    ADDI.z VF22, VF00, I                    LQI.xyzw VF29, (VI02++)
+    SUB.xyzw VF23, VF00, VF00               LQI.xyzw VF28, (VI02++)
+    ADDAx.y ACC, VF30, VF30x                LQI.xyzw VF27, (VI02++)
+    MADDz[i].y VF22, VF22, VF30z            LOI 6.2831855
+    MULi.xyzw VF29, VF29, I                 LQI.xyzw VF21, (VI02++)
+    MULi.xyzw VF28, VF28, I                 LQI.xyzw VF01, (VI02++)
+    MULi.xyzw VF27, VF27, I                 LQI.xyzw VF02, (VI02++)
+    ADDw[i].xy VF23, VF23, VF00w            LOI 0.00390625
+    MULi.xyzw VF29, VF29, I                 DIV Q, VF22z, VF22y
+    MUL.xyz VF28, VF28, VF21                LQI.xyzw VF03, (VI02++)
+    SUB.xyzw VF26, VF00, VF00               LQI.xyzw VF04, (VI02++)
+    MULi.x VF23, VF23, I                    LQI.xyzw VF05, (VI02++)
+    ADDw.y VF25, VF00, VF21w                LQI.xyzw VF06, (VI02++)
+    ADD.xyzw VF28, VF28, VF27               LQI.xyzw VF07, (VI02++)
+    ADDw.z VF26, VF26, VF00w                LQI.xyzw VF08, (VI02++)
+    MULq.xyzw VF30, VF30, Q                 LQI.xyzw VF09, (VI02++)
+    NOP                                     LQI.xyzw VF10, (VI02++)
+    NOP                                     IADDIU VI07, VI00, 0x4b
+    NOP                                     IADDIU VI08, VI00, 0x1d5
+    NOP                                     MFIR.xz VF31, VI07
+    NOP                                     MFIR.yw VF31, VI08
+    NOP                                     IADDIU VI06, VI00, 4
+
+menderer_process_sprite:
+    NOP                                     MTIR VI03, VF31x
+    NOP                                     IADDIU VI14, VI00, 0x40
+    NOP                                     IADD VI04, VI03, VI00
+    NOP                                     MR32.xyzw VF31, VF31
+    NOP                                     SQI.xyzw VF01, (VI03++)
+    NOP                                     SQI.xyzw VF02, (VI03++)
+    NOP                                     SQI.xyzw VF03, (VI03++)
+    NOP                                     SQI.xyzw VF04, (VI03++)
+    NOP                                     SQI.xyzw VF05, (VI03++)
+    NOP                                     SQI.xyzw VF06, (VI03++)
+    NOP                                     SQI.xyzw VF07, (VI03++)
+    NOP                                     SQI.xyzw VF08, (VI03++)
+    NOP                                     SQI.xyzw VF09, (VI03++)
+    NOP                                     SQI.xyzw VF10, (VI03++)
+
+sup_check:
+menderer_process_prim:
+    NOP[i]                                  LOI 3.1415927
+    ADDI[i].xyzw VF20, VF00, I              LOI 4.712389
+    SUBi[i].xyzw VF00, VF28, I              LOI 6.2831855
+    NOP                                     IADDIU VI07, VI00, 0xe0
+    NOP                                     IADDIU VI08, VI00, 0x00
+    NOP                                     IADDIU VI09, VI00, 0x20
+    NOP                                     FMAND VI07, VI07
+    NOP                                     IBEQ VI07, VI08, s111
+    NOP                                     IADDIU VI08, VI00, 0x40
+    NOP                                     IBEQ VI07, VI09, s110
+    NOP                                     IADDIU VI09, VI00, 0x60
+    NOP                                     IBEQ VI07, VI08, s101
+    NOP                                     IADDIU VI08, VI00, 0x80
+    NOP                                     IBEQ VI07, VI09, s100
+    NOP                                     IADDIU VI09, VI00, 0xa0
+    NOP                                     IBEQ VI07, VI08, s011
+    NOP                                     IADDIU VI08, VI00, 0xc0
+    NOP                                     IBEQ VI07, VI09, s010
+    NOP                                     IADDIU VI09, VI00, 0xe0
+    NOP                                     IBEQ VI07, VI08, s001
+    NOP                                     NOP
+    NOP                                     B inf_check
+    NOP[i]                                  LOI 1.5707964
+
+s001:
+    SUBi.z VF28, VF28, I                    B inf_check
+    NOP[i]                                  LOI 1.5707964
+
+s111:
+    SUBi.xyz VF28, VF28, I                  B inf_check
+    NOP[i]                                  LOI 1.5707964
+
+s110:
+    SUBi.xy VF28, VF28, I                   B inf_check
+    NOP[i]                                  LOI 1.5707964
+
+s101:
+    SUBi.xz VF28, VF28, I                   B inf_check
+    NOP[i]                                  LOI 1.5707964
+
+s100:
+    SUBi.x VF28, VF28, I                    B inf_check
+    NOP[i]                                  LOI 1.5707964
+
+s011:
+    SUBi.yz VF28, VF28, I                   B inf_check
+    NOP[i]                                  LOI 1.5707964
+
+s010:
+    SUBi[i].y VF28, VF28, I                 LOI 1.5707964
+
+inf_check:
+    ADDI[i].xyzw VF00, VF28, I              LOI 6.2831855
+    NOP                                     IADDIU VI07, VI00, 0xe0
+    NOP                                     IADDIU VI08, VI00, 0xe0
+    NOP                                     IADDIU VI09, VI00, 0xc0
+    NOP                                     FMAND VI07, VI07
+    NOP                                     IBEQ VI07, VI08, i111
+    NOP                                     IADDIU VI08, VI00, 0xa0
+    NOP                                     IBEQ VI07, VI09, i110
+    NOP                                     IADDIU VI09, VI00, 0x80
+    NOP                                     IBEQ VI07, VI08, i101
+    NOP                                     IADDIU VI08, VI00, 0x60
+    NOP                                     IBEQ VI07, VI09, i100
+    NOP                                     IADDIU VI09, VI00, 0x40
+    NOP                                     IBEQ VI07, VI08, i011
+    NOP                                     IADDIU VI08, VI00, 0x20
+    NOP                                     IBEQ VI07, VI09, i010
+    NOP                                     IADDIU VI09, VI00, 0x00
+    NOP                                     IBNE VI07, VI08, fold_check
+    NOP                                     NOP
+
+i001:
+    ADDI.z VF28, VF28, I                    B fold_check
+    NOP                                     NOP
+
+i111:
+    ADDI.xyz VF28, VF28, I                  B fold_check
+    NOP                                     NOP
+
+i110:
+    ADDI.xy VF28, VF28, I                   B fold_check
+    NOP                                     NOP
+
+i101:
+    ADDI.xz VF28, VF28, I                   B fold_check
+    NOP                                     NOP
+
+i100:
+    ADDI.x VF28, VF28, I                    B fold_check
+    NOP                                     NOP
+
+i011:
+    ADDI.yz VF28, VF28, I                   B fold_check
+    NOP                                     NOP
+
+i010:
+    ADDI.y VF28, VF28, I                    NOP
+    NOP                                     NOP
+
+fold_check:
+    SUB.xyzw VF20, VF20, VF28               NOP
+    MINI.xyzw VF20, VF20, VF28              NOP
+
+process_noodle:
+    SUB.xyzw VF24, VF00, VF00               ESIN P, VF20x
+    NOP                                     WAITP
+    ADDw.x VF24, VF00, VF00w                MFP.y VF22, P
+    NOP                                     ESIN P, VF20y
+    SUB[i].xyzw VF19, VF00, VF00            LOI 0.0
+    ADDAi[i].y ACC, VF00, I                 LOI 128.0
+    MADDax.y ACC, VF22, VF30x               WAITP
+    ADDI.xyzw VF19, VF19, I                 MFP.y VF22, P
+    NOP                                     ESIN P, VF20z
+    ADD[i].xyz VF28, VF28, VF29             LOI 16.0
+    ADDI.y VF24, VF00, I                    NOP
+    MADDAy.y ACC, VF22, VF30y               WAITP
+    FTOI0.xyzw VF19, VF19                   MFP.y VF22, P
+    NOP                                     NOP
+    NOP                                     NOP
+    NOP                                     NOP
+    MADDz.y VF26, VF22, VF30z               NOP
+    FTOI4.xyzw VF22, VF25                   MOVE.xyzw VF21, VF25
+    ADD.xy VF25, VF25, VF24                 NOP
+    NOP                                     NOP
+    NOP                                     SQI.xyzw VF26, (VI03++)
+    ADD.xy VF26, VF26, VF23                 SQI.xyzw VF19, (VI03++)
+    FTOI4.xyzw VF22, VF25                   SQI.xyzw VF22, (VI03++)
+    NOP                                     NOP
+    NOP                                     ISUBIU VI14, VI14, 1
+    NOP                                     SQI.xyzw VF26, (VI03++)
+    NOP                                     SQI.xyzw VF19, (VI03++)
+    NOP                                     IBNE VI14, VI00, menderer_process_prim
+    ADD.y VF25, VF00, VF21                  SQI.xyzw VF22, (VI03++)
+    NOP                                     ISUBIU VI06, VI06, 1
+    NOP                                     XGKICK VI04
+    NOP                                     NOP
+    NOP                                     IBNE VI06, VI00, menderer_process_sprite
+    NOP                                     NOP
+    NOP                                     ISUBIU VI05, VI05, 1
+    NOP                                     NOP
+    NOP                                     IBNE VI05, VI00, menderer_process_texture
+    NOP                                     NOP
+    NOP[e]                                  NOP
+    NOP                                     NOP

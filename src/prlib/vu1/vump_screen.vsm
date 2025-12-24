@@ -1,0 +1,67 @@
+vump_screen:
+    NOP                                     BAL VI15, preset_registers_screen
+    NOP                                     NOP
+    NOP[e]                                  NOP
+    NOP                                     NOP
+    NOP                                     XTOP VI11
+
+start_screen:
+    ADDw.x VF23, VF23, VF00w                IADDIU VI02, VI11, 4
+    NOP                                     LQI.xyzw VF24, (VI02++)
+    NOP                                     IADDIU VI03, VI11, 0xd2
+    NOP                                     IADD VI04, VI03, VI00
+    NOP                                     ILW.x VI07, 0(VI11)
+    NOP                                     SQI.xyzw VF24, (VI03++)
+    NOP                                     ILW.w VI05, 0(VI11)
+    NOP                                     LQ.xyzw VF11, 0(VI11)
+    NOP                                     IBEQ VI07, VI00, leader_exit_8
+    NOP                                     FCSET 0
+
+leader_loop_8:
+    NOP                                     LQI.xyzw VF24, (VI02++)
+    NOP                                     LQI.xyzw VF25, (VI02++)
+    NOP                                     LQI.xyzw VF26, (VI02++)
+    NOP                                     ISUBIU VI07, VI07, 1
+    NOP                                     SQI.xyzw VF24, (VI03++)
+    NOP                                     SQI.xyzw VF25, (VI03++)
+    NOP                                     IBNE VI07, VI00, leader_loop_8
+    NOP                                     SQI.xyzw VF26, (VI03++)
+
+leader_exit_8:
+    NOP                                     LQI.xyzw VF12, (VI02++)
+    NOP                                     LQI.xyzw VF13, (VI02++)
+    NOP                                     LQI.xyzw VF15, (VI02++)
+    MULAw.xyzw ACC, VF04, VF00w             NOP
+    MADDAx.xyzw ACC, VF01, VF12x            MOVE.xyzw VF17, VF12
+    MADDAy.xyzw ACC, VF02, VF12y            NOP
+    MADDz.xyzw VF24, VF03, VF12z            MTIR VI06, VF15w
+
+loop_screen:
+    MULy.xyz VF13, VF13, VF10y              SQI.xyzw VF15, (VI03++)
+    MULAx[d].xyzw ACC, VF05, VF17x          LQI.xyzw VF12, (VI02++)
+    MADDAy.xyzw ACC, VF06, VF17y            NOP
+    CLIPw.xyz VF24, VF24w                   ISUBIU VI05, VI05, 1
+    FTOI0.xyzw VF18, VF13                   MR32.w VF25w, VF00w
+    MADDAz.xyzw ACC, VF07, VF17z            LQI.xyzw VF13, (VI02++)
+    MADDw.xyzw VF16, VF08, VF17w            LQI.xyzw VF15, (VI02++)
+    ADDx.xyzw VF17, VF12, VF00x             FCAND VI01, 0x3ffff
+    MULAz.xyzw ACC, VF03, VF00z             NOP
+    NOP                                     IBNE VI06, VI00, nodisp_screen
+    FTOI4.xyz VF25, VF16                    SQI.xyzw VF18, (VI03++)
+    NOP                                     IBEQ VI01, VI00, disp_screen
+    NOP                                     NOP
+
+nodisp_screen:
+    FTOI15.w VF25w, VF00w                   NOP
+    NOP                                     NOP
+
+disp_screen:
+    MADDAx.xyzw ACC, VF01, VF12x            MTIR VI06, VF15w
+    MADDAy.xyzw ACC, VF02, VF12y            IBNE VI05, VI00, loop_screen
+    MADDw.xyzw VF24, VF04, VF12w            SQI.xyzw VF25, (VI03++)
+
+end_screen:
+    NOP[e]                                  XGKICK VI04
+    NOP                                     SQ.x VF23, 93(VI00) ; Hazard: store on E-bit delay slot
+    NOP                                     B start_screen
+    NOP                                     XTOP VI11

@@ -33,9 +33,9 @@
 
 After running `ninja`, you should see something like the following:
 ```
-[254/257] sha1sum config/irx.wave2ps2.jul12.checksum.sha1
+[238/248] sha1sum config/irx.wave2ps2.jul12.checksum.sha1
 build/WAVE2PS2.IRX.rom: OK
-[257/257] sha1sum config/p3.jul12.checksum.sha1
+[248/248] sha1sum config/p3.jul12.checksum.sha1
 build/SCPS_150.17.rom: OK
 ```
 

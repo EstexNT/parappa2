@@ -11,6 +11,10 @@ ob                                  = 0x00399d48; // size:0x18
 reg_frame                           = 0x001000c8; // type:func
 dereg_frame                         = 0x00100100; // type:func
 
+frame_table                         = 0x0017a900;
+__CTOR_LIST__                       = 0x0017a928;
+__DTOR_LIST__                       = 0x0017a950;
+
 // dbug/dbgmsg.c
 DbgMsgInit                          = 0x00100130; // type:func
 DbgMsgClear                         = 0x001001c8; // type:func
@@ -2221,10 +2225,10 @@ _t8NaMATRIX3Zfi4i4$IDENT                                                        
 
 //
 //
-// ** VU MICROCODE (.vutext) **
+// ** VU MICROCODE (.vutext/.vudata) **
 //
 //
-vump_dmatag                         = 0x00178040;
+vump_dmatag                         = 0x00178040; // defined:true
 
 //
 //
@@ -2416,8 +2420,6 @@ __muldi3                            = 0x0016a168; // type:func
 __moddi3                            = 0x00169b00; // type:func
 __udivdi3                           = 0x0016a1c8; // type:func
 __umoddi3                           = 0x0016a798; // type:func
-
-__DTOR_LIST__                       = 0x0017a950;
 
 // sce/ee/gcc/src/gcc/build/gcc/dp-bit.c
 dpadd                               = 0x0016b0e8; // type:func

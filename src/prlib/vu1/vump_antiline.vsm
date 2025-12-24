@@ -1,0 +1,89 @@
+vump_antiline:
+    NOP                                     BAL VI15, preset_registers
+    NOP                                     NOP
+    NOP[e]                                  NOP
+    NOP                                     NOP
+    NOP                                     XTOP VI11
+
+start_antiline:
+    ADDw.x VF23, VF23, VF00w                IADDIU VI02, VI11, 4
+    NOP                                     LQI.xyzw VF24, (VI02++)
+    NOP                                     IADDIU VI03, VI11, 0xd2
+    NOP                                     IADD VI04, VI03, VI00
+    NOP                                     ILW.x VI07, 0(VI11)
+    NOP                                     SQI.xyzw VF24, (VI03++)
+    NOP                                     ILW.w VI05, 0(VI11)
+    NOP                                     LQ.xyzw VF11, 0(VI11)
+    NOP                                     IBEQ VI07, VI00, leader_exit_9
+    NOP                                     FCSET 0
+
+leader_loop_9:
+    NOP                                     LQI.xyzw VF24, (VI02++)
+    NOP                                     LQI.xyzw VF25, (VI02++)
+    NOP                                     LQI.xyzw VF26, (VI02++)
+    NOP                                     ISUBIU VI07, VI07, 1
+    NOP                                     SQI.xyzw VF24, (VI03++)
+    NOP                                     SQI.xyzw VF25, (VI03++)
+    NOP                                     IBNE VI07, VI00, leader_loop_9
+    NOP                                     SQI.xyzw VF26, (VI03++)
+
+leader_exit_9:
+    NOP                                     LQI.xyzw VF17, (VI02++)
+    NOP                                     LQI.xyzw VF18, (VI02++)
+    NOP                                     LQI.xyzw VF20, (VI02++)
+    NOP                                     NOP
+    MULAx.xyzw ACC, VF05, VF17x             NOP
+    MADDAy.xyzw ACC, VF06, VF17y            NOP
+    MADDAz.xyzw ACC, VF07, VF17z            NOP
+    MADDw.xyzw VF16, VF08, VF17w            NOP
+    MULAx.xyzw ACC, VF01, VF17x             NOP
+    MADDAy.xyzw ACC, VF02, VF17y            ISUBIU VI05, VI05, 1
+    MADDAz.xyzw ACC, VF03, VF17z            LQI.xyzw VF12, (VI02++)
+    MADDw.xyzw VF24, VF04, VF17w            DIV Q, VF00w, VF16w
+    MULy.xyz VF18, VF18, VF10y              NOP
+    SUBA.xyzw ACC, VF00, VF00               LQI.xyzw VF13, (VI02++)
+    NOP                                     NOP
+    CLIPw.xyz VF24, VF24w                   LQI.xyzw VF15, (VI02++)
+    FTOI0.xyzw VF19, VF18                   MOVE.xyzw VF17, VF12
+    ADDAx.z ACC, VF00, VF10x                MOVE.xyzw VF18, VF13
+    MADDq.xyzw VF21, VF16, Q                NOP
+    MULq.xyzw VF20, VF20, Q                 FCAND VI01, 0xfff
+    NOP                                     IBEQ VI01, VI00, loop_antiline1
+
+loop_antiline0:
+    MULAx[i].xyzw ACC, VF05, VF17x          LOI 2048.0
+    ADDI.w VF21, VF00, I                    MOVE.xyzw VF18, VF13
+
+loop_antiline1:
+    MADDAy.xyzw ACC, VF06, VF17y            SQI.xyzw VF20, (VI03++)
+    MADDAz.xyzw ACC, VF07, VF17z            IBEQ VI05, VI00, end_antiline
+    MADDw.xyzw VF16, VF08, VF17w            SQI.xyzw VF19, (VI03++)
+
+loop_antiline2:
+    MULAx.xyzw ACC, VF01, VF17x             MTIR VI06, VF15w
+    MADDAy.xyzw ACC, VF02, VF17y            ISUBIU VI05, VI05, 1
+    MADDAz.xyzw ACC, VF03, VF17z            LQI.xyzw VF12, (VI02++)
+    MADDw.xyzw VF24, VF04, VF17w            DIV Q, VF00w, VF16w
+    MULy.xyz VF18, VF18, VF10y              NOP
+    FTOI4.xyzw VF21, VF21                   LQI.xyzw VF13, (VI02++)
+    SUBA.xyzw ACC, VF00, VF00               MOVE.xyzw VF20, VF15
+    CLIPw.xyz VF24, VF24w                   LQI.xyzw VF15, (VI02++)
+    FTOI0.xyzw VF19, VF18                   MOVE.xyzw VF17, VF12
+    ADDAx.z ACC, VF00, VF10x                SQI.xyzw VF21, (VI03++)
+    MADDq.xyzw VF21, VF16, Q                IBNE VI06, VI00, loop_antiline0
+    MULq.xyzw VF20, VF20, Q                 FCAND VI01, 0xfff
+    ADDx.xyzw VF18, VF13, VF00x             IBEQ VI01, VI00, loop_antiline1
+    MULAx[i].xyzw ACC, VF05, VF17x          LOI 2048.0
+    ADDI.w VF21, VF00, I                    NOP
+    MADDAy.xyzw ACC, VF06, VF17y            SQI.xyzw VF20, (VI03++)
+    MADDAz.xyzw ACC, VF07, VF17z            IBNE VI05, VI00, loop_antiline2
+    MADDw.xyzw VF16, VF08, VF17w            SQI.xyzw VF19, (VI03++)
+
+end_antiline:
+    FTOI4.xyzw VF21, VF21                   NOP
+    NOP                                     NOP
+    NOP                                     SQ.x VF23, 93(VI00)
+    NOP[e]                                  XGKICK VI04
+    NOP                                     SQI.xyzw VF21, (VI03++) ; Hazard: store on E-bit delay slot
+    NOP                                     B start_antiline
+    NOP                                     XTOP VI11

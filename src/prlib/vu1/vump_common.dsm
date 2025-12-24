@@ -1,0 +1,33 @@
+.global vump_dmatag
+
+.global vump_top
+
+.global vump_normal
+.global vump_bothface
+.global vump_contour
+.global vump_refmap
+.global vump_screen
+.global vump_antiline
+.global vump_menderer_create_texture
+.global vump_menderer_draw_mesh
+
+.DmaPackVif 1
+
+vump_dmatag:
+DMAend *
+MPG 0, *
+
+vump_top:
+
+.include "vump_common.vsm"
+.include "vump_normal.vsm"
+.include "vump_bothface.vsm"
+.include "vump_contour.vsm"
+.include "vump_refmap.vsm"
+.include "vump_screen.vsm"
+.include "vump_antiline.vsm"
+.include "vump_menderer_create_texture.vsm"
+.include "vump_menderer_draw_mesh.vsm"
+
+.EndMPG
+.EndDmaData

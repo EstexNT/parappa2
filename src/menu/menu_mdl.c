@@ -686,29 +686,29 @@ int MNScene_ModelDispSw(MN_SCENE *pshdl, int nmdl, int bsw) {
     }
 }
 
-/* 
-    Calculates the length of a vector
-       - v0 -> Output vector
-       - v1 -> Input vector
-*/
+/*
+ * Calculates the length of a vector:
+ *  - v0 -> Output vector
+ *  - v1 -> Input vector
+ */
 static void _myVu0Length(float *v0, float *v1) {
-    asm volatile(
-        "lqc2     vf04, 0x0(%1)      \n\t" /* Load v1(vf04) */
-                                           /* vf04 = v1     */
+    asm(
+        "lqc2     $vf04, 0x0(%1)       \n\t" /* Load v1(vf04) */
+                                             /* vf04 = v1     */
 
-        "vmul.xyz vf05, vf04, vf04   \n\t" /* vf05.xyz = (vf04.xyz)^2 */
-        "vaddy.x  vf05, vf05, vf05y  \n\t" /* vf05.x  += vf05.y       */
-        "vaddz.x  vf05, vf05, vf05z  \n\t" /* vf05.x  += vf05.z       */
+        "vmul.xyz $vf05, $vf04, $vf04  \n\t" /* vf05.xyz = (vf04.xyz)^2 */
+        "vaddy.x  $vf05, $vf05, $vf05  \n\t" /* vf05.x  += vf05.y       */
+        "vaddz.x  $vf05, $vf05, $vf05  \n\t" /* vf05.x  += vf05.z       */
 
-        "vsqrt    Q, vf05x           \n\t" /* sqrt(vf05.x)  */
-        "vwaitq                      \n\t" /* wait for sqrt */
+        "vsqrt    Q,     $vf05x        \n\t" /* sqrt(vf05.x)  */
+        "vwaitq                        \n\t" /* wait for sqrt */
 
-        "vaddq.x  vf05, vf00, Q      \n\t" /* vf05 = Q   */
-        "qmfc2    $8,   vf05         \n\t" /* $t0 = vf05 */
+        "vaddq.x  $vf05, $vf00, Q      \n\t" /* vf05 = Q   */
+        "qmfc2    $8,    $vf05         \n\t" /* $t0 = vf05 */
 
-        "sw       $8,   0x0(%0)      \n\t" /* save v0  */
-                                           /* v0 = $t0 */
-    : : "r"(v0), "r"(v1));
+        "sw       $8,    0x0(%0)       \n\t" /* save v0  */
+                                             /* v0 = $t0 */
+    : : "r"(v0), "r"(v1) : "$8", "memory");
 }
 
 static void MnMoveMode_InitRoot(int movNo) {

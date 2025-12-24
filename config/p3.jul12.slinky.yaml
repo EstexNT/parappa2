@@ -9,6 +9,13 @@ settings:
     - .symtab
     - .strtab
 
+  discard_wildcard_section: False
+  sections_denylist:
+    - .reginfo
+    - .MIPS.abiflags
+    - .gnu.attributes
+    - .pdr
+
   #sections_start_alignment: {
   #  .vutext: 64,
   #  .reginfo: 16,
@@ -30,7 +37,7 @@ segments:
     alloc_sections: [.text]
     files:
       - { path: asm/sdk/crt0.s.o }
-      - { path: asm/sdk/tmp.s.o }
+      - { path: asm/sdk/libgcc.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -139,9 +146,10 @@ segments:
 
   - name: vutext
     alloc_sections: [.vutext]
+    keep_sections: True
     subalign: 16
     files:
-      - { path: asm/data/vutext.s.o }
+      - { path: src/prlib/vu1/vump_common.dsm.o }
 
   # # TODO: .reginfo should go here.
   # - name: reginfo
@@ -151,7 +159,7 @@ segments:
   #   keep_sections: True
   #   files:
   #     - { path: asm/sdk/crt0.s.o }
-  #     - { path: asm/sdk/tmp.s.o }
+  #     - { path: asm/sdk/libgcc.s.o }
 
   #     - { path: src/dbug/dbgmsg.c.o }
   #     - { path: src/dbug/syori.c.o }
@@ -260,9 +268,10 @@ segments:
 
   - name: data
     alloc_sections: [.data]
+    segment_start_align: 0x80
     files:
       - { path: asm/sdk/crt0.s.o }
-      - { path: asm/data/sdk/tmp.data.s.o }
+      - { path: asm/data/sdk/libgcc.data.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -377,13 +386,19 @@ segments:
 
       - { path: asm/data/sdk/newlib.data.s.o }
 
-      - { path: asm/data/vudata.s.o }
+  - name: vudata
+    alloc_sections: [.vudata]
+    keep_sections: True
+    subalign: 16
+    files:
+      - { path: src/prlib/vu1/vump_common.dsm.o }
 
   - name: rodata
     alloc_sections: [.rodata]
+    segment_start_align: 0x80
     files:
       - { path: asm/sdk/crt0.s.o }
-      - { path: asm/sdk/tmp.s.o }
+      - { path: asm/sdk/libgcc.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -492,14 +507,16 @@ segments:
 
   - name: gcc_except_table
     alloc_sections: [.rodata]
+    segment_start_align: 0x80
     files:
       - { path: asm/data/gcc_except_table.rodata.s.o }
 
   - name: lit8
     alloc_sections: [.lit8]
+    segment_start_align: 0x80
     files:
       - { path: asm/sdk/crt0.s.o }
-      - { path: asm/sdk/tmp.s.o }
+      - { path: asm/sdk/libgcc.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -608,9 +625,10 @@ segments:
 
   - name: lit4
     alloc_sections: [.lit4]
+    segment_start_align: 0x80
     files:
       - { path: asm/sdk/crt0.s.o }
-      - { path: asm/sdk/tmp.s.o }
+      - { path: asm/sdk/libgcc.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -719,9 +737,10 @@ segments:
   
   - name: sdata
     alloc_sections: [.sdata]
+    segment_start_align: 0x80
     files:
       - { path: asm/sdk/crt0.s.o }
-      - { path: asm/sdk/tmp.s.o }
+      - { path: asm/sdk/libgcc.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -832,9 +851,10 @@ segments:
   - name: sbss
     alloc_sections: [.sbss, .scommon]
     noload_sections: [.sbss, .scommon]
+    segment_start_align: 0x80
     files:
       - { path: asm/sdk/crt0.s.o }
-      - { path: asm/sdk/tmp.s.o }
+      - { path: asm/sdk/libgcc.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -944,9 +964,10 @@ segments:
   - name: bss
     alloc_sections: [.bss]
     noload_sections: [.bss, COMMON]
+    segment_start_align: 0x80
     files:
       - { path: asm/data/sdk/crt0.bss.s.o }
-      - { path: asm/sdk/tmp.s.o }
+      - { path: asm/sdk/libgcc.s.o }
 
       - { path: src/dbug/dbgmsg.c.o }
       - { path: src/dbug/syori.c.o }
@@ -1053,7 +1074,14 @@ segments:
 
       - { path: asm/data/sdk/scelib.bss.s.o }
       - { path: asm/data/sdk/newlib.bss.s.o }
-  
+
+  - name: vubss
+    alloc_sections: [.vubss]
+    keep_sections: True
+    subalign: 16
+    files:
+      - { path: src/prlib/vu1/vump_common.dsm.o }
+
   - name: mfifo
     alloc_sections: [.mfifo]
     subalign: 0x10000

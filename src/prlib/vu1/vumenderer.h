@@ -1,0 +1,4 @@
+#ifndef PRLIB_VUMENDERER_H
+#define PRLIB_VUMENDERER_H
+
+#endif /* PRLIB_VUMENDERER_H */

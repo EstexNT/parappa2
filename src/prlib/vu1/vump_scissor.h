@@ -1,0 +1,4 @@
+#ifndef PRLIB_VUMP_SCISSOR_H
+#define PRLIB_VUMP_SCISSOR_H
+
+#endif /* PRLIB_VUMP_SCISSOR_H */

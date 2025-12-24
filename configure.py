@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 # SPDX-FileCopyrightText: Copyright 2025 polyproxy
 # SPDX-License-Identifier: MIT
@@ -43,17 +43,18 @@ IOP_COMPILER_DIR = f"{TOOLS_DIR}/toolchain/iop-gcc281/bin"
 
 EE_COMMON_INCLUDES = "-Iinclude -Isrc -Iinclude/rtl/common -Iinclude/rtl/ee -Iinclude/rtl/ee_gcc -Iinclude/rtl/ee_gcc/gcc-lib"
 IOP_COMMON_INCLUDES = "-Iinclude -Isrc/iop_mdl/wp2cd/iop -Iinclude/rtl/common -Iinclude/rtl/iop -Iinclude/rtl/iop_gcc -Iinclude/rtl/iop_gcc/gcc-lib"
+DVP_COMMON_INCLUDES = "-Isrc/prlib/vu1"
 
 EE_COMPILER_FLAGS = "-O2 -G8 -g -Wa,-Iinclude"
 # We need to get rid of symbols on the C++ code to have a match.
 EE_COMPILER_FLAGS_CXX = "-O2 -G8 -x c++ -fno-exceptions -fno-strict-aliasing -Wa,-Iinclude"
-
 IOP_COMPILER_FLAGS = f"-B {TOOLS_DIR}/toolchain/iop-gcc281/lib/gcc-lib/mipsel-scei-elfl/2.8.1/ -O0 -G0 -g -Wa,-Iinclude"
+DVP_COMPILER_FLAGS = "" # None (at the moment)
 
 EE_COMPILE_CMD = f"{EE_COMPILER_DIR}/ee-gcc -c {EE_COMMON_INCLUDES} {EE_COMPILER_FLAGS}"
 EE_COMPILE_CMD_CXX = f"{EE_COMPILER_DIR}/ee-gcc -c {EE_COMMON_INCLUDES} {EE_COMPILER_FLAGS_CXX}"
-
 IOP_COMPILE_CMD = f"{IOP_COMPILER_DIR}/iop-gcc -c {IOP_COMMON_INCLUDES} {IOP_COMPILER_FLAGS}"
+DVP_COMPILE_CMD = f"{EE_COMPILER_DIR}/ee-dvp-as {DVP_COMMON_INCLUDES} {DVP_COMPILER_FLAGS}"
 
 CROSS = "mips-linux-gnu-"
 
@@ -218,7 +219,7 @@ def build_stuff(linker_entries: List[LinkerEntry], is_irx: bool = False, append:
     # Rules
     slinky_args = "--omit-version-comment"
     common_ld_args = "-EL -Map $mapfile -T $in -o $out"
-    ee_ld_args = f"{common_ld_args} -T config/p3.jul12.misc.txt -T config/p3.jul12.vu_syms.txt -T config/p3.jul12.undefined_syms.txt"
+    ee_ld_args = f"{common_ld_args} -T config/p3.jul12.misc.txt -T config/p3.jul12.undefined_syms.txt"
     wp2_ld_args = f"{common_ld_args} -T config/irx.wave2ps2.jul12.undefined_syms_auto.txt -T config/irx.wave2ps2.jul12.undefined_funcs_auto.txt -T config/irx.wave2ps2.jul12.undefined_syms.txt"
 
     if not append:
@@ -270,6 +271,13 @@ def build_stuff(linker_entries: List[LinkerEntry], is_irx: bool = False, append:
         )
 
         ninja.rule(
+            "dvp_as",
+            description="dvp_as $in",
+            command=f"{DVP_COMPILE_CMD} $in -o $out && {CROSS}strip $out -N dummy-symbol-name",
+            depfile="dvp.d",
+        )
+
+        ninja.rule(
             "slink",
             description="slink $out",
             command=f"./tools/slinky/slinky-cli -o $out {slinky_args} $in",
@@ -299,6 +307,7 @@ def build_stuff(linker_entries: List[LinkerEntry], is_irx: bool = False, append:
             command=f"{CROSS}objcopy $in $out -O binary",
         )
 
+    task_dvp = "dvp_as"
     task_as  = "ee_as" if not is_irx else "iop_as"
     task_cpp = "ee_cpp" if not is_irx else "iop_cpp"
     task_cc  = "ee_cc" if not is_irx else "iop_cc"
@@ -322,6 +331,11 @@ def build_stuff(linker_entries: List[LinkerEntry], is_irx: bool = False, append:
             seg, splat.segtypes.common.data.CommonSegData
         ):
             build(entry.object_path, entry.src_paths, task_as)
+        #elif isinstance(seg, tools.splat_ext.vutext.PS2SegVutext):
+        #elif isinstance(seg, splat.segtypes.ps2.vutext.PS2SegVutext):
+        #elif type(seg).__name__ == "PS2SegVutext":
+        elif seg.type == "vutext":
+            build(entry.object_path, entry.src_paths, task_dvp)
         elif isinstance(seg, splat.segtypes.common.cpp.CommonSegCpp):
             build(entry.object_path, entry.src_paths, task_cpp)
         elif isinstance(seg, splat.segtypes.common.c.CommonSegC):
@@ -538,14 +552,14 @@ def build_objdiff_objects():
             f"python3 tools/buildtools/elf_patcher.py {target_path} gas"
         )
 
-        # Keep until splat #504 is merged
-        asm_text = asm_path.read_text()
-        asm_text = re.sub(r" ACC,", " $ACC,", asm_text)
-        asm_text = re.sub(r" Q, ", " $Q, ", asm_text)
-        asm_text = re.sub(r", Q\n", ", $Q\n", asm_text)
-        asm_text = re.sub(r" R, ", " $R, ", asm_text)
-        asm_text = re.sub(r", R\n", ", $R\n", asm_text)
-        asm_path.write_text(asm_text)
+        # ~~Keep until splat #504 is merged~~
+        # asm_text = asm_path.read_text()
+        # asm_text = re.sub(r" ACC,", " $ACC,", asm_text)
+        # asm_text = re.sub(r" Q, ", " $Q, ", asm_text)
+        # asm_text = re.sub(r", Q\n", ", $Q\n", asm_text)
+        # asm_text = re.sub(r" R, ", " $R, ", asm_text)
+        # asm_text = re.sub(r", R\n", ", $R\n", asm_text)
+        # asm_path.write_text(asm_text)
 
         target_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -622,7 +636,7 @@ def prepare_rom_from_elfs(elfs: list[Path]):
 
         if elf == Path(f"iso/{P3_BASENAME}"):
             with open(f"{elf}.rom", "rb+") as f:
-                f.truncate(0x1b9e034) # Remove .mfifo end alignment
+                f.truncate(0x1b9e040) # Remove .mfifo end alignment
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Configure the project")

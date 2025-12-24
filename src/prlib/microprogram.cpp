@@ -1,37 +1,34 @@
 #include "microprogram.h"
 
+#include "vu1/vumem.h"
+
+#include "vu1/vump_common.h"
+
+#include "vu1/vump_normal.h"
+#include "vu1/vump_bothface.h"
+#include "vu1/vump_contour.h"
+#include "vu1/vump_refmap.h"
+#include "vu1/vump_screen.h"
+#include "vu1/vump_antiline.h"
+#include "vu1/vump_menderer.h"
+
 #include <libdma.h>
 
-extern u_int vump_dmatag[]                  __attribute__((section(".vutext")));
-
-extern u_int vump_top[]                     __attribute__((section(".vutext")));
-extern u_int vump_normal[]                  __attribute__((section(".vutext")));
-extern u_int vump_bothface[]                __attribute__((section(".vutext")));
-extern u_int vump_contour[]                 __attribute__((section(".vutext")));
-extern u_int vump_refmap[]                  __attribute__((section(".vutext")));
-extern u_int vump_screen[]                  __attribute__((section(".vutext")));
-extern u_int vump_antiline[]                __attribute__((section(".vutext")));
-extern u_int vump_menderer_create_texture[] __attribute__((section(".vutext")));
-extern u_int vump_menderer_draw_mesh[]      __attribute__((section(".vutext")));
-
-static u_int MicroProgramEntryPoint[PR_MICRO_PROGRAM_NUM];
+static u_int MicroProgramEntryPoint[PR_MICRO_PROGRAM_MAX];
 
 static u_int MendererCreateTextureEntryPoint;
 static u_int MendererDrawMeshEntryPoint;
 
-/* Divides address by 8 to be used on MSCAL */
-#define VU_ADDR(x, base) (((int)x - (int)base) >> 3)
-
 static void CalculateEntryPoint() {
-    MicroProgramEntryPoint[PR_MICRO_PROGRAM_NORMAL]   = VU_ADDR(vump_normal, vump_top);
+    MicroProgramEntryPoint[PR_MICRO_PROGRAM_NORMAL]   = VU_ADDR(vump_normal,   vump_top);
     MicroProgramEntryPoint[PR_MICRO_PROGRAM_BOTHFACE] = VU_ADDR(vump_bothface, vump_top);
-    MicroProgramEntryPoint[PR_MICRO_PROGRAM_CONTOUR]  = VU_ADDR(vump_contour, vump_top);
-    MicroProgramEntryPoint[PR_MICRO_PROGRAM_REFMAP]   = VU_ADDR(vump_refmap, vump_top);
-    MicroProgramEntryPoint[PR_MICRO_PROGRAM_SCREEN]   = VU_ADDR(vump_screen, vump_top);
+    MicroProgramEntryPoint[PR_MICRO_PROGRAM_CONTOUR]  = VU_ADDR(vump_contour,  vump_top);
+    MicroProgramEntryPoint[PR_MICRO_PROGRAM_REFMAP]   = VU_ADDR(vump_refmap,   vump_top);
+    MicroProgramEntryPoint[PR_MICRO_PROGRAM_SCREEN]   = VU_ADDR(vump_screen,   vump_top);
     MicroProgramEntryPoint[PR_MICRO_PROGRAM_ANTILINE] = VU_ADDR(vump_antiline, vump_top);
-    
+
     MendererCreateTextureEntryPoint = VU_ADDR(vump_menderer_create_texture, vump_top);
-    MendererDrawMeshEntryPoint      = VU_ADDR(vump_menderer_draw_mesh, vump_top);
+    MendererDrawMeshEntryPoint      = VU_ADDR(vump_menderer_draw_mesh,      vump_top);
 }
 
 void PrLoadMicroPrograms() {
@@ -46,7 +43,7 @@ void PrLoadMicroPrograms() {
      * MPG 0x0, 0x100 (2048 bytes)
      */
     chan->chcr.TTE = 1;
-    
+
     sceDmaSend(chan, vump_dmatag);
     CalculateEntryPoint();
 }
