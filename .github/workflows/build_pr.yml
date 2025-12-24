@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout main repository
       uses: actions/checkout@v3
@@ -20,11 +20,9 @@ jobs:
         repository: polybiusproxy/p3_binaries
         token: ${{ secrets.BINARY_ACCESS_TOKEN }}
         path: iso
-    
+
     - name: Setup Python
       uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
 
     - name: Upgrade pip
       run: python3 -m pip install --upgrade pip setuptools wheel
@@ -50,7 +48,7 @@ jobs:
 
     - name: Compile
       run: ninja
-    
+  
     - name: Upload progress report
       uses: actions/upload-artifact@v4
       with:
