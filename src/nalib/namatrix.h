@@ -31,6 +31,25 @@ public:
         return false;
     }
 
+    static NaMATRIX<float, 4, 4>& Copy(NaMATRIX<float, 4, 4>& lhs, const NaMATRIX<float, 4, 4>& rhs) {
+        asm volatile("
+            lq $6, 0(%1)
+            lq $7, 0x10(%1)
+            lq $8, 0x20(%1)
+            lq $9, 0x30(%1)
+            sq $6, 0(%0)
+            sq $7, 0x10(%0)
+            sq $8, 0x20(%0)
+            sq $9, 0x30(%0)
+        " : : "r"(&lhs), "r"(&rhs)
+        : "$6", "$7", "$8", "$9", "memory");
+        return lhs;
+    }
+
+    NaMATRIX<float, 4, 4>& operator=(const NaMATRIX<float, 4, 4>& rhs) {
+        return Copy(*this, rhs);
+    }
+
 private:
     NaVECTOR<T, t0> m[t1];
 

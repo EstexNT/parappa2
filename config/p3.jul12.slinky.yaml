@@ -331,7 +331,7 @@ segments:
       - { path: asm/data/prlib/renderee.data.s.o }
       - { path: src/prlib/transition.cpp.o }
       - { path: src/prlib/microprogram.cpp.o }
-      - { path: asm/data/prlib/spram.data.s.o }
+      - { path: src/prlib/spram.cpp.o }
       - { path: src/prlib/mfifo.cpp.o }
       - { path: src/prlib/spadata.cpp.o }
       - { path: asm/data/prlib/scene.data.s.o }

@@ -65,7 +65,7 @@ static void UG_WaveDisp(WAVE_STR *wstr, sceGsFrame *frame_pp, sceGifPacket *wave
     sceGifPkAddGsAD(wavePkSpr, SCE_GS_RGBAQ, SCE_GS_SET_RGBAQ(128, 128, 128, 128, 0));
     sceGifPkAddGsAD(wavePkSpr, SCE_GS_TEST_2, SCE_GS_SET_TEST(/*ATE*/false, /*ATST*/SCE_GS_ALPHA_NEVER, /*AREF*/0, /*AFAIL*/SCE_GS_AFAIL_KEEP,
                                                               /*DATE*/false, /*DATM*/0, /*ZTE*/true, /*ZTST*/SCE_GS_DEPTH_ALWAYS));
-    sceGifPkAddGsAD(wavePkSpr, SCE_GS_ZBUF_2, SCE_GS_SET_ZBUF(/*ZBP*/prRenderStuff.mZbuf.ZBP, /*PSM*/prRenderStuff.mZbuf.PSM, /*ZMSK*/1));
+    sceGifPkAddGsAD(wavePkSpr, SCE_GS_ZBUF_2, SCE_GS_SET_ZBUF(/*ZBP*/prRenderStuff.m_zbuf.ZBP, /*PSM*/prRenderStuff.m_zbuf.PSM, /*ZMSK*/1));
     sceGifPkAddGsAD(wavePkSpr, SCE_GS_TEX0_2, SCE_GS_SET_TEX0(/*TBP0*/frame_pp->FBP << 5, /*TBW*/frame_pp->FBW, /*PSM*/SCE_GS_PSMCT32, /*TW*/10, /*TH*/8, /*TCC*/0, /*TFX*/SCE_GS_MODULATE,
                                                               /*CBP*/NULL, /*CPSM*/0, /*CSM*/0, /*CSA*/0, /*CLD*/0));
     sceGifPkAddGsAD(wavePkSpr, SCE_GS_TEX1_2, SCE_GS_SET_TEX1(/*LCM*/0, /*MXL*/0, /*MMAG*/SCE_GS_NEAREST, /*MMIN*/SCE_GS_NEAREST, /*MTBA*/0, /*L*/0, /*K*/0));

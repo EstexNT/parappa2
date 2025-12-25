@@ -3,15 +3,20 @@
 
 #include "common.h"
 
+#include <nalib/navector.h>
+
 class PrModelObject;
 class SpaFileHeader;
 class SpcFileHeader;
 class PrSceneObject;
 
+#define PR_DECACHE(addr) (void*)((u_int)(addr) & 0x0fffffff)
+#define PR_DMA_SPR_ADDR(addr) (void*)((((u_int)addr) & 0x3fff) | 0x80000000)
+
 typedef struct { // 0x40
-    /* 0x00 */ float position[4];
-    /* 0x10 */ float interest[4];
-    /* 0x20 */ float up[4];
+    /* 0x00 */ NaVECTOR<float, 4> position;
+    /* 0x10 */ NaVECTOR<float, 4> interest;
+    /* 0x20 */ NaVECTOR<float, 4> up;
     /* 0x30 */ float aspect;
     /* 0x34 */ float field_of_view;
     /* 0x38 */ float near_clip;
@@ -37,8 +42,8 @@ typedef struct { // 0x2c
 } PrRENDERING_STATISTICS;
 
 typedef enum {
-    PR_FLOAT_PARAM_DISTURBANCE = 0,
-    PR_DEBUG_PARAM_NUM = 1
+    PR_FLOAT_PARAM_DISTURBANCE,
+    PR_DEBUG_PARAM_NUM,
 } PrDEBUG_PARAM;
 
 typedef union {

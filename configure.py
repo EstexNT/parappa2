@@ -622,6 +622,10 @@ def fix_compile_commands():
             # FIXME: should probably get rid of this one day
             #
             entry["command"] += " -w"
+            entry["command"] += " -m32"
+
+        if file_path.suffix == ".cpp":
+            entry["command"] += " -std=c++98"
 
         if file_path.suffix == ".s":
             data.remove(entry)

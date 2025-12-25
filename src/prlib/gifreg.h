@@ -15,27 +15,27 @@ struct PrGifPackedAd {
 class PrDmaStripForSetGifRegister {
 public:
     PrDmaStripForSetGifRegister() {
-        mStripLen = 0;
-        mFrozen = false;
+        m_strip_len = 0;
+        m_frozen = false;
     }
     ~PrDmaStripForSetGifRegister() {
         /* Empty */
     }
 
     void Initialize() {
-        mStripLen = 0;
-        mFrozen = false;
+        m_strip_len = 0;
+        m_frozen = false;
     }
 
     void Append(u_int addr, const u_long& data);
     void Freeze(u_char id, const void *addr);
 
 public:
-    sceDmaTag mTag;
-    sceGifTag mGifTag;
-    PrGifPackedAd mStrip[16];
-    int mStripLen;
-    bool mFrozen;
+    sceDmaTag m_tag;
+    sceGifTag m_giftag;
+    PrGifPackedAd m_strip[16];
+    int m_strip_len;
+    bool m_frozen;
     char unk128[0x8];
 };
 

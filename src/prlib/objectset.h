@@ -9,29 +9,29 @@ template <typename T>
 class PrObjectSet {
 public:
     PrObjectSet() {
-        mHead = NULL;
-        mTail = NULL;
-        mNum  = 0;
+        m_head = NULL;
+        m_tail = NULL;
+        m_num  = 0;
     }
     ~PrObjectSet();
 
     void Insert(T *obj) {
-        if (mTail == NULL) {
-            mHead = obj;
+        if (m_tail == NULL) {
+            m_head = obj;
         } else {
-            mTail->mList.mNext = obj;
-            obj->mList.mPrev = mTail;
+            m_tail->m_list.next = obj;
+            obj->m_list.prev = m_tail;
         }
 
-        mTail = obj;
-        mTail->mObjSet = this;
-        mNum++;
+        m_tail = obj;
+        m_tail->m_obj_set = this;
+        m_num++;
     }
 
 public:
-    T *mHead;
-    T *mTail;
-    int mNum;
+    T *m_head;
+    T *m_tail;
+    int m_num;
 };
 
 #endif /* PRLIB_OBJECTSET_H */

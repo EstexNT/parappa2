@@ -4,32 +4,32 @@ static bool gifRegisterModeInitialized = false;
 static PrDmaStripForSetGifRegister setGifRegisterMode[6];
 
 void PrDmaStripForSetGifRegister::Append(u_int addr, const u_long& data) {
-    mStrip[mStripLen].addr = addr;
-    mStrip[mStripLen].data = data;
-    mStripLen += 1;
+    m_strip[m_strip_len].addr = addr;
+    m_strip[m_strip_len].data = data;
+    m_strip_len++;
 }
 
 void PrDmaStripForSetGifRegister::Freeze(u_char id, const void *addr) {
-    int len = mStripLen;
+    int len = m_strip_len;
 
-    mFrozen = true;
+    m_frozen = true;
 
-    mTag.qwc = mStripLen + 1;
-    mTag.mark = 0;
-    mTag.id = id;
-    mTag.next = (sceDmaTag*)addr;
-    mTag.p[0] = SCE_VIF1_SET_FLUSH(0);
-    mTag.p[1] = SCE_VIF1_SET_DIRECT(mStripLen + 1, 0);
+    m_tag.qwc = m_strip_len + 1;
+    m_tag.mark = 0;
+    m_tag.id = id;
+    m_tag.next = (sceDmaTag*)addr;
+    m_tag.p[0] = SCE_VIF1_SET_FLUSH(0);
+    m_tag.p[1] = SCE_VIF1_SET_DIRECT(m_strip_len + 1, 0);
 
-    mGifTag.NLOOP = len;
-    mGifTag.EOP = true;
-    mGifTag.pad16 = 0;
-    mGifTag.id = 0;
-    mGifTag.PRE = false;
-    mGifTag.PRIM = 0;
-    mGifTag.FLG = SCE_GIF_PACKED;
-    mGifTag.NREG = 1;
-    mGifTag.REGS0 = SCE_GIF_PACKED_AD;
+    m_giftag.NLOOP = len;
+    m_giftag.EOP = true;
+    m_giftag.pad16 = 0;
+    m_giftag.id = 0;
+    m_giftag.PRE = false;
+    m_giftag.PRIM = 0;
+    m_giftag.FLG = SCE_GIF_PACKED;
+    m_giftag.NREG = 1;
+    m_giftag.REGS0 = SCE_GIF_PACKED_AD;
 }
 
 void PrInitializeDmaStripGifRegister(sceGsZbuf zbuf) {

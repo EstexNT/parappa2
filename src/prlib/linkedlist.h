@@ -4,8 +4,8 @@
 template <typename T>
 class PrLinkedList {
 public:
-    T *mNext;
-    T *mPrev;
+    T *next;
+    T *prev;
 };
 
 #endif /* PRLIB_LINKEDLIST_H */

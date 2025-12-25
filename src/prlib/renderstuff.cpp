@@ -14,13 +14,13 @@
 
 #include <stdlib.h>
 
-PrRenderStuff::PrRenderStuff() : mDmaQueue(1200) {
-    mTransmitArraySize = 0;
-    mTransmitArrayMax = 0;
-    mTransmitArray = NULL;
+PrRenderStuff::PrRenderStuff() : m_dma_queue(1200) {
+    m_transmit_array_size = 0;
+    m_transmit_array_max = 0;
+    m_transmit_array = NULL;
     AllocateTransmitDmaArray(600);
 
-    mScene = NULL;
+    m_scene = NULL;
 }
 
 PrRenderStuff::~PrRenderStuff() {
@@ -28,8 +28,8 @@ PrRenderStuff::~PrRenderStuff() {
 }
 
 void PrRenderStuff::Initialize(sceGsZbuf zbuf) {
-    mZbuf = zbuf;
-    mScene = NULL;
+    m_zbuf = zbuf;
+    m_scene = NULL;
     this->unk28 = 0;
 
     PrLoadMicroPrograms();
@@ -54,16 +54,16 @@ void PrRenderStuff::Initialize(sceGsZbuf zbuf) {
 void PrRenderStuff::Cleanup() {
     PrCleanupMfifo();
 
-    delete mTransmitArray;
-    mTransmitArraySize = 0;
-    mTransmitArrayMax = 0;
-    mTransmitArray = NULL;
+    delete m_transmit_array;
+    m_transmit_array_size = 0;
+    m_transmit_array_max = 0;
+    m_transmit_array = NULL;
 
-    mScene = NULL;
+    m_scene = NULL;
 }
 
 u_int PrRenderStuff::GetZbufBits(void) const {
-    switch (mZbuf.PSM) {
+    switch (m_zbuf.PSM) {
     case 0:  /* PSMZ32 */
         return 32;
     case 1:  /* PSMZ24 */
@@ -80,49 +80,49 @@ u_int PrRenderStuff::GetZbufBits(void) const {
 }
 
 void PrRenderStuff::ResetStatistics() {
-    mStatistics.node_num = 0;
+    m_statistics.node_num = 0;
 
-    mStatistics.opaque_context1_node_num = 0;
-    mStatistics.transmit_context1_node_num = 0;
-    mStatistics.opaque_context2_node_num = 0;
-    mStatistics.transmit_context2_node_num = 0;
+    m_statistics.opaque_context1_node_num = 0;
+    m_statistics.transmit_context1_node_num = 0;
+    m_statistics.opaque_context2_node_num = 0;
+    m_statistics.transmit_context2_node_num = 0;
     
-    mStatistics.render_time0 = 0;
-    mStatistics.render_time1 = 0;
-    mStatistics.render_time2 = 0;
-    mStatistics.render_time3 = 0;
-    mStatistics.render_time4 = 0;
-    mStatistics.render_time5 = 0;
-    mStatistics.render_time6 = 0;
-    mStatistics.render_time7 = 0;
-    mStatistics.render_time8 = 0;
+    m_statistics.render_time0 = 0;
+    m_statistics.render_time1 = 0;
+    m_statistics.render_time2 = 0;
+    m_statistics.render_time3 = 0;
+    m_statistics.render_time4 = 0;
+    m_statistics.render_time5 = 0;
+    m_statistics.render_time6 = 0;
+    m_statistics.render_time7 = 0;
+    m_statistics.render_time8 = 0;
 
-    mStatistics.dynamic_append_transmit_node = false;
+    m_statistics.dynamic_append_transmit_node = false;
 }
 
 void PrRenderStuff::StartRender(PrSceneObject *scene) {
-    mDmaQueue.Start();
-    mScene = scene;
+    m_dma_queue.Start();
+    m_scene = scene;
 }
 
 void PrRenderStuff::WaitRender() {
     bool noSync = false;
 
-    mDmaQueue.Wait();
+    m_dma_queue.Wait();
     PrStopMfifo();
 
-    mStatistics.render_time6 = *T3_COUNT;
+    m_statistics.render_time6 = *T3_COUNT;
 
-    if (mScene->GetFocalLength() != 0.0f) {
+    if (m_scene->GetFocalLength() != 0.0f) {
         sceGsSyncPath(0, 0);
-        mScene->ApplyDepthOfField();
+        m_scene->ApplyDepthOfField();
         sceGsSyncPath(0, 0);
         noSync = true;
     }
 
-    if (mScene->mScreenModelList != NULL) {
-        mScene->PrepareScreenModelRender();
-        mDmaQueue.Wait();
+    if (m_scene->m_screen_model_list != NULL) {
+        m_scene->PrepareScreenModelRender();
+        m_dma_queue.Wait();
         noSync = false;
     }
 
@@ -130,23 +130,13 @@ void PrRenderStuff::WaitRender() {
         sceGsSyncPath(0, 0);
     }
 
-    mStatistics.render_time7 = *T3_COUNT;
+    m_statistics.render_time7 = *T3_COUNT;
 
-    mScene = NULL;
-
-#if defined(PRD_SYORI)
-    /*
-     * By pushing statistics here we assume
-     * that any call to PrRender() will also
-     * immediately call PrWaitRender()
-     * (which is indeed the case here).
-     */
-    SyoriPushStats(&mStatistics);
-#endif
+    m_scene = NULL;
 }
 
 void PrRenderStuff::AllocateTransmitDmaArray(u_int size) {
-    if (mTransmitArrayMax >= size) {
+    if (m_transmit_array_max >= size) {
         return;
     }
 
@@ -155,24 +145,24 @@ void PrRenderStuff::AllocateTransmitDmaArray(u_int size) {
         elems *= 2;
     }
 
-    delete mTransmitArray;
-    mTransmitArray = new PrTransmitEntry[elems];
-    mTransmitArrayMax = elems;
+    delete m_transmit_array;
+    m_transmit_array = new PrTransmitEntry[elems];
+    m_transmit_array_max = elems;
 }
 
 void PrRenderStuff::AppendTransmitDmaTag(const sceDmaTag *tag, u_int arg1, float arg2) {
     extern bool warned_tmp_renderstuff;
 
-    if (mTransmitArraySize >= mTransmitArrayMax) {
+    if (m_transmit_array_size >= m_transmit_array_max) {
         if (!warned_tmp_renderstuff) {
             warned_tmp_renderstuff = true;
             return;
         }
     } else {
-        mTransmitArray[mTransmitArraySize].unk0 = arg2;
-        mTransmitArray[mTransmitArraySize].unk4 = arg1;
-        mTransmitArray[mTransmitArraySize].tag = tag;
-        mTransmitArraySize++;
+        m_transmit_array[m_transmit_array_size].unk0 = arg2;
+        m_transmit_array[m_transmit_array_size].unk4 = arg1;
+        m_transmit_array[m_transmit_array_size].tag = tag;
+        m_transmit_array_size++;
     }
 }
 
@@ -194,27 +184,27 @@ int PrRenderStuff::CompareFunction(const void *arg0, const void *arg1) {
 }
 
 void PrRenderStuff::SortTransmitDmaArray() {
-    if (mTransmitArraySize > 1) {
-        qsort(mTransmitArray, mTransmitArraySize, sizeof(PrTransmitEntry), CompareFunction);
+    if (m_transmit_array_size > 1) {
+        qsort(m_transmit_array, m_transmit_array_size, sizeof(PrTransmitEntry), CompareFunction);
     }
 }
 
 void PrRenderStuff::MergeRender() {
     bool first = false;
 
-    for (int i = 0; i < mTransmitArraySize; i++) {
-        if (!first && mTransmitArray[i].unk4 == -1) {
+    for (int i = 0; i < m_transmit_array_size; i++) {
+        if (!first && m_transmit_array[i].unk4 == -1) {
             PrDmaStripForSetGifRegister *strip = PrGetDmaStripGifRegister(eGifRegisterMode_Unk1);
-            AppendDmaTag(&strip->mTag);
+            AppendDmaTag(&strip->m_tag);
             first = true;
         }
 
-        AppendDmaTag(mTransmitArray[i].tag);
+        AppendDmaTag(m_transmit_array[i].tag);
     }
 
     if (prCurrentStage == 19) {
         PrDmaStripForSetGifRegister *strip = PrGetDmaStripGifRegister(eGifRegisterMode_Unk1);
-        AppendDmaTag(&strip->mTag);
+        AppendDmaTag(&strip->m_tag);
     }
 }
 

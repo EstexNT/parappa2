@@ -34,7 +34,7 @@ void PrModelObject::UnionBoundaryBox(NaVECTOR<float, 4> *arg0, NaVECTOR<float, 4
         "vmadday    ACC,    $vf14,  $vf17  \n\t"
         "vmaddaz    ACC,    $vf15,  $vf17  \n\t"
         "vmaddw     $vf17,  $vf16,  $vf17  \n\t"
-    : : "r"(&mSpmImage->unk30));
+    : : "r"(&m_spm_image->unk30));
 
     asm volatile(
         "lqc2       $vf04,  0x0(%0)        \n\t"
@@ -48,7 +48,7 @@ void PrModelObject::UnionBoundaryBox(NaVECTOR<float, 4> *arg0, NaVECTOR<float, 4
         "vmadday    ACC,    $vf14,  $vf17  \n\t"
         "vmaddaz    ACC,    $vf15,  $vf17  \n\t"
         "vmaddw     $vf17,  $vf16,  $vf17  \n\t"
-    : : "r"(&mSpmImage->unk40));
+    : : "r"(&m_spm_image->unk40));
 
     asm volatile(
         "lqc2       $vf04,  0x0(%0)        \n\t"

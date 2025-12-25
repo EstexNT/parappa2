@@ -221,7 +221,7 @@ segments:
         - [0x28C500, data, prlib/render]
         - [0x28C580, data, prlib/renderee]
         - [0x28C6B0, .data, prlib/microprogram]
-        - [0x28C710, data, prlib/spram]
+        - [0x28C710, .data, prlib/spram]
         - [0x28C720, data, prlib/scene]
         - [0x28C730, data, prlib/menderer]
         - [0x28C940, data, prlib/mendererawful]

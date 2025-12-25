@@ -8,20 +8,20 @@
 #include "model.h"
 
 void SpmFileHeader::ChangePointer() {
-    if (mFlags & 0x1) {
+    if (m_flags & 0x1) {
         return;
     }
 
     this->unk64 = CalculatePointer<int>(this->unk64);
-    mNodes = CalculatePointer<SpmNode*>(mNodes);
+    m_nodes = CalculatePointer<SpmNode*>(m_nodes);
 
-    for (int i = 0; i < mNodeNum; i++) {
-        mNodes[i] = CalculatePointer<SpmNode>(mNodes[i]);
+    for (int i = 0; i < m_node_num; i++) {
+        m_nodes[i] = CalculatePointer<SpmNode>(m_nodes[i]);
     }
 
-    /* Change node pointers starting from the first. */
-    (*mNodes)->ChangePointer(this, NULL);
-    mFlags |= 0x1;
+    /* Change node pointers starting from the root. */
+    (*m_nodes)->ChangePointer(this, NULL);
+    m_flags |= 0x1;
 }
 
 void SpmNode::ChangePointer(SpmFileHeader *model, SpmNode *arg1) {
@@ -45,12 +45,12 @@ void SpmNode::ChangePointer(SpmFileHeader *model, SpmNode *arg1) {
         }
     }
 
-    if (mFlags & 0xff0) {
+    if (m_flags & 0xff0) {
         this->unk198 = model->CalculatePointer<int>(this->unk198);
-        if (mFlags & 0x10) {
+        if (m_flags & 0x10) {
             this->unk1B4 = model->CalculatePointer<int>(this->unk1B4);
             this->unk1B8 = model->CalculatePointer<int>(this->unk1B8);
-        } else if (mFlags & 0x20) {
+        } else if (m_flags & 0x20) {
             this->unk1B4 = model->CalculatePointer<int>(this->unk1B4);
         }
 
@@ -74,7 +74,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/setpointer", ChangePointer__13SpaFileHeader)
 INCLUDE_ASM("asm/nonmatchings/prlib/setpointer", ChangePointer__16SpaNodeAnimationP13SpaFileHeader);
 
 void SpcFileHeader::ChangePointer() {
-    if (mFlags & 0x1) {
+    if (m_flags & 0x1) {
         return;
     }
 
@@ -100,17 +100,17 @@ void SpcFileHeader::ChangePointer() {
         this->unk94->ChangePointer();
     }
 
-    if (mFlags & 0x8) {
-        mFocalLenTrack = CalculatePointer<SpaTrack<float> >(mFocalLenTrack);
-        if (mFocalLenTrack != NULL) {
-            mFocalLenTrack->ChangePointer();
+    if (m_flags & 0x8) {
+        m_focal_len_track = CalculatePointer<SpaTrack<float> >(m_focal_len_track);
+        if (m_focal_len_track != NULL) {
+            m_focal_len_track->ChangePointer();
         }
 
-        mDefocusLenTrack = CalculatePointer<SpaTrack<float> >(mDefocusLenTrack);
-        if (mDefocusLenTrack != NULL) {
-            mDefocusLenTrack->ChangePointer();
+        m_defocus_len_track = CalculatePointer<SpaTrack<float> >(m_defocus_len_track);
+        if (m_defocus_len_track != NULL) {
+            m_defocus_len_track->ChangePointer();
         }
     }
 
-    mFlags |= 1;
+    m_flags |= 1;
 }

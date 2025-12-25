@@ -5,6 +5,6 @@
 
 #include <eetypes.h>
 
-void PrWaitDmaFinish(u_int dmaChannel);
+void PrWaitDmaFinish(u_int channel);
 
 #endif /* PRLIB_DMA_H */

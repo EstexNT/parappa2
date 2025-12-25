@@ -1,5 +1,6 @@
 #include "dmaqueue.h"
 
+#include "prpriv.h"
 #include "dma.h"
 
 #include <eekernel.h>
@@ -7,27 +8,27 @@
 #include <malloc.h>
 
 PrDmaQueue::PrDmaQueue(u_int size) {
-    mSize  = size;
-    mQueue = (PrDmaList*)memalign(128, (size + 1) * sizeof(PrDmaList));
+    m_size  = size;
+    m_queue = (PrDmaList*)memalign(128, (size + 1) * sizeof(PrDmaList));
 
     Initialize();
     FlushCache(WRITEBACK_DCACHE);
 
-    mStarted = false;
-    mPos = 0;
+    m_started = false;
+    m_pos = 0;
 
-    mQueue = (PrDmaList*)PR_UNCACHEDACCEL(mQueue);
+    m_queue = (PrDmaList*)PR_UNCACHEDACCEL(m_queue);
 }
 
 PrDmaQueue::~PrDmaQueue() {
-    if (mQueue != NULL) {
-        free(PR_DECACHE(mQueue));
+    if (m_queue != NULL) {
+        free(PR_DECACHE(m_queue));
     }
 }
 
 void PrDmaQueue::Initialize() {
-    for (int i = 0; i <= mSize; i++) {
-        PrDmaList *queue = &mQueue[i];
+    for (int i = 0; i <= m_size; i++) {
+        PrDmaList *queue = &m_queue[i];
 
         /*
          * Set up a REFS DMAtag that will
@@ -72,7 +73,7 @@ void PrDmaQueue::Initialize() {
 }
 
 void PrDmaQueue::Start() {
-    mPos = 0;
+    m_pos = 0;
     PrWaitDmaFinish(SCE_DMA_VIF1);
 
     /*
@@ -81,19 +82,19 @@ void PrDmaQueue::Start() {
      * start of the queue.
      */
     *D_CTRL |= 0x40;
-    *D_STADR = (u_int)PR_DECACHE(&mQueue[0].stall_qw);
+    *D_STADR = (u_int)PR_DECACHE(&m_queue[0].stall_qw);
 
     sceDmaChan *chan = sceDmaGetChan(SCE_DMA_VIF1);
     chan->chcr.TTE = 1;
 
-    sceDmaSend(chan, PR_DECACHE(&mQueue[0].stall_tag));
-    mStarted = true;
+    sceDmaSend(chan, PR_DECACHE(&m_queue[0].stall_tag));
+    m_started = true;
 }
 
 void PrDmaQueue::Append(void *tag) {
     static bool warned = false;
 
-    if (mPos == mSize) {
+    if (m_pos == m_size) {
         if (!warned) {
         #if 0 /* (poly): Only present on McDonald's Demo build */
             printf("PRLIB(WARN): DMA queue ovewrflow\n");
@@ -110,7 +111,7 @@ void PrDmaQueue::Append(void *tag) {
      * Append the DMAtag to
      * the queue's call tag.
      */
-    mQueue[mPos].call_tag.next = (sceDmaTag*)tag;
+    m_queue[m_pos].call_tag.next = (sceDmaTag*)tag;
     asm("sync.l");
 
     /*
@@ -121,17 +122,17 @@ void PrDmaQueue::Append(void *tag) {
      * and continue until it reaches the
      * next stall address.
      */
-    mPos++;
-    PrDmaList *queue = &mQueue[mPos - 1];
+    m_pos++;
+    PrDmaList *queue = &m_queue[m_pos - 1];
     *D_STADR = (u_int)PR_DECACHE(queue + 1);
 }
 
 void PrDmaQueue::Wait() {
-    mQueue[mPos].call_tag.id = 0x70; /* DMAend */
-    mQueue[mPos].call_tag.next = NULL;
+    m_queue[m_pos].call_tag.id = 0x70; /* DMAend */
+    m_queue[m_pos].call_tag.next = NULL;
     asm("sync.l");
 
-    PrDmaList *queue = &mQueue[mPos - 1];
+    PrDmaList *queue = &m_queue[m_pos - 1];
     *D_STADR = (u_int)PR_DECACHE(queue + 2);
 
     PrWaitDmaFinish(SCE_DMA_VIF1);
@@ -141,6 +142,6 @@ void PrDmaQueue::Wait() {
      * Restore the original tag type
      * after stopping the queue.
      */
-    mQueue[mPos].call_tag.id = 0x50; /* DMAcall */
-    mStarted = false;
+    m_queue[m_pos].call_tag.id = 0x50; /* DMAcall */
+    m_started = false;
 }

@@ -55,18 +55,18 @@ public:
 
 public:
     void AppendDmaTag(const sceDmaTag *tag) {
-        mDmaQueue.Append((void*)tag);
+        m_dma_queue.Append((void*)tag);
     }
 
 public:
-    PrDmaQueue mDmaQueue;
-    u_int mTransmitArraySize;
-    int mTransmitArrayMax;
-    PrTransmitEntry *mTransmitArray;
-    PrSceneObject *mScene;
-    sceGsZbuf mZbuf;
+    PrDmaQueue m_dma_queue;
+    u_int m_transmit_array_size;
+    int m_transmit_array_max;
+    PrTransmitEntry *m_transmit_array;
+    PrSceneObject *m_scene;
+    sceGsZbuf m_zbuf;
     int unk28;
-    PrRENDERING_STATISTICS mStatistics;
+    PrRENDERING_STATISTICS m_statistics;
 };
 
 extern PrRenderStuff prRenderStuff;

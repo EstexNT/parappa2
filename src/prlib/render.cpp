@@ -23,7 +23,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/render", InitializeVu1__13PrSceneObject);
 #else /* Uses tail call? */
 void PrSceneObject::InitializeVu1() {
     PrVu1InitPacket *packet = (PrVu1InitPacket*)PR_UNCACHED(&initVu1DmaPacket);
-    packet->zbuf     = prRenderStuff.mZbuf;
+    packet->zbuf     = prRenderStuff.m_zbuf;
     packet->frame    = this->unk50;
     packet->xyoffset = this->unk58;
     packet->scissor  = this->unk70->scissor1;
@@ -59,7 +59,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/render", ModifySimpleDmaPacket__7SpmNodeP23P
 INCLUDE_ASM("asm/nonmatchings/prlib/render", RenderContext1Node__7SpmNodeP13PrModelObject);
 #else /* Need to match .sdata */
 void SpmNode::RenderContext1Node(PrModelObject *model) {
-    prRenderStuff.mStatistics.node_num++;
+    prRenderStuff.m_statistics.node_num++;
 
     if (this->unk154 & 0x2000) {
         return;
@@ -68,14 +68,14 @@ void SpmNode::RenderContext1Node(PrModelObject *model) {
     if ((this->unk154 & 0x4000) && (!AwfulStatus || (this->unk154 & 0x400000))) {
         PrVuNodeHeaderDmaPacket *packet = this->unk16C[0];
         if (packet != NULL) {
-            prRenderStuff.mStatistics.opaque_context1_node_num++;
+            prRenderStuff.m_statistics.opaque_context1_node_num++;
             ModifySimpleDmaPacket(packet);
-            prRenderStuff.AppendDmaTag(&packet->mTag);
+            prRenderStuff.AppendDmaTag(&packet->m_tag);
         }
 
         packet = this->unk16C[1];
         if (packet != NULL) {
-            prRenderStuff.mStatistics.transmit_context1_node_num++;
+            prRenderStuff.m_statistics.transmit_context1_node_num++;
             ModifySimpleDmaPacket(packet);
 
             float sp0[4];
@@ -112,7 +112,7 @@ void SpmNode::RenderContext1Node(PrModelObject *model) {
                 f12 = sp0[2] * D_FLT_003998E4;
             }
 
-            prRenderStuff.AppendTransmitDmaTag(&packet->mTag, this->unk188, f12);
+            prRenderStuff.AppendTransmitDmaTag(&packet->m_tag, this->unk188, f12);
         }
 
         if (this->unk154 & 0x40) {

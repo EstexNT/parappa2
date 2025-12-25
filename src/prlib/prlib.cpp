@@ -57,8 +57,8 @@ void PrCleanupModule() {
 }
 
 PR_EXTERN
-PrSceneObject* PrInitializeScene(sceGsDrawEnv1 *drawEnv, const char *name, u_int fbp) {
-    return prObjectDatabase.CreateScene(drawEnv, name, fbp);
+PrSceneObject* PrInitializeScene(sceGsDrawEnv1 *draw_env, const char *name, u_int fbp) {
+    return prObjectDatabase.CreateScene(draw_env, name, fbp);
 }
 
 PR_EXTERN
@@ -86,9 +86,9 @@ void PrSetSceneFrame() {
 }
 
 PR_EXTERN
-void PrSetSceneEnv(PrSceneObject *scene, sceGsDrawEnv1 *drawEnv) {
-    scene->unk50 = drawEnv->frame1;
-    scene->unk58 = drawEnv->xyoffset1;
+void PrSetSceneEnv(PrSceneObject *scene, sceGsDrawEnv1 *draw_env) {
+    scene->unk50 = draw_env->frame1;
+    scene->unk58 = draw_env->xyoffset1;
 }
 
 PR_EXTERN
@@ -98,13 +98,13 @@ void PrPreprocessSceneModel(PrSceneObject *scene) {
 
 PR_EXTERN
 PrModelObject* PrInitializeModel(SpmFileHeader *spm, PrSceneObject *scene) {
-    if (spm->mMagic != SPM_MAGIC) {
+    if (spm->m_magic != SPM_MAGIC) {
     #if 0 /* (poly): Only present on McDonald's Demo build */
         printf("PRLIB(FATAL): not a SPM file (illegal magic number)\n");
     #endif
         exit(0);
     }
-    if (spm->mVersion != SPM_VERSION) {
+    if (spm->m_version != SPM_VERSION) {
     #if 0 /* (poly): Only present on McDonald's Demo build */
         printf("PRLIB(FATAL): not supported SPM file version %d:%d\n", spm->version, SPM_VERSION);
     #endif
@@ -113,8 +113,8 @@ PrModelObject* PrInitializeModel(SpmFileHeader *spm, PrSceneObject *scene) {
 
     PrModelObject *model = new PrModelObject(spm);
     model->Initialize();
-    scene->mModelSet.Insert(model);
-    model->mLinkedScene = scene;
+    scene->m_model_set.Insert(model);
+    model->m_linked_scene = scene;
     return model;
 }
 
@@ -175,7 +175,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrSelectCamera);
 
 PR_EXTERN
 SpcFileHeader* PrGetSelectedCamera(PrSceneObject *scene) {
-    return scene->mCamera;
+    return scene->m_camera;
 }
 
 INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetCurrentCamera);
@@ -269,37 +269,37 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetAnimationName);
 
 PR_EXTERN
 char* PrGetCameraName(SpcFileHeader *camera) {
-    return camera->mName;
+    return camera->m_name;
 }
 
 PR_EXTERN
 char* PrGetSceneName(PrSceneObject *scene) {
-    return scene->mName;
+    return scene->m_name;
 }
 
 PR_EXTERN
 PrRENDERING_STATISTICS* PrGetRenderingStatistics() {
     PrRenderStuff *renderStuff = &prRenderStuff;
-    return &renderStuff->mStatistics;
+    return &renderStuff->m_statistics;
 }
 
 PR_EXTERN
 void PrSetModelVisibillity(PrModelObject *model, u_int nodeIdx, bool visible) {
-    if (nodeIdx >= model->mSpmImage->mNodeNum) {
+    if (nodeIdx >= model->m_spm_image->m_node_num) {
         return;
     }
 
-    SpmNode *node = model->mSpmImage->mNodes[nodeIdx];
+    SpmNode *node = model->m_spm_image->m_nodes[nodeIdx];
     if (visible) {
-        node->mFlags &= ~0x20000;
+        node->m_flags &= ~0x20000;
     } else {
-        node->mFlags |= 0x20000;
+        node->m_flags |= 0x20000;
     }
 }
 
 PR_EXTERN
 SpmFileHeader* PrGetModelImage(PrModelObject *model) {
-    return model->mSpmImage;
+    return model->m_spm_image;
 }
 
 PR_EXTERN

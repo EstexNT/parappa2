@@ -8,8 +8,8 @@
 #include <libdma.h>
 
 struct PrVu1InitPacket {
-    sceDmaTag tag;
-    sceGifTag giftag;
+    sceDmaTag     tag;
+    sceGifTag     giftag;
 
     sceGsFrame    frame;
     u_long        frame_addr;

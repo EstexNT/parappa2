@@ -10,81 +10,81 @@ INCLUDE_ASM("asm/nonmatchings/prlib/scene", __13PrSceneObjectP13sceGsDrawEnv1PCc
 INCLUDE_ASM("asm/nonmatchings/prlib/scene", _$_13PrSceneObject);
 
 void PrSceneObject::SelectCamera(SpcFileHeader *camera) {
-    mCamera = camera;
-    mCameraTime = 0.0f;
+    m_camera = camera;
+    m_camera_time = 0.0f;
 }
 
 PrPERSPECTIVE_CAMERA* PrSceneObject::GetCurrentCamera() {    
-    if (mCamera != NULL) {
-        return mCamera->GetCamera(mCameraTime);  
+    if (m_camera != NULL) {
+        return m_camera->GetCamera(m_camera_time);  
     } else {
-        return &mDefaultCamera;
+        return &m_default_camera;
     }
 }
 
 INCLUDE_ASM("asm/nonmatchings/prlib/scene", SetAppropriateDefaultCamera__13PrSceneObject);
 
 float PrSceneObject::GetFocalLength() const {
-    SpcFileHeader *camera = mCamera;
-    if (camera == NULL || !(camera->mFlags & 0x8) ) {
-        return mDefaultFocalLen;
+    SpcFileHeader *camera = m_camera;
+    if (camera == NULL || !(camera->m_flags & 0x8) ) {
+        return m_default_focal_len;
     } else {
-        float focalLength = *camera->mFocalLenTrack->GetValue(mCameraTime);
-        if (focalLength <= 0.0f) {
-            focalLength = FLT_EPSILON;
+        float focal_length = *camera->m_focal_len_track->GetValue(m_camera_time);
+        if (focal_length <= 0.0f) {
+            focal_length = FLT_EPSILON;
         }
-        return focalLength;
+        return focal_length;
     }
 }
 
 float PrSceneObject::GetDefocusLength() const {
-    SpcFileHeader *camera = mCamera;
-    if (camera == NULL || !(camera->mFlags & 0x8)) {
-        return mDefaultDefocusLen;
+    SpcFileHeader *camera = m_camera;
+    if (camera == NULL || !(camera->m_flags & 0x8)) {
+        return m_default_defocus_len;
     } else {
-        return *camera->mDefocusLenTrack->GetValue(mCameraTime);
+        return *camera->m_defocus_len_track->GetValue(m_camera_time);
     }
 }
 
 u_int PrSceneObject::GetDepthLevel() const {
-    SpcFileHeader *camera = mCamera;
-    if (camera == NULL || !(camera->mFlags & 0x8)) {
-        return mDefaultDepthLevel;
+    SpcFileHeader *camera = m_camera;
+    if (camera == NULL || !(camera->m_flags & 0x8)) {
+        return m_default_depth_level;
     } else {
-        return camera->mDepthLevel;
+        return camera->m_depth_level;
     }
 }
 
 void PrSceneObject::PreprocessModel() {
     PrModelObject *sp = NULL;
-    PrModelObject *model = mModelSet.mHead;
+    PrModelObject *model = m_model_set.m_head;
 
-    PrModelObject *modelList = NULL;
-    PrModelObject *screenList = NULL;
+    PrModelObject *model_list = NULL;
+    PrModelObject *screen_list = NULL;
     PrModelObject *t1 = NULL;
 
     while (model != NULL) {
-        SpmFileHeader *spm = model->mSpmImage;
-        PrModelObject *next = model->mList.mNext;
-        if (spm->mFlags & eSpmIsScreenModel) {
-            model->mList.mNext = screenList;
-            screenList = model;
-        } else if (spm->mFlags & 0x200) {
+        SpmFileHeader *spm = model->m_spm_image;
+        PrModelObject *next = model->m_list.next;
+        if (spm->m_flags & eSpmIsScreenModel) {
+            model->m_list.next = screen_list;
+            screen_list = model;
+        } else if (spm->m_flags & 0x200) {
             PrModelObject *a1 = sp;
             PrModelObject **a3 = &sp;
             u_int t0_1 = spm->unk78;
-            while (a1 != NULL && a1->mSpmImage->unk78 < t0_1) {
+            while (a1 != NULL && a1->m_spm_image->unk78 < t0_1) {
                 a3 = (PrModelObject**)a1;
                 a1 = *a3;
             }
-            model->mList.mNext = a1;
+            model->m_list.next = a1;
             *a3 = model;
-        } else if (spm->mFlags & 0x400) {
-            model->mList.mNext = t1;
+        } else if (spm->m_flags & 0x400) {
+            model->m_list.next = t1;
             t1 = model;
         } else {
-            model->mList.mNext = modelList;
-            modelList = model;
+            model->m_list.next = model_list;
+            model_list = model;
         }
         model = next;
     }
@@ -92,11 +92,11 @@ void PrSceneObject::PreprocessModel() {
     PrModelObject *head = NULL;
     PrModelObject *tail = NULL;
 
-    mScreenModelList = screenList;
-    if (modelList != NULL) {
-        this->unk9C = modelList;
+    m_screen_model_list = screen_list;
+    if (model_list != NULL) {
+        this->unk9C = model_list;
     } else {
-        this->unk9C = screenList;
+        this->unk9C = screen_list;
     }
 
     if (t1 != NULL) {
@@ -110,8 +110,8 @@ void PrSceneObject::PreprocessModel() {
         head = v1;
         while (sp != NULL) {
             PrModelObject *v0;
-            sp = v1->mList.mNext;
-            v1->mList.mPrev = tail;
+            sp = v1->m_list.next;
+            v1->m_list.prev = tail;
             tail = v1;
             v0 = sp;
             v1 = v0;
@@ -122,49 +122,49 @@ void PrSceneObject::PreprocessModel() {
         if (head == NULL) {
             head = t1;
         } else {
-            tail->mList.mNext = t1;
+            tail->m_list.next = t1;
         }
 
         do {
             PrModelObject *model = t1;
-            t1 = t1->mList.mNext;
-            model->mList.mPrev = tail;
+            t1 = t1->m_list.next;
+            model->m_list.prev = tail;
             tail = model;
         } while (t1 != NULL);
     }
 
-    if (modelList != NULL) {
+    if (model_list != NULL) {
         if (head == NULL) {
-            head = modelList;
+            head = model_list;
         } else {
-            tail->mList.mNext = modelList;
+            tail->m_list.next = model_list;
         }
 
-        while (modelList != NULL) {
-            PrModelObject *model = modelList;
-            modelList = modelList->mList.mNext;
-            model->mList.mPrev = tail;
+        while (model_list != NULL) {
+            PrModelObject *model = model_list;
+            model_list = model_list->m_list.next;
+            model->m_list.prev = tail;
             tail = model;
         }
     }
 
-    if (screenList != NULL) {
+    if (screen_list != NULL) {
         if (head == NULL) {
-            head = screenList;
+            head = screen_list;
         } else {
-            tail->mList.mNext = screenList;
+            tail->m_list.next = screen_list;
         }
 
         do {
-            PrModelObject *model = screenList;
-            screenList = screenList->mList.mNext;
-            model->mList.mPrev = tail;
+            PrModelObject *model = screen_list;
+            screen_list = screen_list->m_list.next;
+            model->m_list.prev = tail;
             tail = model;
-        } while (screenList != NULL);
+        } while (screen_list != NULL);
     }
 
-    mModelSet.mHead = head;
-    mModelSet.mTail = tail;
+    m_model_set.m_head = head;
+    m_model_set.m_tail = tail;
 }
 
 /* nalib/navector.h */

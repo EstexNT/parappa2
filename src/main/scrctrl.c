@@ -1342,12 +1342,12 @@ void ScrCtrlIndvNextRead(SCORE_INDV_STR *sindv_pp, int tap_res_f) {
             sindv_pp->tap_follow_enum = Rsub;
             sindv_pp->scrdat_pp = (SCRDAT*)Rdata;
 
-            if (*(int*)Rdata == 0) {
+            if (sindv_pp->scrdat_pp->sndrec_num == 0) {
                 sindv_pp->sndId = -1;
                 break;
             }
 
-            sindv_pp->sndId = ScrTapDbuffSet(&score_str.stdat_dat_pp->scr_pp->sndrec_pp[*(int*)Rdata]);
+            sindv_pp->sndId = ScrTapDbuffSet(&score_str.stdat_dat_pp->scr_pp->sndrec_pp[sindv_pp->scrdat_pp->sndrec_num]);
             break;
         case SCRRJ_EXAM:
             sindv_pp->scr_exam_str.exam_enum = Rsub;
@@ -1437,7 +1437,6 @@ void ScrCtrlIndvNextRead(SCORE_INDV_STR *sindv_pp, int tap_res_f) {
     }
 
     ScrCtrlIndvNextReadLine(sindv_pp, 0);
-
 }
 
 void intIndvStatusSet(SCORE_INDV_STR *sindv_pp, u_int CKF, u_int STF, u_int UNF) {

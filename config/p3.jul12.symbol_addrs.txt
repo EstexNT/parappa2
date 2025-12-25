@@ -2017,6 +2017,11 @@ InitializeModel__12PrSPRAM_DATAP13PrModelObject                                 
 SendDisplayHeader__12PrSPRAM_DATA                                                   = 0x00147b10; // type:func
 _GLOBAL_$I$Initialize__12PrSPRAM_DATAP13PrSceneObject                               = 0x00147de8; // type:func
 
+dmaTagTemplate                                                                      = 0x0038c710; // size:0x10
+
+screenPrimitiveMatrix                                                               = 0x01c831e0; // size:0x40
+screenClipMatrix                                                                    = 0x01c83220; // size:0x40
+
 // prlib/mfifo.cpp
 PrInitializeMfifo__Fv                                                               = 0x00148350; // type:func
 PrCleanupMfifo__Fv                                                                  = 0x00148380; // type:func

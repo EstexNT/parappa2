@@ -61,7 +61,7 @@ void PrStartMfifo() {
 
 void PrStopMfifo() {
     if (mfifoProcessing) {
-        PrSendMfifo(&prSpramData->mEndDmaTag);
+        PrSendMfifo(&prSpramData->m_end_dmatag);
         PrWaitDmaFinish(SCE_DMA_GIF);
 
         /*

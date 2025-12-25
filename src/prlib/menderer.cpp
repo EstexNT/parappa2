@@ -54,7 +54,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/menderer", PrInitializeMenderer);
 PR_EXTERN
 void PrRenderMenderer() {
     DrawMenderer();
-    prRenderStuff.mStatistics.render_time8 = *T3_COUNT;
+    prRenderStuff.m_statistics.render_time8 = *T3_COUNT;
 #if defined(PRD_SYORI)
     SyoriUpdateStats(&prRenderStuff.mStatistics);
 #endif

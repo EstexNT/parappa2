@@ -24,12 +24,12 @@ public:
     }
 
 public:
-    u_int mMagic;
-    u_short mVersion;
-    u_short mFlags;
+    u_int m_magic;
+    u_short m_version;
+    u_short m_flags;
 
     PR_PADDING(unk8, 0x10);
-    char mName[32];
+    char m_name[32];
     PR_PADDING(unk38, 0x3c);
     int *unk74;
     PR_PADDING(unk78, 0x10);
@@ -38,10 +38,10 @@ public:
     SpaTrack<float> *unk90;
     SpaTrack<float> *unk94;
 
-    u_int mDepthLevel;
+    u_int m_depth_level;
 
-    SpaTrack<float> *mFocalLenTrack;
-    SpaTrack<float> *mDefocusLenTrack;
+    SpaTrack<float> *m_focal_len_track;
+    SpaTrack<float> *m_defocus_len_track;
 };
 
 #endif /* PRLIB_CAMERA_H */

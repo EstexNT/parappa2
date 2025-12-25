@@ -98,13 +98,13 @@ bool SpaFileHeader::IsNodeVisible(SpmNode *arg0, float arg1) const {
     }
 
     if (a2 != NULL) {
-        if (!(a2->mFlags & 0x4000)) {
+        if (!(a2->m_flags & 0x4000)) {
             return false;
         }
-        if (a2->mFlags & 0x40000) {
+        if (a2->m_flags & 0x40000) {
             if (a0 == NULL) {
-                arg0->mFlags |= 0x40000;
-                if (a2->mFlags & 0x4000) {
+                arg0->m_flags |= 0x40000;
+                if (a2->m_flags & 0x4000) {
                     return true;
                 } else {
                     return false;
@@ -114,12 +114,12 @@ bool SpaFileHeader::IsNodeVisible(SpmNode *arg0, float arg1) const {
     }
 
     if (a0 != NULL) {
-        arg0->mFlags |= 0x40000;
+        arg0->m_flags |= 0x40000;
         return a0->IsVisible(arg1);
     }
 
-    arg0->mFlags &= ~0x40000;
-    return (arg0->mFlags & 0x20000) ? false : true;
+    arg0->m_flags &= ~0x40000;
+    return (arg0->m_flags & 0x20000) ? false : true;
 }
 
 bool SpaTransform::IsEverIdentical() {
@@ -206,19 +206,19 @@ bool SpaTransform::IsEverIdentical() {
 }
 
 int SpaNodeAnimation::Optimize() {
-    int removeCount = 0;
+    int remove_count = 0;
 
     for (int i = 0; i < this->unk8; i++) {
         SpaTransform *transform = this->unkC[i];
         if (transform == NULL || transform->IsEverIdentical()) {
-            removeCount++;
+            remove_count++;
             continue;
         }
-        this->unkC[i - removeCount] = this->unkC[i];
+        this->unkC[i - remove_count] = this->unkC[i];
     }
 
-    this->unk8 -= removeCount;
-    return removeCount;
+    this->unk8 -= remove_count;
+    return remove_count;
 }
 
 INCLUDE_ASM("asm/nonmatchings/prlib/spadata", GetLinearValue__Ct8SpaTrack1Zt8NaVECTOR2Zfi4Uif);

@@ -23,7 +23,7 @@ class SpmFileHeader;
 class SpaFileHeader;
 
 struct PrVuNodeHeaderDmaPacket {
-    sceDmaTag mTag;
+    sceDmaTag m_tag;
     PR_PADDING(unk10, 0x50);
     PrMICRO_PROGRAM_MODULE unk60;
     PR_PADDING(unk64, 0x130);
@@ -54,7 +54,7 @@ public:
     PR_PADDING(unk80, 0xc0);
     NaVECTOR<float, 4> unk140;
     int unk150;
-    u_int mFlags;
+    u_int m_flags;
     SpmFileHeader *unk158;
     SpmNode *unk15C;
     SpmNode *unk160;
@@ -103,18 +103,18 @@ public:
     }
 
 public:
-    u_int mMagic;
-    u_short mVersion;
-    u_short mFlags;
+    u_int m_magic;
+    u_short m_version;
+    u_short m_flags;
     PR_PADDING(unk8, 0x28);
     NaVECTOR<float, 4> unk30;
     NaVECTOR<float, 4> unk40;
     PR_PADDING(unk50, 0x14);
     int *unk64;
-    u_int mNodeNum;
+    u_int m_node_num;
     PR_PADDING(unk6C, 0x4);
     int unk70;
-    SpmNode **mNodes;
+    SpmNode **m_nodes;
     int unk78;
 };
 
@@ -156,17 +156,17 @@ public:
     void ResetContour();
 
 public:
-    PrLinkedList<PrModelObject> mList;
-    PrObjectSet<PrModelObject> *mObjSet;
-    PrSceneObject *mLinkedScene;
+    PrLinkedList<PrModelObject> m_list;
+    PrObjectSet<PrModelObject> *m_obj_set;
+    PrSceneObject *m_linked_scene;
     NaMATRIX<float, 4, 4> unk10;
     PR_PADDING(unk50, 0x8);
-    SpmFileHeader *mSpmImage;
-    u_int mFlags;
+    SpmFileHeader *m_spm_image;
+    u_int m_flags;
     PR_PADDING(unk60, 0x10);
-    int mActiveTransition;
+    int m_active_transition;
     PR_PADDING(unk74, 0x10);
-    int mRenderedOnce;
+    int m_rendered_once;
     PR_PADDING(unk88, 0x28);
 };
 
