@@ -90,14 +90,12 @@ static void euc2sjis(unsigned char *c1, unsigned char *c2) {
 }
 
 void SubtMsgPrint(u_char* msg_pp, int xp, int yp, int jap_flag, int mline) {
-    u_char* tmp_pp;
-    int line_num;
-    int i, j, k;
-    int hsize;
-    int cnt_all;
-    u_char dat0, dat1;
-    int posx, posy;
-    
+    u_char *tmp_pp;
+    int     line_num;
+    int     i, j, k;
+    int     hsize;
+    int     cnt_all;
+
     cnt_all = 0;    
     SubtMcodeSet(jap_flag);
 
@@ -108,22 +106,22 @@ void SubtMsgPrint(u_char* msg_pp, int xp, int yp, int jap_flag, int mline) {
     WorkClear(&subt_code, sizeof(subt_code));
 
     line_num = 0;
-    hsize = 13;
-    tmp_pp = msg_pp;
+    hsize    = 13;
+    tmp_pp   = msg_pp;
 
     while (1) {
         if (hsize == 13) {
             hsize = 13;
         }
-        
+
         if (*tmp_pp == '\0') {
             line_num++;
             break;
         }
 
         if (jap_flag) {
-            dat0 = tmp_pp[0];
-            dat1 = tmp_pp[1];
+            u_char dat0 = tmp_pp[0];
+            u_char dat1 = tmp_pp[1];
 
             if (dat0 == '@') {
                 line_num++;
@@ -156,18 +154,17 @@ void SubtMsgPrint(u_char* msg_pp, int xp, int yp, int jap_flag, int mline) {
         tmp_pp++;
     }
 
-
     if (mline != 0 && mline < line_num) {
         line_num = mline;
     }
 
     for (i = 0, k = 0; i < line_num; i++) {
-        posx = xp - (subt_code[i].wsize / 2);
-        posy = yp + (hsize * i);
+        int posx = xp - (subt_code[i].wsize / 2);
+        int posy = yp + (hsize * i);
 
         for (j = 0; j < subt_code[i].cnt; j++) {
             MCODE_DAT *mcode_pp = mcode_dat_pp[k++];
-            
+
             sceGifPkAddGsAD(&subtPkSpr, SCE_GS_PRIM, SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 1, 0, 1, 0, 1, 0, 0));
 
             sceGifPkAddGsAD(&subtPkSpr, SCE_GS_UV,
@@ -283,7 +280,7 @@ u_char* SubtMsgDataPos(u_char *msg_pp, int jap_flag, int pos) {
     }
 
     tmp_pp = msg_pp;
-    
+
     while (1) {
         if (ret == pos) {
             return tmp_pp;
@@ -350,17 +347,17 @@ void SubtCtrlPrintBoxyWipe(JIMAKU_STR *jstr_pp, int line, int time, int lang, vo
         if ((time >= jstr_tmp_pp->jimaku_dat_pp[i].starTime) &&
             (time <  jstr_tmp_pp->jimaku_dat_pp[i].endTime)) {
             SubtInit();
-            
+
             kanjiset_tmp_pp = SubtKanjiSet(code_pp);
 
             lang_f = (lang == LANG_JAPANESE);
             if (lang_f) {
                 lang_f = 2;
             }
-            
+
             SubtClear();
             SubtMsgPrint(jstr_tmp_pp->jimaku_dat_pp[i].txtData[lang], 2048, 2122, lang_f, 0);
-            
+
             SubtFlash();
             SubtKanjiSet(kanjiset_tmp_pp);
             return;

@@ -3,6 +3,7 @@
 #include "main/cdctrl.h"
 
 #include "menu/memc.h"
+#include "menu/menudata.h"
 #include "menu/menufont.h"
 
 #include <libcdvd.h>
@@ -194,14 +195,120 @@ static void _P3MC_EUC2SJIS(char *des, char *src) {
     *des = '\0';
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/p3mc", _P3MC_ASC2SJIS);
+static void _P3MC_ASC2SJIS(char *des, char *src) {
+    /* static */ extern char sjisASCII0[65]; // = "！”＃＄％＆’（）＊＋，−．／０１２３４５６７８９：；＜＝＞？＠";
+    /* static */ extern char sjisASCII1[13]; // = "［￥］＾＿’";
+    /* static */ extern char sjisASCII2[11]; // = "｛｜｝〜　";
+
+    char    *des0;
+    u_char   c;
+    int      n;
+
+    des0 = des;
+
+    for (; (c = *src) != '\0'; src++, des += 2) {
+        if (c <= ' ') {
+            n = 0xa1a1; /* Space */
+        } else if (c <= '@') {
+            c = (c - '!');
+            n = ((u_short*)sjisASCII0)[c];
+        } else if (c <= 'Z') {
+            c = (c - 'A');
+            n = (c << 8) + 0xc1a3 /* A */;
+        } else if (c <= '`') {
+            c = (c - '[');
+            n = ((u_short*)sjisASCII1)[c];
+        } else if (c <= 'z') {
+            c = (c - 'a');
+            n = (c << 8) + 0xe1a3 /* a */;
+        } else if (c <= '~') {
+            c = (c - '{');
+            n = ((u_short*)sjisASCII2)[c];
+        } else {
+            n = 0xa1a1; /* Space */
+        }
+
+        *(u_short*)des = n;
+    }
+
+    *des = '\0';
+    _P3MC_EUC2SJIS(des0, des0);
+}
 
 static void _P3MC_UserName_ASC2SJIS(char *des, char *src) {
     MenuFont_ASC2EUC(des, src);
     _P3MC_EUC2SJIS(des, des);
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/p3mc", _P3MC_SetBrowsInfo);
+static void _P3MC_SetBrowsInfo(int mode, int fileNo, char *name, int stageNo, int roundNo, int isVs, int ParaCol) {
+    char  tname[256];
+    int   s;
+    char  tmps[30];
+    int   r;
+    int   size;
+    void *ptr;
+    int   iconNo;
+
+    if (name == NULL) {
+        return;
+    }
+
+    _P3MC_EUC2SJIS(tname, "ＰＡＲＡＰＰＡ２");
+
+    if (mode == 1) {
+        sprintf(tmps, "/SYS-%02d", fileNo + 1);
+    } else {
+        sprintf(tmps, "/REP-%02d", fileNo + 1);
+    }
+
+    s = strlen(tname);
+    _P3MC_ASC2SJIS(tname + s, tmps);
+    s = strlen(tname);
+
+    switch (mode) {
+    case 2:
+        if (!isVs) {
+            sprintf(tmps, "%s-ST%1d", name, stageNo);
+        } else {
+            sprintf(tmps, "%s-VS_ST%1d", name, stageNo);
+        }
+        break;
+
+    default:
+    case 1:
+        if (roundNo == 0) {
+            sprintf(tmps, "%s(ST%1d)", name, stageNo);
+        } else {
+            r = roundNo + 1;
+            if (r > 99) r = 99;
+            sprintf(tmps, "%s(C%2d)", name, r);
+        }
+        break;
+    }
+
+    _P3MC_UserName_ASC2SJIS(tname + s, tmps);
+
+    memc_setSaveTitle(tname, s);
+
+    if (mode == 1) {
+        iconNo = ParaCol + 1;
+
+        if (iconNo > 4) {
+            iconNo = 4;
+        }
+
+        ptr = MenuDataGetIconSysHed(0, iconNo, &size);
+    } else {
+        iconNo = stageNo;
+        ptr = MenuDataGetIconSysHed(1, iconNo, &size);
+    }
+
+    memc_setIconSysHed(ptr, size);
+
+    memc_setSaveIcon(0, P3MC_GetIconPtr(mode, iconNo), P3MC_GetIconSize(mode));
+    memc_setSaveIcon(1, NULL, 0);
+    memc_setSaveIcon(2, NULL, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/menu/p3mc", _P3MC_mainfile_chk);
 

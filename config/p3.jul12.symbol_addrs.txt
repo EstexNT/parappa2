@@ -1593,6 +1593,10 @@ _P3MC_dataCheckFunc                 = 0x0013ac78; // type:func
 _P3MC_CheckUserData                 = 0x0013ac80; // type:func
 _P3MC_CheckUserDataHead             = 0x0013acc0; // type:func
 
+sjisASCII0                          = 0x0018dd90;
+sjisASCII1                          = 0x0018ddd8;
+sjisASCII2                          = 0x0018dde8;
+
 D_00396190                          = 0x00396190; // type:asciz
 
 HedderID                            = 0x00399830; // size:0x4
