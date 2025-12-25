@@ -9,7 +9,7 @@
 #define PR_MFIFOSIZE (0x10000)
 extern char mfifoBase[PR_MFIFOSIZE] __attribute__((section(".mfifo")));
 
-static PrSPRAM_DATA* prSpramData = (PrSPRAM_DATA*)0x70000000;
+static PrSPRAM_DATA *prSpramData = (PrSPRAM_DATA*)0x70000000;
 static bool mfifoProcessing = false;
 
 #define PR_ALIGNSPR(addr) ((u_int)addr&0xfff0)
@@ -81,7 +81,7 @@ void PrWaitMfifo() {
     }
 }
 
-void PrSendMfifo(const sceDmaTag* tag) {
+void PrSendMfifo(const sceDmaTag *tag) {
     u_int qwc = tag->qwc + 1;
     u_int size = qwc * 16;
 

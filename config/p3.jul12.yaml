@@ -338,7 +338,7 @@ segments:
         - [0x299240, lit4, prlib/mendererawful]
         - [0x299260, lit4, prlib/mendereralpha]
         - [0x299280, lit4, prlib/mendererdata]
-        - [0x2992C0, lit4, prlib/wave]
+        - [0x2992C0, .lit4, prlib/wave]
 
         # .sdata
         - [0x299300, sdata]
@@ -427,7 +427,7 @@ segments:
         - { type: sbss,  vram: 0x00399ba0, name: prlib/spadata        }
         - { type: sbss,  vram: 0x00399ba8, name: prlib/menderer       }
         - { type: sbss,  vram: 0x00399bb4, name: prlib/mendererawful  }
-        - { type: sbss,  vram: 0x00399bc8, name: prlib/wave           }
+        - { type: .sbss, vram: 0x00399bc8, name: prlib/wave           }
 
         - { type: sbss,  vram: 0x00399bd0, name: sdk/newlib           }
 
@@ -480,7 +480,7 @@ segments:
         - { type: bss,   vram: 0x01c83ba0, name: prlib/mendererawful  }
         - { type: bss,   vram: 0x01c83bd0, name: prlib/mendereralpha  }
         - { type: bss,   vram: 0x01c83c10, name: prlib/mendererdata   }
-        - { type: bss,   vram: 0x01c84c40, name: prlib/wave           }
+        - { type: .bss,  vram: 0x01c84c40, name: prlib/wave           }
         - { type: bss,   vram: 0x01c884c0, name: prlib/camera         }
 
         - { type: bss,   vram: 0x01c88500, name: sdk/scelib           }

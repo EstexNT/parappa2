@@ -32,19 +32,19 @@ struct PrVuNodeHeaderDmaPacket {
 
 struct SpmNode {
 public:
-    void ChangePointer(SpmFileHeader* arg0, SpmNode* arg1);
+    void ChangePointer(SpmFileHeader *arg0, SpmNode *arg1);
 
-    void ModifySimpleDmaPacket(PrVuNodeHeaderDmaPacket* packet);
+    void ModifySimpleDmaPacket(PrVuNodeHeaderDmaPacket *packet);
 
-    void RenderContext1Node(PrModelObject* model);
+    void RenderContext1Node(PrModelObject *model);
     void RenderScreenModelNode();
     void RenderBackgroundScreenModel();
-    void RenderContext2Node(PrModelObject* model);
+    void RenderContext2Node(PrModelObject *model);
 
-    void ComposeGlobalMatrix(PrModelObject* model, const NaMATRIX<float, 4, 4>& arg1);
-    void ComposeGlobalMatrixWithoutVisibility(PrModelObject* model, const NaMATRIX<float, 4, 4>& arg1);
+    void ComposeGlobalMatrix(PrModelObject *model, const NaMATRIX<float, 4, 4>& arg1);
+    void ComposeGlobalMatrixWithoutVisibility(PrModelObject *model, const NaMATRIX<float, 4, 4>& arg1);
 
-    void BlendTransitionMatrix(PrModelObject* model, NaMATRIX<float, 4, 4>& arg1);
+    void BlendTransitionMatrix(PrModelObject *model, NaMATRIX<float, 4, 4>& arg1);
 
     void ApplyBillboardMatrix();
 
@@ -55,24 +55,24 @@ public:
     NaVECTOR<float, 4> unk140;
     int unk150;
     u_int mFlags;
-    SpmFileHeader* unk158;
-    SpmNode* unk15C;
-    SpmNode* unk160;
-    SpmNode* unk164;
+    SpmFileHeader *unk158;
+    SpmNode *unk15C;
+    SpmNode *unk160;
+    SpmNode *unk164;
     PR_PADDING(unk168, 0x4);
-    PrVuNodeHeaderDmaPacket* unk16C[2];
+    PrVuNodeHeaderDmaPacket *unk16C[2];
     PR_PADDING(unk174, 0x8);
-    PrVuNodeHeaderDmaPacket* unk17C;
+    PrVuNodeHeaderDmaPacket *unk17C;
     PR_PADDING(unk180, 0x8);
     u_int unk188;
     PR_PADDING(unk18C, 0xc);
-    int* unk198;
+    int *unk198;
     PR_PADDING(unk19C, 0x4);
-    int* unk1A0;
-    PrVuNodeHeaderDmaPacket* unk1A4;
+    int *unk1A0;
+    PrVuNodeHeaderDmaPacket *unk1A4;
     PR_PADDING(unk1A8, 0xc);
-    int* unk1B4;
-    int* unk1B8;
+    int *unk1B4;
+    int *unk1B8;
 };
 
 enum SpmFlags {
@@ -83,19 +83,19 @@ class SpmFileHeader {
 public:
     void ChangePointer();
 
-    void CalculateCurrentMatrix(PrModelObject* model, const NaMATRIX<float, 4, 4>& arg1);
-    void CalculateCurrentMatrixAnimation(PrModelObject* model, const NaMATRIX<float, 4, 4>& arg1);
+    void CalculateCurrentMatrix(PrModelObject *model, const NaMATRIX<float, 4, 4>& arg1);
+    void CalculateCurrentMatrixAnimation(PrModelObject *model, const NaMATRIX<float, 4, 4>& arg1);
 
-    void CalculateClusterMatrix(PrModelObject* model, const NaMATRIX<float, 4, 4>& arg1);
-    void CalculateClusterMatrixAnimation(PrModelObject* model, const NaMATRIX<float, 4, 4>& arg1);
+    void CalculateClusterMatrix(PrModelObject *model, const NaMATRIX<float, 4, 4>& arg1);
+    void CalculateClusterMatrixAnimation(PrModelObject *model, const NaMATRIX<float, 4, 4>& arg1);
 
-    void RenderContext1Model(PrModelObject* model);
+    void RenderContext1Model(PrModelObject *model);
     void RenderScreenModelNode();
     void RenderBackgroundScreenModel();
-    void RenderContext2Model(PrModelObject* model);
+    void RenderContext2Model(PrModelObject *model);
 
     template <typename T>
-    T* CalculatePointer(T* offset) {
+    T* CalculatePointer(T *offset) {
         if (!offset) {
             return NULL;
         }
@@ -110,37 +110,37 @@ public:
     NaVECTOR<float, 4> unk30;
     NaVECTOR<float, 4> unk40;
     PR_PADDING(unk50, 0x14);
-    int* unk64;
+    int *unk64;
     u_int mNodeNum;
     PR_PADDING(unk6C, 0x4);
     int unk70;
-    SpmNode** mNodes;
+    SpmNode **mNodes;
     int unk78;
 };
 
 class SpmComplexNode {
 public:
-    void SaveContour(PrModelObject* model);
-    void RenderContour(PrModelObject* model);
+    void SaveContour(PrModelObject *model);
+    void RenderContour(PrModelObject *model);
 };
 
 class PrModelObject {
 public:
-    PrModelObject(SpmFileHeader* spm);
+    PrModelObject(SpmFileHeader *spm);
     ~PrModelObject();
 
     void Initialize();
 
-    void LinkAnimation(SpaFileHeader* animation);
+    void LinkAnimation(SpaFileHeader *animation);
     void CleanupAnimation();
 
-    void LinkPositionAnimation(SpaFileHeader* animation);
+    void LinkPositionAnimation(SpaFileHeader *animation);
     void CleanupPositionAnimation();
 
-    void UnionBoundaryBox(NaVECTOR<float, 4>* arg0, NaVECTOR<float, 4>* arg1);
+    void UnionBoundaryBox(NaVECTOR<float, 4> *arg0, NaVECTOR<float, 4> *arg1);
 
-    void GetPrimitivePosition(NaVECTOR<float, 4>* position);
-    void GetScreenPosition(NaVECTOR<float, 4>* position);
+    void GetPrimitivePosition(NaVECTOR<float, 4> *position);
+    void GetScreenPosition(NaVECTOR<float, 4> *position);
 
     void CalculateCurrentMatrix();
 
@@ -157,11 +157,11 @@ public:
 
 public:
     PrLinkedList<PrModelObject> mList;
-    PrObjectSet<PrModelObject>* mObjSet;
-    PrSceneObject* mLinkedScene;
+    PrObjectSet<PrModelObject> *mObjSet;
+    PrSceneObject *mLinkedScene;
     NaMATRIX<float, 4, 4> unk10;
     PR_PADDING(unk50, 0x8);
-    SpmFileHeader* mSpmImage;
+    SpmFileHeader *mSpmImage;
     u_int mFlags;
     PR_PADDING(unk60, 0x10);
     int mActiveTransition;

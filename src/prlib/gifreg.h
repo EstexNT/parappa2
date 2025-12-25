@@ -28,7 +28,7 @@ public:
     }
 
     void Append(u_int addr, const u_long& data);
-    void Freeze(u_char id, const void* addr);
+    void Freeze(u_char id, const void *addr);
 
 public:
     sceDmaTag mTag;

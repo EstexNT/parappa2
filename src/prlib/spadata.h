@@ -31,7 +31,7 @@ protected:
     u_short unk2;
     u_int unk4;
     mutable u_int unk8;
-    float* unkC;
+    float *unkC;
 };
 
 template <typename T>
@@ -48,7 +48,7 @@ public:
     }
 
 private:
-    T* unk10;
+    T *unk10;
 };
 
 class SpaTransform {
@@ -69,13 +69,13 @@ public:
     bool IsVisible(float arg0) const;
     int Optimize();
 
-    void ChangePointer(SpaFileHeader* animation);
+    void ChangePointer(SpaFileHeader *animation);
 
 public:
     PR_PADDING(unk0, 0x4);
-    SpaTrack<int>* unk4;
+    SpaTrack<int> *unk4;
     u_int unk8;
-    SpaTransform** unkC;
+    SpaTransform **unkC;
 };
 
 #endif /* PRLIB_SPADATA_H */

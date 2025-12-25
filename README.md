@@ -12,9 +12,9 @@ For any questions, we have a home at the [PS1/PS2 Decompilation Discord server](
 ### Progress
 *For a more detailed view of the progress, please check our [decomp(dot)dev page](https://decomp.dev/parappadev/parappa2).*
 
-#### EE main core
+#### EE Core
 | Folder | Progress | Description
-|------------|----------|------------
+|--------|----------|------------
 | `dbug` | ![progress](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/parappadev/parappa2/main/progress/dbug_progress.json) | Debug utilities (VRAM save, debug menus, etc.)
 | `os` | ![progress](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/parappadev/parappa2/main/progress/os_progress.json) | OS utilities (threading, pad, memory, etc.)
 | `iop_mdl` | ![progress](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/parappadev/parappa2/main/progress/iop_mdl_progress.json) | IOP module control routines
@@ -25,14 +25,9 @@ For any questions, we have a home at the [PS1/PS2 Decompilation Discord server](
 
 #### IOP modules
 | Folder | Progress | Description
-|------------|----------|------------
+|--------|----------|------------
 | `wavep2` | ![progress](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/parappadev/parappa2/main/progress/wp2cd.total_progress.json) | Music and asset streaming
 | `tapctrl` | N/A | Voice and sound effect playback
-
-#### VU1 microcode
-| Folder | Progress | Description
-|------------|----------|------------
-| N/A | N/A | N/A
 
 ### Contributing
 

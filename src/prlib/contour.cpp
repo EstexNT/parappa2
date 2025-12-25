@@ -1,16 +1,16 @@
 #include "model.h"
 
 void PrModelObject::SaveContour() {
-    SpmFileHeader* spm = mSpmImage;
+    SpmFileHeader *spm = mSpmImage;
     if (spm->unk70 == 0 || !mRenderedOnce) {
         return;
     }
 
     u_int nodeNum = spm->mNodeNum;
     for (int i = 0; i < nodeNum; i++) {
-        SpmNode* node = spm->mNodes[i];
+        SpmNode *node = spm->mNodes[i];
         if (node->mFlags & 0x40) {
-            SpmComplexNode* complex = reinterpret_cast<SpmComplexNode*>(node);
+            SpmComplexNode *complex = reinterpret_cast<SpmComplexNode*>(node);
             complex->SaveContour(this);
         }
     }

@@ -200,7 +200,7 @@ cmngif_pri_cnt                      = 0x00399a1c; // type:s32 size:0x4
 cmnGifPkBase                        = 0x00399a20; // type:s32 size:0x4
 cmnGifPkCurrent                     = 0x00399a24; // size:0x4
 cmnGifPkEnd                         = 0x00399a28; // size:0x4
-cmnGifTr                            = 0x003daf50; // size:0x410
+cmnGifTr                            = 0x003daf50; // size:0x410 allow_duplicated:true
 cmnGifPacket                        = 0x003db360; // size:0x10
 
 // os/usrmem.c
@@ -2173,6 +2173,8 @@ WaveCtrlUpdate__FP8WAVE_STRf                                                    
 
 WV_SCREEN_W                                                                         = 0x00399bc8;
 WV_SCREEN_H                                                                         = 0x00399bcc;
+
+cmnGifTr                                                                            = 0x01c84c40; // size:0x3880 allow_duplicated:true
 
 // prlib/dmaqueue.cpp
 __10PrDmaQueueUi                                                                    = 0x001523f0; // type:func

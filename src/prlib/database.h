@@ -17,7 +17,7 @@ public:
     void Cleanup();
 
     PrSceneObject* CreateScene(sceGsDrawEnv1 *drawEnv, const char *name, u_int fbp);
-    void DeleteScene(PrSceneObject* scene);
+    void DeleteScene(PrSceneObject *scene);
 
 public:
     PrSceneObject *unk0;

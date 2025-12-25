@@ -10,7 +10,7 @@
 
 /* float D_FLT_003998E4; */
 
-extern PrSPRAM_DATA* prSpramData;
+extern PrSPRAM_DATA *prSpramData;
 
 extern bool AwfulStatus;
 
@@ -30,7 +30,7 @@ void PrSceneObject::InitializeVu1() {
 
     PrWaitDmaFinish(SCE_DMA_GIF);
 
-    sceDmaChan* chan = sceDmaGetChan(SCE_DMA_GIF);
+    sceDmaChan *chan = sceDmaGetChan(SCE_DMA_GIF);
     chan->chcr.TTE = 0; /* Don't transfer the DMAtag */
 
     sceDmaSend(chan, &initVu1DmaPacket);
@@ -58,7 +58,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/render", ModifySimpleDmaPacket__7SpmNodeP23P
 #ifndef NON_MATCHING
 INCLUDE_ASM("asm/nonmatchings/prlib/render", RenderContext1Node__7SpmNodeP13PrModelObject);
 #else /* Need to match .sdata */
-void SpmNode::RenderContext1Node(PrModelObject* model) {
+void SpmNode::RenderContext1Node(PrModelObject *model) {
     prRenderStuff.mStatistics.node_num++;
 
     if (this->unk154 & 0x2000) {
@@ -66,7 +66,7 @@ void SpmNode::RenderContext1Node(PrModelObject* model) {
     }
 
     if ((this->unk154 & 0x4000) && (!AwfulStatus || (this->unk154 & 0x400000))) {
-        PrVuNodeHeaderDmaPacket* packet = this->unk16C[0];
+        PrVuNodeHeaderDmaPacket *packet = this->unk16C[0];
         if (packet != NULL) {
             prRenderStuff.mStatistics.opaque_context1_node_num++;
             ModifySimpleDmaPacket(packet);
@@ -116,7 +116,7 @@ void SpmNode::RenderContext1Node(PrModelObject* model) {
         }
 
         if (this->unk154 & 0x40) {
-            SpmComplexNode* complex = reinterpret_cast<SpmComplexNode*>(this);
+            SpmComplexNode *complex = reinterpret_cast<SpmComplexNode*>(this);
             complex->RenderContour(model);
         }
     }

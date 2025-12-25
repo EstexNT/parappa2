@@ -32,7 +32,7 @@ static void CalculateEntryPoint() {
 }
 
 void PrLoadMicroPrograms() {
-    sceDmaChan* chan = sceDmaGetChan(SCE_DMA_VIF1);
+    sceDmaChan *chan = sceDmaGetChan(SCE_DMA_VIF1);
 
     /*
      * TTE is required to transfer

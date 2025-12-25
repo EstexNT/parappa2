@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 57.691273,
+    "fuzzy_match_percent": 58.271904,
     "total_code": "342284",
-    "matched_code": "191908",
-    "matched_code_percent": 56.066895,
-    "total_data": "26121904",
-    "matched_data": "26065248",
-    "matched_data_percent": 99.78311,
+    "matched_code": "193664",
+    "matched_code_percent": 56.579918,
+    "total_data": "26136440",
+    "matched_data": "26079720",
+    "matched_data_percent": 99.78298,
     "total_functions": 1429,
-    "matched_functions": 1054,
-    "matched_functions_percent": 73.75787,
+    "matched_functions": 1058,
+    "matched_functions_percent": 74.03779,
     "total_units": 70
   },
   "units": [
@@ -7876,14 +7876,14 @@
     {
       "name": "menu/p3mc",
       "measures": {
-        "fuzzy_match_percent": 42.67668,
+        "fuzzy_match_percent": 49.300102,
         "total_code": "11716",
-        "matched_code": "5000",
-        "matched_code_percent": 42.67668,
+        "matched_code": "5776",
+        "matched_code_percent": 49.300102,
         "total_data": "1232",
         "total_functions": 45,
-        "matched_functions": 33,
-        "matched_functions_percent": 73.333336,
+        "matched_functions": 35,
+        "matched_functions_percent": 77.77778,
         "total_units": 1
       },
       "sections": [
@@ -7905,7 +7905,7 @@
         {
           "name": ".text",
           "size": "11792",
-          "fuzzy_match_percent": 42.67668,
+          "fuzzy_match_percent": 49.300102,
           "metadata": {}
         }
       ],
@@ -7947,6 +7947,7 @@
         {
           "name": "_P3MC_ASC2SJIS",
           "size": "248",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "768"
         },
@@ -7960,6 +7961,7 @@
         {
           "name": "_P3MC_SetBrowsInfo",
           "size": "528",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "1064"
         },
@@ -12639,19 +12641,22 @@
     {
       "name": "prlib/wave",
       "measures": {
-        "fuzzy_match_percent": 17.886179,
+        "fuzzy_match_percent": 99.95935,
         "total_code": "1476",
-        "matched_code": "264",
-        "matched_code_percent": 17.886179,
-        "total_data": "16",
+        "matched_code": "1244",
+        "matched_code_percent": 84.281845,
+        "total_data": "14552",
+        "matched_data": "14472",
+        "matched_data_percent": 99.45025,
         "total_functions": 7,
-        "matched_functions": 3,
-        "matched_functions_percent": 42.857143,
+        "matched_functions": 5,
+        "matched_functions_percent": 71.42857,
         "total_units": 1
       },
       "sections": [
         {
           "name": ".bss",
+          "size": "14464",
           "fuzzy_match_percent": 100.0,
           "metadata": {}
         },
@@ -12661,14 +12666,25 @@
           "metadata": {}
         },
         {
+          "name": ".lit4",
+          "size": "64",
+          "metadata": {}
+        },
+        {
           "name": ".rodata",
           "size": "16",
           "metadata": {}
         },
         {
+          "name": ".sbss",
+          "size": "8",
+          "fuzzy_match_percent": 100.0,
+          "metadata": {}
+        },
+        {
           "name": ".text",
           "size": "1488",
-          "fuzzy_match_percent": 17.886179,
+          "fuzzy_match_percent": 99.95935,
           "metadata": {}
         }
       ],
@@ -12694,6 +12710,7 @@
         {
           "name": "UG_WaveDisp__FP8WAVE_STRP10sceGsFrameP12sceGifPacket",
           "size": "756",
+          "fuzzy_match_percent": 100.0,
           "metadata": {
             "demangled_name": "UG_WaveDisp(WAVE_STR*, sceGsFrame*, sceGifPacket*)"
           },
@@ -12702,6 +12719,7 @@
         {
           "name": "CG_WaveDisp__FP8WAVE_STRP10sceGsFrame",
           "size": "224",
+          "fuzzy_match_percent": 100.0,
           "metadata": {
             "demangled_name": "CG_WaveDisp(WAVE_STR*, sceGsFrame*)"
           },
@@ -12710,6 +12728,7 @@
         {
           "name": "WaveCtrlInit__FP8WAVE_STRss10WMODE_ENUM",
           "size": "180",
+          "fuzzy_match_percent": 99.77778,
           "metadata": {
             "demangled_name": "WaveCtrlInit(WAVE_STR*, short, short, WMODE_ENUM)"
           },
@@ -12727,6 +12746,7 @@
         {
           "name": "WaveCtrlUpdate__FP8WAVE_STRf",
           "size": "52",
+          "fuzzy_match_percent": 99.61539,
           "metadata": {
             "demangled_name": "WaveCtrlUpdate(WAVE_STR*, float)"
           },
@@ -13335,16 +13355,16 @@
     {
       "id": "menu",
       "measures": {
-        "fuzzy_match_percent": 43.177307,
+        "fuzzy_match_percent": 43.85296,
         "total_code": "114852",
-        "matched_code": "47244",
-        "matched_code_percent": 41.134678,
+        "matched_code": "48020",
+        "matched_code_percent": 41.81033,
         "total_data": "19812",
         "matched_data": "4204",
         "matched_data_percent": 21.219463,
         "total_functions": 374,
-        "matched_functions": 261,
-        "matched_functions_percent": 69.786095,
+        "matched_functions": 263,
+        "matched_functions_percent": 70.320854,
         "total_units": 9
       }
     },
@@ -13367,16 +13387,16 @@
     {
       "id": "prlib",
       "measures": {
-        "fuzzy_match_percent": 18.98488,
+        "fuzzy_match_percent": 20.457241,
         "total_code": "82276",
-        "matched_code": "15620",
-        "matched_code_percent": 18.98488,
-        "total_data": "3716",
-        "matched_data": "2492",
-        "matched_data_percent": 67.061356,
+        "matched_code": "16600",
+        "matched_code_percent": 20.175993,
+        "total_data": "18252",
+        "matched_data": "16964",
+        "matched_data_percent": 92.94324,
         "total_functions": 360,
-        "matched_functions": 127,
-        "matched_functions_percent": 35.27778,
+        "matched_functions": 129,
+        "matched_functions_percent": 35.833332,
         "total_units": 33
       }
     }

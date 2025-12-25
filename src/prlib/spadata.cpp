@@ -89,9 +89,9 @@ bool SpaNodeAnimation::IsVisible(float arg0) const {
     return *this->unk4->GetValue(arg0);
 }
 
-bool SpaFileHeader::IsNodeVisible(SpmNode* arg0, float arg1) const {
-    SpaNodeAnimation* a0 = this->unk50[arg0->unk150];
-    SpmNode* a2 = arg0->unk164;
+bool SpaFileHeader::IsNodeVisible(SpmNode *arg0, float arg1) const {
+    SpaNodeAnimation *a0 = this->unk50[arg0->unk150];
+    SpmNode *a2 = arg0->unk164;
 
     if (a0 != NULL && a0->unk4 == NULL) {
         a0 = NULL;
@@ -209,7 +209,7 @@ int SpaNodeAnimation::Optimize() {
     int removeCount = 0;
 
     for (int i = 0; i < this->unk8; i++) {
-        SpaTransform* transform = this->unkC[i];
+        SpaTransform *transform = this->unkC[i];
         if (transform == NULL || transform->IsEverIdentical()) {
             removeCount++;
             continue;
@@ -290,7 +290,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/spadata", func_0014AFE0);
 template <>
 NaVECTOR<float, 4>* SpaTrack<NaVECTOR<float, 4> >::GetSprineValue(u_int seg, float arg1) const {
     float f2 = this->unkC[seg + 1] - this->unkC[seg];
-    NaVECTOR<float, 4>* a0 = (NaVECTOR<float, 4>*)&this->unk10 + (seg * 3);
+    NaVECTOR<float, 4> *a0 = (NaVECTOR<float, 4>*)&this->unk10 + (seg * 3);
     if (f2 == 0.0f) {
         return a0;
     }

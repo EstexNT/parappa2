@@ -9,7 +9,7 @@ void PrDmaStripForSetGifRegister::Append(u_int addr, const u_long& data) {
     mStripLen += 1;
 }
 
-void PrDmaStripForSetGifRegister::Freeze(u_char id, const void* addr) {
+void PrDmaStripForSetGifRegister::Freeze(u_char id, const void *addr) {
     int len = mStripLen;
 
     mFrozen = true;

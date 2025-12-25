@@ -24,7 +24,7 @@ void SpmFileHeader::ChangePointer() {
     mFlags |= 0x1;
 }
 
-void SpmNode::ChangePointer(SpmFileHeader* model, SpmNode* arg1) {
+void SpmNode::ChangePointer(SpmFileHeader *model, SpmNode *arg1) {
     this->unk158 = model;
     this->unk164 = arg1;
 
@@ -56,13 +56,13 @@ void SpmNode::ChangePointer(SpmFileHeader* model, SpmNode* arg1) {
 
         this->unk1A0 = model->CalculatePointer<int>(this->unk1A0);
         this->unk1A4 = model->CalculatePointer<PrVuNodeHeaderDmaPacket>(this->unk1A4);
-        PrVuNodeHeaderDmaPacket* s0 = this->unk1A4;
+        PrVuNodeHeaderDmaPacket *s0 = this->unk1A4;
         if (s0 != NULL) {
             s0->unk194 = SCE_VIF1_SET_MSCAL(PrGetMicroProgramAddress(PR_MICRO_PROGRAM_CONTOUR), 0);
         }
     }
 
-    SpmNode* s0 = this->unk15C;
+    SpmNode *s0 = this->unk15C;
     while (s0 != 0) {
         s0->ChangePointer(model, this);
         s0 = s0->unk160;

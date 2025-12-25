@@ -57,18 +57,18 @@ void PrCleanupModule() {
 }
 
 PR_EXTERN
-PrSceneObject* PrInitializeScene(sceGsDrawEnv1* drawEnv, const char *name, u_int fbp) {
+PrSceneObject* PrInitializeScene(sceGsDrawEnv1 *drawEnv, const char *name, u_int fbp) {
     return prObjectDatabase.CreateScene(drawEnv, name, fbp);
 }
 
 PR_EXTERN
-PrSceneObject* PrInitializeSceneDBuff(sceGsDBuffDc* dbuff, const char *name, u_int fbp) {
-    PrSceneObject* scene = prObjectDatabase.CreateScene(&dbuff->draw01, name, fbp);
+PrSceneObject* PrInitializeSceneDBuff(sceGsDBuffDc *dbuff, const char *name, u_int fbp) {
+    PrSceneObject *scene = prObjectDatabase.CreateScene(&dbuff->draw01, name, fbp);
     scene->unk90 = dbuff;
 }
 
 PR_EXTERN
-void PrCleanupScene(PrSceneObject* scene) {
+void PrCleanupScene(PrSceneObject *scene) {
     if (scene == NULL) {
         scene = prObjectDatabase.unk0;
         while (scene != NULL) {
@@ -86,18 +86,18 @@ void PrSetSceneFrame() {
 }
 
 PR_EXTERN
-void PrSetSceneEnv(PrSceneObject* scene, sceGsDrawEnv1* drawEnv) {
+void PrSetSceneEnv(PrSceneObject *scene, sceGsDrawEnv1 *drawEnv) {
     scene->unk50 = drawEnv->frame1;
     scene->unk58 = drawEnv->xyoffset1;
 }
 
 PR_EXTERN
-void PrPreprocessSceneModel(PrSceneObject* scene) {
+void PrPreprocessSceneModel(PrSceneObject *scene) {
     scene->PreprocessModel();
 }
 
 PR_EXTERN
-PrModelObject* PrInitializeModel(SpmFileHeader* spm, PrSceneObject* scene) {
+PrModelObject* PrInitializeModel(SpmFileHeader *spm, PrSceneObject *scene) {
     if (spm->mMagic != SPM_MAGIC) {
     #if 0 /* (poly): Only present on McDonald's Demo build */
         printf("PRLIB(FATAL): not a SPM file (illegal magic number)\n");
@@ -111,7 +111,7 @@ PrModelObject* PrInitializeModel(SpmFileHeader* spm, PrSceneObject* scene) {
         exit(0);
     }
 
-    PrModelObject* model = new PrModelObject(spm);
+    PrModelObject *model = new PrModelObject(spm);
     model->Initialize();
     scene->mModelSet.Insert(model);
     model->mLinkedScene = scene;
@@ -131,17 +131,17 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrCleanupCamera);
 INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrCleanupAllSceneModel);
 
 PR_EXTERN
-float PrGetAnimationStartFrame(SpaFileHeader* animation) {
+float PrGetAnimationStartFrame(SpaFileHeader *animation) {
     return 0.0f;
 }
 
 PR_EXTERN
-float PrGetAnimationEndFrame(SpaFileHeader* animation) {
+float PrGetAnimationEndFrame(SpaFileHeader *animation) {
     return animation->unk14 * prFrameRate;
 }
 
 PR_EXTERN
-float PrGetCameraStartFrame(SpcFileHeader* camera) {
+float PrGetCameraStartFrame(SpcFileHeader *camera) {
     return 0.0f;
 }
 
@@ -174,7 +174,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetLinkedPositionAnimation);
 INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrSelectCamera);
 
 PR_EXTERN
-SpcFileHeader* PrGetSelectedCamera(PrSceneObject* scene) {
+SpcFileHeader* PrGetSelectedCamera(PrSceneObject *scene) {
     return scene->mCamera;
 }
 
@@ -191,7 +191,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetModelMatrix);
 INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrHideModel);
 
 PR_EXTERN
-NaVECTOR<float, 4>* PrGetModelPrimitivePosition(PrModelObject* model) {
+NaVECTOR<float, 4>* PrGetModelPrimitivePosition(PrModelObject *model) {
     static NaVECTOR<float, 4> vector;
 
     model->GetPrimitivePosition(&vector);
@@ -199,7 +199,7 @@ NaVECTOR<float, 4>* PrGetModelPrimitivePosition(PrModelObject* model) {
 }
 
 PR_EXTERN
-NaVECTOR<float, 4>* PrGetModelScreenPosition(PrModelObject* model) {
+NaVECTOR<float, 4>* PrGetModelScreenPosition(PrModelObject *model) {
     static NaVECTOR<float, 4> vector;
 
     model->GetScreenPosition(&vector);
@@ -215,7 +215,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrAnimateModelPosition);
 INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrAnimateSceneCamera);
 
 PR_EXTERN
-void PrRender(PrSceneObject* scene) {
+void PrRender(PrSceneObject *scene) {
     scene->Render();
 }
 
@@ -268,28 +268,28 @@ INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetModelName);
 INCLUDE_ASM("asm/nonmatchings/prlib/prlib", PrGetAnimationName);
 
 PR_EXTERN
-char* PrGetCameraName(SpcFileHeader* camera) {
+char* PrGetCameraName(SpcFileHeader *camera) {
     return camera->mName;
 }
 
 PR_EXTERN
-char* PrGetSceneName(PrSceneObject* scene) {
+char* PrGetSceneName(PrSceneObject *scene) {
     return scene->mName;
 }
 
 PR_EXTERN
 PrRENDERING_STATISTICS* PrGetRenderingStatistics() {
-    PrRenderStuff* renderStuff = &prRenderStuff;
+    PrRenderStuff *renderStuff = &prRenderStuff;
     return &renderStuff->mStatistics;
 }
 
 PR_EXTERN
-void PrSetModelVisibillity(PrModelObject* model, u_int nodeIdx, bool visible) {
+void PrSetModelVisibillity(PrModelObject *model, u_int nodeIdx, bool visible) {
     if (nodeIdx >= model->mSpmImage->mNodeNum) {
         return;
     }
 
-    SpmNode* node = model->mSpmImage->mNodes[nodeIdx];
+    SpmNode *node = model->mSpmImage->mNodes[nodeIdx];
     if (visible) {
         node->mFlags &= ~0x20000;
     } else {
@@ -298,17 +298,17 @@ void PrSetModelVisibillity(PrModelObject* model, u_int nodeIdx, bool visible) {
 }
 
 PR_EXTERN
-SpmFileHeader* PrGetModelImage(PrModelObject* model) {
+SpmFileHeader* PrGetModelImage(PrModelObject *model) {
     return model->mSpmImage;
 }
 
 PR_EXTERN
-SpaFileHeader* PrGetAnimationImage(SpaFileHeader* animation) {
+SpaFileHeader* PrGetAnimationImage(SpaFileHeader *animation) {
     return animation;
 }
 
 PR_EXTERN
-SpcFileHeader* PrGetCameraImage(SpcFileHeader* camera) {
+SpcFileHeader* PrGetCameraImage(SpcFileHeader *camera) {
     return camera;
 }
 

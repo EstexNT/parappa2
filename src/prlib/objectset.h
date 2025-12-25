@@ -15,7 +15,7 @@ public:
     }
     ~PrObjectSet();
 
-    void Insert(T* obj) {
+    void Insert(T *obj) {
         if (mTail == NULL) {
             mHead = obj;
         } else {
@@ -29,8 +29,8 @@ public:
     }
 
 public:
-    T* mHead;
-    T* mTail;
+    T *mHead;
+    T *mTail;
     int mNum;
 };
 

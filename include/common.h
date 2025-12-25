@@ -57,7 +57,7 @@ typedef float f32;
 #define PR_UNCACHED(addr)      ((u_int)(addr) | 0x20000000)
 #define PR_UNCACHEDACCEL(addr) ((u_int)(addr) | 0x30000000)
 
-#define PR_PADDING(name, x) char unk##name[x]
+#define PR_PADDING(name, x) char name[x]
 
 #define PR_BREAK() asm("break")
 

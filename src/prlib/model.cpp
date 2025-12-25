@@ -20,7 +20,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/model", LinkPositionAnimation__13PrModelObje
 
 INCLUDE_ASM("asm/nonmatchings/prlib/model", CleanupPositionAnimation__13PrModelObject);
 
-void PrModelObject::UnionBoundaryBox(NaVECTOR<float, 4>* arg0, NaVECTOR<float, 4>* arg1) {
+void PrModelObject::UnionBoundaryBox(NaVECTOR<float, 4> *arg0, NaVECTOR<float, 4> *arg1) {
     asm volatile(
         "lqc2       $vf13,   0x0(%0)       \n\t"
         "lqc2       $vf14,  0x10(%0)       \n\t"

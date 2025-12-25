@@ -16,7 +16,7 @@ public:
     void ChangePointer();
 
     template <typename T>
-    T* CalculatePointer(T* offset) {
+    T* CalculatePointer(T *offset) {
         if (!offset) {
             return NULL;
         }
@@ -31,17 +31,17 @@ public:
     PR_PADDING(unk8, 0x10);
     char mName[32];
     PR_PADDING(unk38, 0x3c);
-    int* unk74;
+    int *unk74;
     PR_PADDING(unk78, 0x10);
-    SpaTrack<NaVECTOR<float, 4> >* unk88;
-    SpaTrack<NaVECTOR<float, 4> >* unk8C;
-    SpaTrack<float>* unk90;
-    SpaTrack<float>* unk94;
+    SpaTrack<NaVECTOR<float, 4> > *unk88;
+    SpaTrack<NaVECTOR<float, 4> > *unk8C;
+    SpaTrack<float> *unk90;
+    SpaTrack<float> *unk94;
 
     u_int mDepthLevel;
 
-    SpaTrack<float>* mFocalLenTrack;
-    SpaTrack<float>* mDefocusLenTrack;
+    SpaTrack<float> *mFocalLenTrack;
+    SpaTrack<float> *mDefocusLenTrack;
 };
 
 #endif /* PRLIB_CAMERA_H */

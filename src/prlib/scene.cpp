@@ -9,7 +9,7 @@ INCLUDE_ASM("asm/nonmatchings/prlib/scene", __13PrSceneObjectP13sceGsDrawEnv1PCc
 
 INCLUDE_ASM("asm/nonmatchings/prlib/scene", _$_13PrSceneObject);
 
-void PrSceneObject::SelectCamera(SpcFileHeader* camera) {
+void PrSceneObject::SelectCamera(SpcFileHeader *camera) {
     mCamera = camera;
     mCameraTime = 0.0f;
 }
@@ -25,7 +25,7 @@ PrPERSPECTIVE_CAMERA* PrSceneObject::GetCurrentCamera() {
 INCLUDE_ASM("asm/nonmatchings/prlib/scene", SetAppropriateDefaultCamera__13PrSceneObject);
 
 float PrSceneObject::GetFocalLength() const {
-    SpcFileHeader* camera = mCamera;
+    SpcFileHeader *camera = mCamera;
     if (camera == NULL || !(camera->mFlags & 0x8) ) {
         return mDefaultFocalLen;
     } else {
@@ -38,7 +38,7 @@ float PrSceneObject::GetFocalLength() const {
 }
 
 float PrSceneObject::GetDefocusLength() const {
-    SpcFileHeader* camera = mCamera;
+    SpcFileHeader *camera = mCamera;
     if (camera == NULL || !(camera->mFlags & 0x8)) {
         return mDefaultDefocusLen;
     } else {
@@ -47,7 +47,7 @@ float PrSceneObject::GetDefocusLength() const {
 }
 
 u_int PrSceneObject::GetDepthLevel() const {
-    SpcFileHeader* camera = mCamera;
+    SpcFileHeader *camera = mCamera;
     if (camera == NULL || !(camera->mFlags & 0x8)) {
         return mDefaultDepthLevel;
     } else {
@@ -56,22 +56,22 @@ u_int PrSceneObject::GetDepthLevel() const {
 }
 
 void PrSceneObject::PreprocessModel() {
-    PrModelObject* sp = NULL;
-    PrModelObject* model = mModelSet.mHead;
+    PrModelObject *sp = NULL;
+    PrModelObject *model = mModelSet.mHead;
 
-    PrModelObject* modelList = NULL;
-    PrModelObject* screenList = NULL;
-    PrModelObject* t1 = NULL;
+    PrModelObject *modelList = NULL;
+    PrModelObject *screenList = NULL;
+    PrModelObject *t1 = NULL;
 
     while (model != NULL) {
-        SpmFileHeader* spm = model->mSpmImage;
-        PrModelObject* next = model->mList.mNext;
+        SpmFileHeader *spm = model->mSpmImage;
+        PrModelObject *next = model->mList.mNext;
         if (spm->mFlags & eSpmIsScreenModel) {
             model->mList.mNext = screenList;
             screenList = model;
         } else if (spm->mFlags & 0x200) {
-            PrModelObject* a1 = sp;
-            PrModelObject** a3 = &sp;
+            PrModelObject *a1 = sp;
+            PrModelObject **a3 = &sp;
             u_int t0_1 = spm->unk78;
             while (a1 != NULL && a1->mSpmImage->unk78 < t0_1) {
                 a3 = (PrModelObject**)a1;
@@ -89,8 +89,8 @@ void PrSceneObject::PreprocessModel() {
         model = next;
     }
 
-    PrModelObject* head = NULL;
-    PrModelObject* tail = NULL;
+    PrModelObject *head = NULL;
+    PrModelObject *tail = NULL;
 
     mScreenModelList = screenList;
     if (modelList != NULL) {
@@ -105,11 +105,11 @@ void PrSceneObject::PreprocessModel() {
         this->unk98 = this->unk9C;
     }
 
-    PrModelObject* v1 = sp;
+    PrModelObject *v1 = sp;
     if (v1 != NULL) {
         head = v1;
         while (sp != NULL) {
-            PrModelObject* v0;
+            PrModelObject *v0;
             sp = v1->mList.mNext;
             v1->mList.mPrev = tail;
             tail = v1;
@@ -126,7 +126,7 @@ void PrSceneObject::PreprocessModel() {
         }
 
         do {
-            PrModelObject* model = t1;
+            PrModelObject *model = t1;
             t1 = t1->mList.mNext;
             model->mList.mPrev = tail;
             tail = model;
@@ -141,7 +141,7 @@ void PrSceneObject::PreprocessModel() {
         }
 
         while (modelList != NULL) {
-            PrModelObject* model = modelList;
+            PrModelObject *model = modelList;
             modelList = modelList->mList.mNext;
             model->mList.mPrev = tail;
             tail = model;
@@ -156,7 +156,7 @@ void PrSceneObject::PreprocessModel() {
         }
 
         do {
-            PrModelObject* model = screenList;
+            PrModelObject *model = screenList;
             screenList = screenList->mList.mNext;
             model->mList.mPrev = tail;
             tail = model;

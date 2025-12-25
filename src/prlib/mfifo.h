@@ -11,7 +11,7 @@ void PrCleanupMfifo();
 void PrStartMfifo();
 void PrStopMfifo();
 void PrWaitMfifo();
-void PrSendMfifo(const sceDmaTag* tag);
+void PrSendMfifo(const sceDmaTag *tag);
 u_int PrMfifoUnsentDataSize();
 
 #endif /* PRLIB_MFIFO_H */

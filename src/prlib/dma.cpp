@@ -6,7 +6,7 @@
 #define PR_VCHCR volatile tD_CHCR
 
 void PrWaitDmaFinish(u_int channel) {
-    static PR_VCHCR* chcr_table[] = {
+    static PR_VCHCR *chcr_table[] = {
         (tD_CHCR*)D0_CHCR, /* VIF0    */
         (tD_CHCR*)D1_CHCR, /* VIF1    */
         (tD_CHCR*)D2_CHCR, /* GIF     */
@@ -27,7 +27,7 @@ void PrWaitDmaFinish(u_int channel) {
         NULL,
     };
 
-    PR_VCHCR* chcr = chcr_table[channel];
+    PR_VCHCR *chcr = chcr_table[channel];
 
     /*
      * No COP0 polling for the

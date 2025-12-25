@@ -27,7 +27,7 @@ PrDmaQueue::~PrDmaQueue() {
 
 void PrDmaQueue::Initialize() {
     for (int i = 0; i <= mSize; i++) {
-        PrDmaList* queue = &mQueue[i];
+        PrDmaList *queue = &mQueue[i];
 
         /*
          * Set up a REFS DMAtag that will
@@ -38,14 +38,14 @@ void PrDmaQueue::Initialize() {
         queue->stall_qw[1] = 0;
         queue->stall_qw[2] = 0;
         queue->stall_qw[3] = 0;
-        
+
         queue->stall_tag.qwc = 1;
         queue->stall_tag.mark = 0;
         queue->stall_tag.id = 0x40; /* DMArefs */
         queue->stall_tag.next = (sceDmaTag*)&queue->stall_qw;
         queue->stall_tag.p[0] = 0;
         queue->stall_tag.p[1] = 0;
-        
+
         /*
          * Set up a CALL DMAtag to
          * jump to the appended tag.
@@ -58,14 +58,14 @@ void PrDmaQueue::Initialize() {
         queue->call_tag.id = 0x50; /* DMAcall */
         queue->call_tag.p[0] = 0;
         queue->call_tag.p[1] = 0;
-        
+
         /*
          * Jump to the next list in the queue.
          */
         queue->next_tag.qwc = 0;
         queue->next_tag.mark = 0;
         queue->next_tag.id = 0x20; /* DMAnext */
-        queue->next_tag.next = &queue[1].stall_tag;
+        queue->next_tag.next = &((queue + 1)->stall_tag);
         queue->next_tag.p[0] = 0;
         queue->next_tag.p[1] = 0;
     }
@@ -83,14 +83,14 @@ void PrDmaQueue::Start() {
     *D_CTRL |= 0x40;
     *D_STADR = (u_int)PR_DECACHE(&mQueue[0].stall_qw);
 
-    sceDmaChan* chan = sceDmaGetChan(SCE_DMA_VIF1);
+    sceDmaChan *chan = sceDmaGetChan(SCE_DMA_VIF1);
     chan->chcr.TTE = 1;
 
     sceDmaSend(chan, PR_DECACHE(&mQueue[0].stall_tag));
     mStarted = true;
 }
 
-void PrDmaQueue::Append(void* tag) {
+void PrDmaQueue::Append(void *tag) {
     static bool warned = false;
 
     if (mPos == mSize) {
@@ -122,7 +122,7 @@ void PrDmaQueue::Append(void* tag) {
      * next stall address.
      */
     mPos++;
-    PrDmaList* queue = &mQueue[mPos - 1];
+    PrDmaList *queue = &mQueue[mPos - 1];
     *D_STADR = (u_int)PR_DECACHE(queue + 1);
 }
 
@@ -131,7 +131,7 @@ void PrDmaQueue::Wait() {
     mQueue[mPos].call_tag.next = NULL;
     asm("sync.l");
 
-    PrDmaList* queue = &mQueue[mPos - 1];
+    PrDmaList *queue = &mQueue[mPos - 1];
     *D_STADR = (u_int)PR_DECACHE(queue + 2);
 
     PrWaitDmaFinish(SCE_DMA_VIF1);

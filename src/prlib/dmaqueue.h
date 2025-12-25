@@ -24,11 +24,11 @@ public:
 
     void Initialize();
     void Start();
-    void Append(void* tag);
+    void Append(void *tag);
     void Wait();
 
 private:
-    PrDmaList* mQueue;
+    PrDmaList *mQueue;
     u_int mSize;
     bool mStarted;
     int mPos;

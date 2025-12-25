@@ -15,10 +15,10 @@ class SpcFileHeader;
 
 class PrSceneObject {
 public:
-    PrSceneObject(sceGsDrawEnv1* arg0, char* arg1, u_int arg2);
+    PrSceneObject(sceGsDrawEnv1 *arg0, const char *name, u_int arg2);
     ~PrSceneObject();
 
-    void SelectCamera(SpcFileHeader* camera);
+    void SelectCamera(SpcFileHeader *camera);
     PrPERSPECTIVE_CAMERA* GetCurrentCamera();
     void SetAppropriateDefaultCamera();
 
@@ -39,19 +39,19 @@ public:
     sceGsFrame unk50;
     sceGsXyoffset unk58;
     PrObjectSet<PrModelObject> mModelSet;
-    SpcFileHeader* mCamera;
-    sceGsDrawEnv1* unk70;
+    SpcFileHeader *mCamera;
+    sceGsDrawEnv1 *unk70;
     PR_PADDING(unk74, 0x8);
     float mCameraTime;
-    char* mName;
+    char *mName;
     float mDefaultFocalLen;
     float mDefaultDefocusLen;
     u_int mDefaultDepthLevel;
-    sceGsDBuffDc* unk90;
+    sceGsDBuffDc *unk90;
     PR_PADDING(unk94, 0x4);
-    PrModelObject* unk98;
-    PrModelObject* unk9C;
-    PrModelObject* mScreenModelList;
+    PrModelObject *unk98;
+    PrModelObject *unk9C;
+    PrModelObject *mScreenModelList;
 };
 
 #endif /* PRLIB_SCENE_H */

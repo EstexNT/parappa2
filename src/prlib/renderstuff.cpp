@@ -100,7 +100,7 @@ void PrRenderStuff::ResetStatistics() {
     mStatistics.dynamic_append_transmit_node = false;
 }
 
-void PrRenderStuff::StartRender(PrSceneObject* scene) {
+void PrRenderStuff::StartRender(PrSceneObject *scene) {
     mDmaQueue.Start();
     mScene = scene;
 }
@@ -160,7 +160,7 @@ void PrRenderStuff::AllocateTransmitDmaArray(u_int size) {
     mTransmitArrayMax = elems;
 }
 
-void PrRenderStuff::AppendTransmitDmaTag(const sceDmaTag* tag, u_int arg1, float arg2) {
+void PrRenderStuff::AppendTransmitDmaTag(const sceDmaTag *tag, u_int arg1, float arg2) {
     extern bool warned_tmp_renderstuff;
 
     if (mTransmitArraySize >= mTransmitArrayMax) {
@@ -176,9 +176,9 @@ void PrRenderStuff::AppendTransmitDmaTag(const sceDmaTag* tag, u_int arg1, float
     }
 }
 
-int PrRenderStuff::CompareFunction(const void* arg0, const void* arg1) {
-    PrTransmitEntry* a0 = (PrTransmitEntry*)arg0;
-    PrTransmitEntry* a1 = (PrTransmitEntry*)arg1;
+int PrRenderStuff::CompareFunction(const void *arg0, const void *arg1) {
+    PrTransmitEntry *a0 = (PrTransmitEntry*)arg0;
+    PrTransmitEntry *a1 = (PrTransmitEntry*)arg1;
 
     if (a0->unk4 != a1->unk4) {
         return (a0->unk4 >= a1->unk4) ? 1 : -1;
@@ -204,7 +204,7 @@ void PrRenderStuff::MergeRender() {
 
     for (int i = 0; i < mTransmitArraySize; i++) {
         if (!first && mTransmitArray[i].unk4 == -1) {
-            PrDmaStripForSetGifRegister* strip = PrGetDmaStripGifRegister(eGifRegisterMode_Unk1);
+            PrDmaStripForSetGifRegister *strip = PrGetDmaStripGifRegister(eGifRegisterMode_Unk1);
             AppendDmaTag(&strip->mTag);
             first = true;
         }
@@ -213,7 +213,7 @@ void PrRenderStuff::MergeRender() {
     }
 
     if (prCurrentStage == 19) {
-        PrDmaStripForSetGifRegister* strip = PrGetDmaStripGifRegister(eGifRegisterMode_Unk1);
+        PrDmaStripForSetGifRegister *strip = PrGetDmaStripGifRegister(eGifRegisterMode_Unk1);
         AppendDmaTag(&strip->mTag);
     }
 }

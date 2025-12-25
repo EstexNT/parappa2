@@ -697,7 +697,7 @@ segments:
       - { path: asm/data/prlib/mendererawful.lit4.s.o }
       - { path: asm/data/prlib/mendereralpha.lit4.s.o }
       - { path: asm/data/prlib/mendererdata.lit4.s.o }
-      - { path: asm/data/prlib/wave.lit4.s.o }
+      - { path: src/prlib/wave.cpp.o }
       - { path: src/prlib/dmaqueue.cpp.o }
       - { path: src/prlib/utility.cpp.o }
       - { path: src/prlib/tim2.cpp.o }
@@ -923,7 +923,7 @@ segments:
       - { path: asm/data/prlib/mendererawful.sbss.s.o }
       - { path: src/prlib/mendereralpha.cpp.o }
       - { path: src/prlib/mendererdata.cpp.o }
-      - { path: asm/data/prlib/wave.sbss.s.o }
+      - { path: src/prlib/wave.cpp.o }
       - { path: src/prlib/dmaqueue.cpp.o }
       - { path: src/prlib/utility.cpp.o }
       - { path: src/prlib/tim2.cpp.o }
@@ -1036,7 +1036,7 @@ segments:
       - { path: asm/data/prlib/mendererawful.bss.s.o }
       - { path: asm/data/prlib/mendereralpha.bss.s.o }
       - { path: asm/data/prlib/mendererdata.bss.s.o }
-      - { path: asm/data/prlib/wave.bss.s.o }
+      - { path: src/prlib/wave.cpp.o }
       - { path: src/prlib/dmaqueue.cpp.o }
       - { path: src/prlib/utility.cpp.o }
       - { path: src/prlib/tim2.cpp.o }
