@@ -13,7 +13,7 @@ public:
         m_tail = NULL;
         m_num  = 0;
     }
-    ~PrObjectSet();
+    ~PrObjectSet() {}
 
     void Insert(T *obj) {
         if (m_tail == NULL) {
@@ -26,6 +26,29 @@ public:
         m_tail = obj;
         m_tail->m_obj_set = this;
         m_num++;
+    }
+
+    void Remove(T *obj) {
+        if (obj->m_obj_set == NULL) {
+            return;
+        }
+
+        obj->m_obj_set = NULL;
+        T *next = obj->m_list.next;
+        T *prev = obj->m_list.prev;
+        if (next != NULL) {
+            next->m_list.prev = prev;
+            obj->m_list.next = NULL;
+        } else {
+            m_tail = prev;
+        }
+        if (prev != NULL) {
+            prev->m_list.next = next;
+            obj->m_list.prev = NULL;
+        } else {
+            m_head = next;
+        }
+        m_num--;
     }
 
 public:
