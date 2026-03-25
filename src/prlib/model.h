@@ -167,7 +167,11 @@ public:
     int m_active_transition;
     PR_PADDING(unk74, 0x10);
     int m_rendered_once;
-    PR_PADDING(unk88, 0x28);
+    PR_PADDING(unk88, 0xC);
+    float m_contour_blur_alpha[2];
+    float m_transaction_blend_ratio;
+    float m_disturbance;
+    PR_PADDING(unkA4, 0xC);
 };
 
 #endif /* PRLIB_MODEL_H */

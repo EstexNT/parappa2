@@ -10,8 +10,13 @@
 
 #include <libdma.h>
 
+class PrModelObject;
+class PrSceneObject;
+
 class PrSPRAM_DATA {
 public:
+    void Initialize(PrSceneObject *scene);
+    void InitializeModel(PrModelObject *model);
     void SendDisplayHeader();
 
 public:
@@ -26,8 +31,11 @@ public:
     sceDmaTag m_end_dmatag;
     char unk2B0[0x100];
     PrDisplayHeader m_display_header;
-    char unk660[0x28];
+    char unk660[0x1c];
+    float m_model_contour_blur_alpha[2];
+    float m_model_transaction_blend_ratio;
     u_int m_disturbance_param;
+    float m_disturbance;
 };
 
 #endif /* PRLIB_SPRAM_H */

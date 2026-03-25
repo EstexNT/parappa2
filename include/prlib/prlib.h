@@ -12,28 +12,28 @@ typedef void* PR_SCENEHANDLE;
 typedef float PR_FRAME;
 
 /* model.cpp */
-void PrSetPostureWorkArea(u_int areaTop, int areaSize);
+void PrSetPostureWorkArea(u_int area_top, int area_size);
 
 /* prlib.cpp */
-void  PrSetFrameRate(float frameRate);
+void  PrSetFrameRate(float frame_rate);
 float PrGetFrameRate(void);
 
 void PrInitializeModule(sceGsZbuf zbuf);
 void PrCleanupModule(void);
 
-PR_SCENEHANDLE PrInitializeScene(sceGsDrawEnv1 *drawEnv, char *name, u_int fbp);
-void PrInitializeSceneDBuff(sceGsDBuff *buff, char *name, u_int fbp);
+PR_SCENEHANDLE PrInitializeScene(sceGsDrawEnv1 *draw_env, const char *name, u_int fbp);
+void PrInitializeSceneDBuff(sceGsDBuff *dbuff, const char *name, u_int fbp);
 
 void PrCleanupScene(PR_SCENEHANDLE scene);
 
 void PrSetSceneFrame(PR_SCENEHANDLE scene, sceGsFrame frame);
-void PrSetSceneEnv(PR_SCENEHANDLE scene, sceGsDrawEnv1 *drawEnv);
+void PrSetSceneEnv(PR_SCENEHANDLE scene, sceGsDrawEnv1 *draw_env);
 
 void PrPreprocessSceneModel(PR_SCENEHANDLE scene);
 
-PR_MODELHANDLE PrInitializeModel(void* modelImage, PR_SCENEHANDLE scene);
-PR_ANIMATIONHANDLE PrInitializeAnimation(PR_ANIMATIONHANDLE animImage);
-PR_CAMERAHANDLE PrInitializeCamera(PR_CAMERAHANDLE cameraImage);
+PR_MODELHANDLE PrInitializeModel(void* spm, PR_SCENEHANDLE scene);
+PR_ANIMATIONHANDLE PrInitializeAnimation(PR_ANIMATIONHANDLE spa);
+PR_CAMERAHANDLE PrInitializeCamera(PR_CAMERAHANDLE spc);
 
 void PrCleanupModel(PR_MODELHANDLE model);
 void PrCleanupAnimation(PR_ANIMATIONHANDLE animation);
@@ -46,13 +46,13 @@ float PrGetAnimationEndFrame(PR_ANIMATIONHANDLE animation);
 float PrGetCameraStartFrame(PR_CAMERAHANDLE camera);
 float PrGetCameraEndFrame(PR_CAMERAHANDLE camera);
 
-void PrSetModelUserData(PR_MODELHANDLE model, int userData);
-void PrSetAnimationUserData(PR_ANIMATIONHANDLE animation, int userData);
-void PrSetCameraUserData(PR_CAMERAHANDLE camera, int userData);
+void PrSetModelUserData(PR_MODELHANDLE model, void *user_data);
+void PrSetAnimationUserData(PR_ANIMATIONHANDLE animation, void *user_data);
+void PrSetCameraUserData(PR_CAMERAHANDLE camera, void *user_data);
 
-int PrGetModelUserData(PR_MODELHANDLE model);
-int PrGetAnimationUserData(PR_ANIMATIONHANDLE animation);
-int PrGetCameraUserData(PR_CAMERAHANDLE camera);
+void* PrGetModelUserData(PR_MODELHANDLE model);
+void* PrGetAnimationUserData(PR_ANIMATIONHANDLE animation);
+void* PrGetCameraUserData(PR_CAMERAHANDLE camera);
 
 void PrLinkAnimation(PR_MODELHANDLE model, PR_ANIMATIONHANDLE animation);
 void PrUnlinkAnimation(PR_MODELHANDLE model);
@@ -72,7 +72,7 @@ void* PrGetCurrentCamera(PR_SCENEHANDLE scene);
 void PrSetDefaultCamera(PR_SCENEHANDLE scene, PR_CAMERAHANDLE camera);
 void PrSetAppropriateDefaultCamera(PR_SCENEHANDLE scene);
 
-void PrShowModel(PR_MODELHANDLE model, sceVu0FMATRIX *matrix);
+void PrShowModel(PR_MODELHANDLE model, sceVu0FMATRIX *position);
 
 float* PrGetModelMatrix(PR_MODELHANDLE model);
 
@@ -90,8 +90,8 @@ void PrWaitRender(void);
 
 void PrSetStage(int stage);
 
-void PrSetDepthOfField(PR_MODELHANDLE scene, float focalLen, float defocusLen);
-void PrSetDepthOfFieldLevel(PR_SCENEHANDLE scene, u_int depthLevel);
+void PrSetDepthOfField(PR_MODELHANDLE scene, float focal_lng, float defocus_lng);
+void PrSetDepthOfFieldLevel(PR_SCENEHANDLE scene, u_int level);
 
 float PrGetFocalLength(PR_SCENEHANDLE scene);
 float PrGetDefocusLength(PR_SCENEHANDLE scene);
@@ -104,9 +104,9 @@ void PrResetContour(PR_MODELHANDLE model);
 void PrSavePosture(PR_MODELHANDLE model);
 void PrResetPosture(PR_MODELHANDLE model);
 
-void PrSetContourBlurAlpha(PR_MODELHANDLE model, float blurAlpha, float blurAlpha2);
+void PrSetContourBlurAlpha(PR_MODELHANDLE model, float alpha, float alpha2);
 
-void PrSetTransactionBlendRatio(PR_MODELHANDLE model, float blendRatio);
+void PrSetTransactionBlendRatio(PR_MODELHANDLE model, float ratio);
 
 float PrGetContourBlurAlpha(PR_MODELHANDLE model);
 float PrGetContourBlurAlpha2(PR_MODELHANDLE model);
@@ -125,7 +125,7 @@ char* PrGetSceneName(PR_SCENEHANDLE scene);
 
 void* PrGetRenderingStatistics(void);
 
-void PrSetModelVisibillity(PR_MODELHANDLE model, u_int nodeIndex, u_int visible);
+void PrSetModelVisibillity(PR_MODELHANDLE model, u_int node_idx, u_int visible);
 
 PR_MODELHANDLE     PrGetModelImage(PR_MODELHANDLE model);
 PR_ANIMATIONHANDLE PrGetAnimationImage(PR_ANIMATIONHANDLE animation);

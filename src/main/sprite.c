@@ -83,12 +83,12 @@ void SprDisp(SPR_PRIM *prm_pp) {
     sceGifPkAddGsAD(&gifPkSpr, SCE_GS_PRIM, SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 1, 0, 0, 0, 1, 0, 0));
 
     sceGifPkAddGsAD(&gifPkSpr, SCE_GS_UV, SCE_GS_SET_UV((prm_pp->u + 1) << 4, (prm_pp->v + 1) << 4));
-    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x * 16) - (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
-                                                            (prm_pp->y * 16) - (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
+    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x << 4) - (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
+                                                            (prm_pp->y << 4) - (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
 
     sceGifPkAddGsAD(&gifPkSpr, SCE_GS_UV, SCE_GS_SET_UV((prm_pp->u + prm_pp->w - 1) << 4, (prm_pp->v + prm_pp->h - 1) << 4));
-    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x * 16) + (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
-                                                            (prm_pp->y * 16) + (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
+    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x << 4) + (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
+                                                            (prm_pp->y << 4) + (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
 
     sprSetNum++;
 }
@@ -97,12 +97,12 @@ void SprDispAlp(SPR_PRIM *prm_pp) {
     sceGifPkAddGsAD(&gifPkSpr, SCE_GS_PRIM, SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 1, 0, 1, 0, 1, 0, 0));
 
     sceGifPkAddGsAD(&gifPkSpr, SCE_GS_UV, SCE_GS_SET_UV((prm_pp->u + 1) << 4, (prm_pp->v + 1) << 4));
-    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x * 16) - (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
-                                                            (prm_pp->y * 16) - (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
+    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x << 4) - (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
+                                                            (prm_pp->y << 4) - (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
 
     sceGifPkAddGsAD(&gifPkSpr, SCE_GS_UV, SCE_GS_SET_UV((prm_pp->u + prm_pp->w - 1) << 4, (prm_pp->v + prm_pp->h - 1) << 4));
-    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x * 16) + (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
-                                                            (prm_pp->y * 16) + (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
+    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x << 4) + (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
+                                                            (prm_pp->y << 4) + (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
 
     sprSetNum++;
 }
@@ -136,11 +136,11 @@ void SprBox(SPR_PRIM *prm_pp) {
     sceGifPkAddGsAD(&gifPkSpr, SCE_GS_ALPHA_1, SCE_GS_SET_ALPHA(1, 2, 0, 0, 0));
     sceGifPkAddGsAD(&gifPkSpr, SCE_GS_PRIM, SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 0, 0, 1, 0, 0, 0, 0));
 
-    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x * 16) - (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
-                                                            (prm_pp->y * 16) - (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
+    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x << 4) - (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
+                                                            (prm_pp->y << 4) - (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
 
-    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x * 16) + (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
-                                                            (prm_pp->y * 16) + (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
+    sceGifPkAddGsAD(&gifPkSpr, SCE_GS_XYZ2, SCE_GS_SET_XYZ2((prm_pp->x << 4) + (((prm_pp->w * prm_pp->scalex) / 2) >> 4),
+                                                            (prm_pp->y << 4) + (((prm_pp->h * prm_pp->scaley) / 2) >> 4), 1));
 
     sprSetNum++;
 }

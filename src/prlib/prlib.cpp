@@ -25,9 +25,9 @@ extern PrDebugParam debugParam[2];
 static void InitializeDebugParam();
 
 PR_EXTERN
-void PrSetFrameRate(float frameRate) {
-    prFrameRate = frameRate;
-    prInverseFrameRate = 1.0f / frameRate;
+void PrSetFrameRate(float frame_rate) {
+    prFrameRate = frame_rate;
+    prInverseFrameRate = 1.0f / frame_rate;
 }
 
 PR_EXTERN
@@ -284,12 +284,12 @@ PrRENDERING_STATISTICS* PrGetRenderingStatistics() {
 }
 
 PR_EXTERN
-void PrSetModelVisibillity(PrModelObject *model, u_int nodeIdx, bool visible) {
-    if (nodeIdx >= model->m_spm_image->m_node_num) {
+void PrSetModelVisibillity(PrModelObject *model, u_int node_idx, bool visible) {
+    if (node_idx >= model->m_spm_image->m_node_num) {
         return;
     }
 
-    SpmNode *node = model->m_spm_image->m_nodes[nodeIdx];
+    SpmNode *node = model->m_spm_image->m_nodes[node_idx];
     if (visible) {
         node->m_flags &= ~0x20000;
     } else {
@@ -313,22 +313,22 @@ SpcFileHeader* PrGetCameraImage(SpcFileHeader *camera) {
 }
 
 PR_EXTERN
-void PrSetDebugParam(int param, int value) {
+void PrSetDebugParam(PrDEBUG_PARAM param, int value) {
     debugParam[param].d = value;
 }
 
 PR_EXTERN
-void PrSetDebugParamFloat(int param, float value) {
+void PrSetDebugParamFloat(PrDEBUG_PARAM param, float value) {
     debugParam[param].d = *(int*)&value;
 }
 
 PR_EXTERN
-int PrGetDebugParam(int param) {
+int PrGetDebugParam(PrDEBUG_PARAM param) {
     return debugParam[param].d;
 }
 
 PR_EXTERN
-float PrGetDebugParamFloat(int param) {
+float PrGetDebugParamFloat(PrDEBUG_PARAM param) {
     return debugParam[param].f;
 }
 

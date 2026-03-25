@@ -4,10 +4,14 @@
 #include "common.h"
 
 #include <nalib/navector.h>
+#include <nalib/namatrix.h>
 
-class PrModelObject;
+#include <libgraph.h>
+
+class SpmFileHeader;
 class SpaFileHeader;
 class SpcFileHeader;
+class PrModelObject;
 class PrSceneObject;
 
 #define PR_DECACHE(addr) (void*)((u_int)(addr) & 0x0fffffff)
@@ -55,11 +59,85 @@ extern int prCurrentStage;
 
 PR_EXTERN {
 
+void PrSetFrameRate(float frame_rate);
+float PrGetFrameRate();
+void PrInitializeModule(sceGsZbuf zbuf);
+void PrCleanupModule();
+PrSceneObject* PrInitializeScene(sceGsDrawEnv1 *draw_env, const char *name, u_int fbp);
+PrSceneObject* PrInitializeSceneDBuff(sceGsDBuffDc *dbuff, const char *name, u_int fbp);
+void PrCleanupScene(PrSceneObject *scene);
+void PrSetSceneFrame();
+void PrSetSceneEnv(PrSceneObject *scene, sceGsDrawEnv1 *draw_env);
+void PrPreprocessSceneModel(PrSceneObject *scene);
+PrModelObject* PrInitializeModel(SpmFileHeader *spm, PrSceneObject *scene);
+SpaFileHeader* PrInitializeAnimation(SpaFileHeader *spa);
+SpcFileHeader* PrInitializeCamera(SpcFileHeader *spc);
 void PrCleanupModel(PrModelObject *model);
 void PrCleanupAnimation(SpaFileHeader *model);
 void PrCleanupCamera(SpcFileHeader *camera);
-void PrCleanupScene(PrSceneObject *scene);
 void PrCleanupAllSceneModel(PrSceneObject *scene);
+float PrGetAnimationStartFrame(SpaFileHeader *animation);
+float PrGetAnimationEndFrame(SpaFileHeader *animation);
+float PrGetCameraStartFrame(SpcFileHeader *camera);
+float PrGetCameraEndFrame(SpcFileHeader *camera);
+void PrSetModelUserData(PrModelObject *model, void *user_data);
+void PrSetAnimationUserData(SpaFileHeader *animation, void *user_data);
+void PrSetCameraUserData(SpcFileHeader *camera, void *user_data);
+void* PrGetModelUserData(PrModelObject *model);
+void* PrGetAnimationUserData(SpaFileHeader *animation);
+void* PrGetCameraUserData(SpcFileHeader *camera);
+void PrLinkAnimation(PrModelObject *model, SpaFileHeader *animation);
+void PrUnlinkAnimation(PrModelObject *model);
+SpaFileHeader* PrGetLinkedAnimation(PrModelObject *model);
+void PrLinkPositionAnimation(PrModelObject *model, SpaFileHeader *animation);
+void PrUnlinkPositionAnimation(PrModelObject *model);
+SpaFileHeader* PrGetLinkedPositionAnimation(PrModelObject *model);
+void PrSelectCamera(SpcFileHeader *camera, PrSceneObject *scene);
+SpcFileHeader* PrGetSelectedCamera(PrSceneObject *scene);
+PrPERSPECTIVE_CAMERA* PrGetCurrentCamera(PrSceneObject *scene);
+void PrSetDefaultCamera(NaMATRIX<float, 4, 4> *arg0, NaMATRIX<float, 4, 4> *arg1);
+void PrSetAppropriateDefaultCamera(PrSceneObject *scene);
+void PrShowModel(PrModelObject *model, NaMATRIX<float, 4, 4> *position);
+NaMATRIX<float, 4, 4>* PrGetModelMatrix(PrModelObject *model);
+void PrHideModel(PrModelObject *model);
+NaVECTOR<float, 4>* PrGetModelPrimitivePosition(PrModelObject *model);
+NaVECTOR<float, 4>* PrGetModelScreenPosition(PrModelObject *model);
+void PrAnimateModel(PrModelObject *model, float time);
+void PrAnimateModelPosition(PrModelObject *model, float time);
+void PrAnimateSceneCamera(PrSceneObject *scene, float time);
+void PrRender(PrSceneObject *scene);
+void PrWaitRender();
+void PrSetStage(int stage);
+void PrSetDepthOfField(PrSceneObject *scene, float focal_lng, float defocus_lng);
+void PrSetDepthOfFieldLevel(PrSceneObject *scene, u_int level);
+float PrGetFocalLength(PrSceneObject *scene);
+float PrGetDefocusLength(PrSceneObject *scene);
+u_int PrGetDepthOfFieldLevel(PrSceneObject *scene);
+void PrSaveContour(PrModelObject *model);
+void PrResetContour(PrModelObject *model);
+void PrSavePosture(PrModelObject *model);
+void PrResetPosture(PrModelObject *model);
+void PrSetContourBlurAlpha(PrModelObject *model, float alpha, float alpha2);
+void PrSetTransactionBlendRatio(PrModelObject *model, float ratio);
+float PrGetContourBlurAlpha(PrModelObject *model);
+float PrGetContourBlurAlpha2(PrModelObject *model);
+float PrGetTransactionBlendRatio(PrModelObject *model);
+void PrSetModelDisturbance(PrModelObject *model, float disturbance);
+float PrGetModelDisturbance(PrModelObject *model);
+int PrGetVertexNum(PrModelObject *model);
+char* PrGetModelName(PrModelObject *model);
+char* PrGetAnimationName(SpaFileHeader *animation);
+char* PrGetCameraName(SpcFileHeader *camera);
+char* PrGetSceneName(PrSceneObject *scene);
+PrRENDERING_STATISTICS* PrGetRenderingStatistics();
+void PrSetModelVisibillity(PrModelObject *model, u_int node_idx, bool visible);
+SpmFileHeader* PrGetModelImage(PrModelObject *model);
+SpaFileHeader* PrGetAnimationImage(SpaFileHeader *animation);
+SpcFileHeader* PrGetCameraImage(SpcFileHeader *camera);
+void PrSetDebugParam(PrDEBUG_PARAM param, int value);
+void PrSetDebugParamFloat(PrDEBUG_PARAM param, float value);
+int PrGetDebugParam(PrDEBUG_PARAM param);
+float PrGetDebugParamFloat(PrDEBUG_PARAM param);
 
 }
 

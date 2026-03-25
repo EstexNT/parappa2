@@ -38,8 +38,8 @@
 
 #define PR_VU1_DISPLAYHDR_ADDR 0x0
 
-#define PR_VU1_CHUNK_START 0xc0
-#define PR_VU1_CHUNK_SIZE 0x1a0
+#define PR_VU1_CHUNK1_START 0xc0
+#define PR_VU1_CHUNK2_START 0x1a0
 
 /* Divides address by 8, for use with MSCAL */
 #define VU_ADDR(x, base) (((int)x - (int)base) >> 3)

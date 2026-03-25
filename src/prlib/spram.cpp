@@ -1,6 +1,8 @@
 #include "spram.h"
 
 #include "prpriv.h"
+
+#include "model.h"
 #include "random.h"
 
 #include "vu1/vucommon.h"
@@ -8,12 +10,21 @@
 
 #include <eestruct.h>
 
+INCLUDE_ASM("asm/nonmatchings/prlib/spram", Initialize__12PrSPRAM_DATAP13PrSceneObject);
+
 extern NaMATRIX<float, 4, 4> screenClipMatrix;
 extern NaMATRIX<float, 4, 4> screenPrimitiveMatrix;
 
-INCLUDE_ASM("asm/nonmatchings/prlib/spram", Initialize__12PrSPRAM_DATAP13PrSceneObject);
+void PrSPRAM_DATA::InitializeModel(PrModelObject *model) {
+    m_model_contour_blur_alpha[0] = model->m_contour_blur_alpha[0];
+    m_model_contour_blur_alpha[1] = model->m_contour_blur_alpha[1];
 
-INCLUDE_ASM("asm/nonmatchings/prlib/spram", InitializeModel__12PrSPRAM_DATAP13PrModelObject);
+    m_model_transaction_blend_ratio = model->m_transaction_blend_ratio;
+
+    float disturbance = model->m_disturbance;
+    float debug_disturbance = PrGetDebugParamFloat(PR_FLOAT_PARAM_DISTURBANCE);
+    m_disturbance = disturbance * debug_disturbance;
+}
 
 void PrSPRAM_DATA::SendDisplayHeader() {
     static sceDmaTag dmaTagTemplate = {
@@ -32,10 +43,10 @@ void PrSPRAM_DATA::SendDisplayHeader() {
     m_display_header.stmask[0] = SCE_VIF1_SET_STMASK(0);
     m_display_header.stmask[1] = 0;
 
-    m_display_header.base = SCE_VIF1_SET_BASE(PR_VU1_CHUNK_START, 0);
-    m_display_header.offset = SCE_VIF1_SET_OFFSET(PR_VU1_CHUNK_SIZE, 0);
-    m_display_header.mark = SCE_VIF1_SET_MARK(0, 0);
-    m_display_header.mskpath3 = SCE_VIF1_SET_MSKPATH3(0, 0);
+    m_display_header.base      = SCE_VIF1_SET_BASE(PR_VU1_CHUNK1_START, 0);
+    m_display_header.offset    = SCE_VIF1_SET_OFFSET(PR_VU1_CHUNK2_START, 0);
+    m_display_header.mark      = SCE_VIF1_SET_MARK(0, 0);
+    m_display_header.mskpath3  = SCE_VIF1_SET_MSKPATH3(0, 0);
 
     m_display_header.unpack[0] = SCE_VIF1_SET_NOP(0);
     m_display_header.unpack[1] = SCE_VIF1_SET_UNPACK(PR_VU1_DISPLAYHDR_ADDR, sizeof(PrInnerDisplayHeader) / 16, PR_VIF_UNPACK_V4_32(0), 0);

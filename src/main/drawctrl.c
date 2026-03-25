@@ -124,7 +124,7 @@ void UseGsSetXyOffset(int ofs) {
     sceGifPacket gifpk;
     int offsy;
   
-    if (ofs != 0) {
+    if (ofs) {
         offsy = 0x7908;
     } else {
         offsy = 0x7900;
@@ -441,12 +441,12 @@ void BallThrowPoll(void) {
 
             if (bthrow_ctrl[i].bthrow_str_cnt != 0) {
                 BTHROW_STR *bts_pp = bthrow_ctrl[i].bthrow_str;
-                
+
                 CmnGifADPacketMake(&gifP, DrawGetFrameP(DNUM_DRAW));
                 sceGifPkAddGsAD(&gifP, SCE_GS_TEXA, 0x8000008000);
                 sceGifPkAddGsAD(&gifP, SCE_GS_ALPHA_1, 0x44);
                 sceGifPkAddGsAD(&gifP, SCE_GS_TEST_1, SCE_GS_SET_TEST_1(1, 6, 0, 0, 0, 0, 1, 1));
-                
+
                 for (j = 0; j < bthrow_ctrl[i].bthrow_str_cnt; j++, bts_pp++) {
                     if (bts_pp->use & 1) {
                         float *pos_pp = PrGetModelScreenPosition(bts_pp->homingpp);
@@ -457,10 +457,10 @@ void BallThrowPoll(void) {
                         if (bts_pp->use & 2) {
                             float *pos_pp;
 
-                            bts_pp->use &= 0xfd;
-                            
+                            bts_pp->use &= ~2;
+
                             pos_pp = PrGetModelScreenPosition(bts_pp->mdl_adr);
-                            
+
                             bts_pp->xp = pos_pp[0];
                             bts_pp->yp = pos_pp[1] + -16.0f;
                             bts_pp->mdl_adr = NULL;
@@ -503,7 +503,7 @@ void BallThrowPoll(void) {
 
                         sceGifPkAddGsAD(&gifP, SCE_GS_TEX0_1, info.picturH->GsTex0);
                         sceGifPkAddGsAD(&gifP, SCE_GS_PRIM, 0x156);
-                        
+
                         px = ((int)(bts_pp->xp * 16.0f) - (w) + 27648);
                         py = ((int)(bts_pp->yp * 16.0f) - (h / 2) + 30976);
 
@@ -511,12 +511,12 @@ void BallThrowPoll(void) {
 
                         px &= 0xffff;
                         py &= 0xffff;
-                        
+
                         sceGifPkAddGsAD(&gifP, SCE_GS_XYZ2, SCE_GS_SET_XYZ2(px, py, 0));
 
                         px += w * 2;
                         py += h;
-                        
+
                         sceGifPkAddGsAD(&gifP, SCE_GS_UV, SCE_GS_SET_UV(w, h));
                         sceGifPkAddGsAD(&gifP, SCE_GS_XYZ2, SCE_GS_SET_XYZ2(px, py, 0));
 
