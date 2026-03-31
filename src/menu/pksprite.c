@@ -20,9 +20,9 @@ static int _PkScrH;
 /* .lit4 */
 float FLT_003990DC; /* cannot be defined as extern, needed for `rotcossin` */
 
-static void _tsWorkEnd(TS_WORKMEM *emem);
+static void   _tsWorkEnd(TS_WORKMEM *emem);
 static u_int* _tsWorkInit(TS_WORKMEM *emem, u_int *buf, u_int size);
-static void PkDefReg_Add(SPR_PKT pkt);
+static void   PkDefReg_Add(SPR_PKT pkt);
 
 static void _tsWorkEnd(TS_WORKMEM *emem) {
     if (emem->isAlloc && emem->top != NULL) {
@@ -92,7 +92,6 @@ void TsEndUPacket(TsUSERPKT *pk) {
     p->ptop = NULL;
 }
 
-/* EUC-JP string: "★パケットSizeOver!!(User)(%x/%x)\n" */
 void TsDrawUPacket(TsUSERPKT *up) {
     TSPAKET    *pk;
     u_int       qwc;
@@ -101,7 +100,7 @@ void TsDrawUPacket(TsUSERPKT *up) {
     u_int       top;
 
     pk  = &up->pkt[up->idx];
-    qwc = ((up->ptop & ~0x20000000) - pk->PaketTop) / 16;
+    qwc = ((up->ptop & ~PR_UC_ADDR) - pk->PaketTop) / 16;
 
     if (qwc == 0) {
         return;
@@ -765,7 +764,7 @@ void PkPolyF4_Add(SPR_PKT pk, SPR_PRM *ppspr, int flg) {
     ((u_long*)sp->GifCord)[0] = 0x6400000000008001;
     ((u_long*)sp->GifCord)[1] = 0x444410;
 
-    sp->prim = SCE_GS_SET_PRIM(4, 0, 0, 0, 1, 0, 1, 0, 0);
+    sp->prim = SCE_GS_SET_PRIM(SCE_GS_PRIM_TRISTRIP, 0, 0, 0, 1, 0, 1, 0, 0);
     sp->rgba = ppspr->rgba0;
 
     asm volatile(
@@ -945,15 +944,13 @@ PKMESH* PkMesh_Create(int w, int h) {
 }
 
 void PkMesh_Delete(PKMESH *mesh) {
-    if (mesh == NULL) {
-        return;
-    }
+    if (mesh != NULL) {
+        if (mesh->pmspt != NULL) {
+            free(mesh->pmspt);
+        }
 
-    if (mesh->pmspt != NULL) {
-        free(mesh->pmspt);
+        free(mesh);
     }
-
-    free(mesh);
 }
 
 void PkMesh_SetXYWH(PKMESH *mesh, float px0, float py0, float sw, float sh) {
@@ -974,10 +971,10 @@ void PkMesh_SetXYWH(PKMESH *mesh, float px0, float py0, float sw, float sh) {
     fmh = 1.0f / mesh->mh;
 
     for (y = 0; y < (mesh->mh + 1); y++) {
-        py = py0 + ((y * sh) * fmh);
+        py = py0 + (y * sh * fmh);
 
         for (x = 0; x < (mesh->mw + 1); x++, pt++) {
-            pt->x = px0 + ((x * sw) * fmw);
+            pt->x = px0 + (x * sw * fmw);
             pt->y = py;
 
             pt->ofsx = pt->ofsy = 0.0f;
@@ -997,10 +994,10 @@ void PkMesh_SetUVWH(PKMESH *mesh, float ux0, float uy0, float uw, float uh) {
     fmh = 1.0f / mesh->mh;
 
     for (y = 0; y < (mesh->mh + 1); y++) {
-        uy = uy0 + ((y * uh) * fmh);
+        uy = uy0 + (y * uh * fmh);
 
         for (x = 0; x < (mesh->mw + 1); x++, pt++) {
-            pt->u = ux0 + ((x * uw) * fmw);
+            pt->u = ux0 + (x * uw * fmw);
             pt->v = uy;
         }
     }

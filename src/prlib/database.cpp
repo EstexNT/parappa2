@@ -1,5 +1,6 @@
 #include "database.h"
-#include "prlib/prlib.h"
+
+#include "prpriv.h"
 
 PrObjectDatabase prObjectDatabase;
 
@@ -33,8 +34,8 @@ void PrObjectDatabase::DeleteScene(PrSceneObject *scene) {
     if (scene == NULL) {
         return;
     }
-    PrCleanupAllSceneModel(scene);
 
+    PrCleanupAllSceneModel(scene);
     m_scene_set.Remove(scene);
     delete scene;
 }

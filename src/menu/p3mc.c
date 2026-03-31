@@ -312,7 +312,62 @@ static void _P3MC_SetBrowsInfo(int mode, int fileNo, char *name, int stageNo, in
 
 INCLUDE_ASM("asm/nonmatchings/menu/p3mc", _P3MC_mainfile_chk);
 
-INCLUDE_ASM("asm/nonmatchings/menu/p3mc", _P3MC_file_chk);
+static int _P3MC_file_chk(char *name, int size, int *need) {
+    int             i, j;
+    int             flg;
+    int             closeFlagSw;
+    sceMcTblGetDir *pTblDir;
+    int             need0;
+
+    pTblDir = mcmenu_info.dirfile;
+    flg = FALSE;
+
+    if (name == NULL) {
+        return -1;
+    }
+
+    for (i = 0; pTblDir[i].EntryName[0] != '\0'; i++) {
+        for (j = 0;; j++) {
+            if (name[j] == '\0') {
+                flg = TRUE;
+                break;
+            }
+
+            if (name[j] != '?' && name[j] != pTblDir[i].EntryName[j]) {
+                break;
+            }
+        }
+
+        if (flg) {
+            need0 = ((size + 1023) / 1024) - ((pTblDir[i].FileSizeByte + 1023) / 1024);
+            if (need0 < 0) {
+                need0 = 0;
+            }
+
+            if (need != NULL) {
+                *need += need0;
+            }
+
+            closeFlagSw = (pTblDir[i].AttrFile >> 7) & 1;
+            if (size == 0 || pTblDir[i].FileSizeByte == size) {
+                if (!closeFlagSw || pTblDir[i].AttrFile & 0x80) {
+                    break;
+                }
+            }
+
+            return -2;
+        }
+    }
+
+    if (!flg) {
+        if (need != NULL) {
+            *need += (size + 1023) / 1024;
+        }
+        return -1;
+    }
+
+    return 0;
+}
 
 int P3MC_InitReady(void) {
     int re;
@@ -655,7 +710,84 @@ static void _P3MC_AddUserBroken(P3MC_USRLST *pUser, int mode, int fno) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/p3mc", P3MC_SortUser);
+int P3MC_SortUser(P3MC_USRLST *pUser, int mode, int isSave) {
+    USER_DATA  *newUser;
+    USER_DATA **pSort;
+    int         nSort;
+    int         i, l;
+    int         isNew;
+    int         nmuser;
+    USER_DATA **pmuser;
+    u_char      map[80];
+
+    if (mode == 1) {
+        pmuser = pUser->plog_user;
+        nmuser = pUser->nLogGet;
+    } else {
+        pmuser = pUser->prep_user;
+        nmuser = pUser->nRepGet;
+    }
+
+    isNew = P3MC_CheckIsNewSave(mode);
+
+    if (isSave) {
+        newUser = &pUser->getUser[pUser->nGetUser];
+        memset(newUser, 0, sizeof(USER_DATA));
+
+        if (isNew) {
+            memset(map, 0, PR_ARRAYSIZE(map));
+            for (i = 0; i < nmuser; i++, pmuser++) {
+                map[(*pmuser)->fileNo] = 1;
+            }
+
+            for (i = 0; i < PR_ARRAYSIZE(map); i++) {
+                if (map[i] == 0) {
+                    break;
+                }
+            }
+
+            if (i < PR_ARRAYSIZE(map)) {
+                newUser->fileNo = i;
+            }
+        } else {
+            newUser->fileNo = -1;
+        }
+
+        pUser->nUserMax = 1;
+        pUser->pUserTbl[0] = newUser;
+        pSort = &pUser->pUserTbl[1];
+    } else {
+        pUser->nUserMax = 0;
+        pSort = &pUser->pUserTbl[0];
+    }
+
+    if (mode == 1) {
+        nSort = pUser->nLogGet;
+        memcpy(pSort, pUser->plog_user, nSort * sizeof(USER_DATA*));
+    } else {
+        nSort = pUser->nRepGet;
+        memcpy(pSort, pUser->prep_user, nSort * sizeof(USER_DATA*));
+    }
+
+    for (i = 0; i < (nSort - 1); i++) {
+        USER_DATA **pSrc = &pSort[i];
+
+        for (l = i + 1; l < nSort; l++) {
+            u_int s = *(u_int*)&pSrc[0]->date_day;
+            u_int d = *(u_int*)&pSort[l]->date_day;
+
+            if (s <= d) {
+                if (s != d || *(u_int*)&pSrc[0]->date_pad <= *(u_int*)&pSort[l]->date_pad) {
+                    USER_DATA *tmp = pSrc[0];
+                    pSrc[0] = pSort[l]; pSort[l] = tmp;
+                }
+            }
+        }
+    }
+
+    pUser->nUserMax += nSort;
+    return pUser->nUserMax;
+}
 
 int P3MC_CheckBrokenUser(P3MC_USRLST *pUser, int mode) {
     int         nmuser;

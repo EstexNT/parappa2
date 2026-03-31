@@ -1,3 +1,8 @@
+/*
+ * note: This header is only to be used by the C side of the codebase.
+ *       Code from prlib itself may use the 'prpriv.h' header.
+ */
+
 #ifndef PRLIB_C_H
 #define PRLIB_C_H
 

@@ -42,11 +42,11 @@ typedef float f32;
 
 #define PR_SIZEOF(x) (int)(sizeof(x))
 #define PR_ARRAYSIZEU(arr) (sizeof(arr) / sizeof(arr[0]))
-#define PR_ARRAYSIZE(arr)  (s32)(sizeof(arr) / sizeof(arr[0]))
+#define PR_ARRAYSIZE(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 #define PR_CONCAT(x, y) ((x << 16) | (y))
 #define PR_BIT(x) (1 << x)
 
-#define PR_SCOPE()    {
+#define PR_SCOPE() {
 #define PR_SCOPEEND() }
 
 #define PR_ALIGNU(size, align) ((u_int)(size + (align - 1)) & ~(align - 1))
@@ -54,8 +54,11 @@ typedef float f32;
 
 #define PR_ALIGNED(x) __attribute__((aligned(x)))
 
-#define PR_UNCACHED(addr)      ((u_int)(addr) | 0x20000000)
-#define PR_UNCACHEDACCEL(addr) ((u_int)(addr) | 0x30000000)
+#define PR_UC_ADDR (0x20000000)
+#define PR_UCA_ADDR (0x30000000)
+
+#define PR_UNCACHED(addr)      ((u_int)(addr) | PR_UC_ADDR)
+#define PR_UNCACHEDACCEL(addr) ((u_int)(addr) | PR_UCA_ADDR)
 
 #define PR_PADDING(name, x) char name[x]
 
