@@ -26,7 +26,7 @@ For any questions, we have a home at the [PS1/PS2 Decompilation Discord server](
 #### IOP modules
 | Folder | Progress | Description
 |--------|----------|------------
-| `wavep2` | ![progress](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/parappadev/parappa2/main/progress/wp2cd.total_progress.json) | Music and asset streaming
+| `wavep2` | ![progress](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/parappadev/parappa2/main/progress/wp2cd.total_progress.json) | BGM and asset streaming
 | `tapctrl` | N/A | Voice and sound effect playback
 
 ### Contributing

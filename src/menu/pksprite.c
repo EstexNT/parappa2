@@ -668,8 +668,62 @@ INCLUDE_ASM("asm/nonmatchings/menu/pksprite", PkNSprite_AddAdj);
 
 INCLUDE_ASM("asm/nonmatchings/menu/pksprite", PkCRect_Add);
 
-INCLUDE_ASM("asm/nonmatchings/menu/pksprite", PkCGRect_Add);
-void PkCGRect_Add(/* t4 12 */ SPR_PKT pk, /* a1 5 */ SPR_PRM *ppspr, /* a2 6 */ int flg);
+void PkCGRect_Add(SPR_PKT pk, SPR_PRM *ppspr, int flg) {
+    SprTagCG *sp = (SprTagCG*)*pk;
+
+    ((u_long*)sp->GifCord)[0] = 0x9400000000008001;
+    ((u_long*)sp->GifCord)[1] = 0x414141410;
+
+    sp->prim = 0x14c;
+    sp->rgba0 = ppspr->rgba0;
+    sp->rgba1 = ppspr->rgba1;
+    sp->rgba2 = ppspr->rgba2;
+    sp->rgba3 = ppspr->rgba3;
+
+    asm volatile(
+        "lqc2    $vf01, 0x00(%0)     \n\t"
+        "lqc2    $vf02, 0x10(%0)     \n\t"
+        "vitof0  $vf01, $vf01        \n\t"
+        "vmul.zw $vf01, $vf01, $vf02 \n\t"
+    : : "r"(ppspr) : "memory");
+
+    if ((flg & 0x2) && ppspr->zoom.isOn) {
+        asm volatile(
+            "lqc2    $vf03, 0x00(%0)     \n\t"
+            "vmr32   $vf04, $vf03        \n\t"
+            "vsub.xy $vf01, $vf01, $vf03 \n\t"
+            "vmr32   $vf04, $vf04        \n\t"
+            "vmul.zw $vf01, $vf01, $vf03 \n\t"
+            "vmul.xy $vf01, $vf01, $vf04 \n\t"
+            "vadd.xy $vf01, $vf01, $vf03 \n\t"
+        : : "r"(&ppspr->zoom) : "memory");
+    }
+
+    asm volatile(
+        "vadd.xy $vf01, $vf01, $vf02 \n\t"
+        "lw      $9,    0x00(%1)     \n\t"
+        "vmr32   $vf03, $vf01        \n\t"
+        "vmr32   $vf03, $vf03        \n\t"
+        "vadd.zw $vf01, $vf01, $vf03 \n\t"
+        "vftoi4  $vf01, $vf01        \n\t"
+        "qmfc2   $8,    $vf01        \n\t"
+        "pexew   $11,   $8           \n\t"
+        "ppach   $8,    $0,    $8    \n\t"
+        "ppach   $11,   $0,    $11   \n\t"
+        "pextlw  $10,   $9,    $8    \n\t"
+        "sd      $10,   0x20(%0)     \n\t"
+        "pextlw  $10,   $9,    $11   \n\t"
+        "sd      $10,   0x30(%0)     \n\t"
+        "dsrl    $10,   $11,   32    \n\t"
+        "pextlw  $10,   $9,    $10   \n\t"
+        "sd      $10,   0x40(%0)     \n\t"
+        "dsrl    $10,   $8,    32    \n\t"
+        "pextlw  $10,   $9,    $10   \n\t"
+        "sd      $10,   0x50(%0)     \n\t"
+    : : "r"(sp), "r"(&ppspr->zdepth) : "$8", "$9", "$10", "$11", "memory");
+
+    ((SprTagCG*)*pk) = sp + 1;
+}
 
 extern float S5432[4]; /* see SCE's libvu0 */
 
@@ -750,11 +804,107 @@ void _pkVU0RotMatrixZ(float rz) {
 
 INCLUDE_ASM("asm/nonmatchings/menu/pksprite", PkRSprite_Add);
 
-INCLUDE_ASM("asm/nonmatchings/menu/pksprite", PkCLine2_Add);
+void PkCLine2_Add(SPR_PKT pk, SPR_PRM *ppspr, int flg) {
+    SprTagLF *sp = (SprTagLF*)*pk;
+
+    ((u_long*)sp->GifCord)[0] = 0x4400000000008001;
+    ((u_long*)sp->GifCord)[1] = 0x4410;
+
+    if (flg & 0x4) {
+        sp->prim = 0x1c1;
+    } else {
+        sp->prim = 0x141;
+    }
+
+    sp->rgba = ppspr->rgba0;
+
+    asm volatile(
+        "lqc2   $vf01, 0x00(%0) \n\t"
+        "lqc2   $vf02, 0x10(%0) \n\t"
+        "vitof0 $vf01, $vf01    \n\t"
+    : : "r"(ppspr) : "memory");
+
+    if (flg & 0x1) {
+        asm volatile(
+            "vmul.zw $vf01, $vf01, $vf02 \n\t"
+        );
+    } else {
+        asm volatile(
+            "vsubx.z $vf01, $vf01, $vf01 \n\t"
+            "vsuby.w $vf01, $vf01, $vf01 \n\t"
+        );
+    }
+
+    if ((flg & 0x2) && ppspr->zoom.isOn) {
+        asm volatile(
+            "lqc2    $vf03, 0x00(%0)     \n\t"
+            "vmr32   $vf04, $vf03        \n\t"
+            "vsub.xy $vf01, $vf01, $vf03 \n\t"
+            "vmr32   $vf04, $vf04        \n\t"
+            "vmul.zw $vf01, $vf01, $vf03 \n\t"
+            "vmul.xy $vf01, $vf01, $vf04 \n\t"
+            "vadd.xy $vf01, $vf01, $vf03 \n\t"
+        : : "r"(&ppspr->zoom) : "memory");
+    }
+
+    asm volatile(
+        "vadd.xy $vf01, $vf01, $vf02 \n\t"
+        "lw      $9,    0x00(%1)     \n\t"
+        "vmr32   $vf03, $vf01        \n\t"
+        "vmr32   $vf03, $vf03        \n\t"
+        "vadd.zw $vf01, $vf01, $vf03 \n\t"
+        "vftoi4  $vf01, $vf01        \n\t"
+        "qmfc2   $8,    $vf01        \n\t"
+        "ppach   $8,    $0,    $8    \n\t"
+        "pextlw  $10,   $9,    $8    \n\t"
+        "sd      $10,   0x20(%0)     \n\t"
+        "dsrl    $8,    $8,    32    \n\t"
+        "pextlw  $10,   $9,    $8    \n\t"
+        "sd      $10,   0x28(%0)     \n\t"
+    : : "r"(sp), "r"(&ppspr->zdepth) : "$8", "$9", "$10", "memory");
+
+    ((SprTagLF*)*pk) = sp + 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/menu/pksprite", PkCLineS_AddStart);
 
-INCLUDE_ASM("asm/nonmatchings/menu/pksprite", PkCLineS_AddNext);
+void PkCLineS_AddNext(SPR_PKT pk, SPR_PRM *ppspr, int flg) {
+    SprTagLSFN *sp = (SprTagLSFN*)*pk;
+
+    ((u_long*)sp->GifCord)[0] = 0x2400000000008001;
+    ((u_long*)sp->GifCord)[1] = 0x41;
+
+    sp->rgba = ppspr->rgba0;
+
+    asm volatile(
+        "lqc2   $vf01, 0x00(%0) \n\t"
+        "lqc2   $vf02, 0x10(%0) \n\t"
+        "vitof0 $vf01, $vf01    \n\t"
+    : : "r"(ppspr) : "memory");
+
+    if ((flg & 0x2) && ppspr->zoom.isOn) {
+        asm volatile(
+            "lqc2    $vf03, 0x00(%0)     \n\t"
+            "vmr32   $vf04, $vf03        \n\t"
+            "vsub.xy $vf01, $vf01, $vf03 \n\t"
+            "vmr32   $vf04, $vf04        \n\t"
+            "vmul.xy $vf01, $vf01, $vf04 \n\t"
+            "vadd.xy $vf01, $vf01, $vf03 \n\t"
+        : : "r"(&ppspr->zoom) : "memory");
+    }
+
+    asm volatile(
+        "vadd.xy $vf01, $vf01, $vf02 \n\t"
+        "lw      $9,    0x00(%1)     \n\t"
+        "vftoi4  $vf01, $vf01        \n\t"
+        "qmfc2   $8,    $vf01        \n\t"
+        "ppach   $8,    $0,    $8    \n\t"
+        "pextlw  $10,   $9,    $8    \n\t"
+        "sd      $10,   0x18(%0)     \n\t"
+    : : "r"(sp), "r"(&ppspr->zdepth) : "$8", "$9", "$10", "memory");
+
+    ((SprTagLSFN*)*pk) = sp + 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/menu/pksprite", PkPolyF3_Add);
 
