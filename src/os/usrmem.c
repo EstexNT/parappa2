@@ -13,7 +13,7 @@ static int usrMemPosEndCnt;
 void UsrMemClear(void) {
     usrMemPos[0] = (u_int)usrMemoryData;
     usrMemPos[2047] = (u_int)&usrMemoryData[sizeof(usrMemoryData)];
-    
+
     usrMemPosCnt = 0;
     usrMemPosEndCnt = 0;
 }
@@ -50,7 +50,7 @@ u_int UsrMemGetEndAdr(int id) {
     if (id >= usrMemPosEndCnt) {
         printf("UsrMemGetEndAdr ID over[%d]\n", id);
         return 0;
-    } 
+    }
 
     return usrMemPos[2047 - id];
 }
@@ -89,7 +89,7 @@ u_int UsrMemAlloc(int size) {
 
 u_int UsrMemEndAlloc(int size) {
     u_int ret = UsrMemAllocEndNext() - ((size + 15) / 16) * 16;
-    
+
     if (ret < UsrMemAllocNext()) {
         printf("UsrMemEndAlloc size over [0x%08x]\n", UsrMemAllocNext() - ret);
         return NULL;
