@@ -82,69 +82,6 @@ def clean():
     shutil.rmtree("assets", ignore_errors=True)
     shutil.rmtree("build", ignore_errors=True)
 
-# https://github.com/Fantaskink/SOTC/blob/44d5744b0a1725da85c980ea1389e544d1802f23/configure.py#L177-L214
-# Pattern to workaround unintended nops around loops
-COMMENT_PART = r"\/\* (.+) ([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2}) \*\/"
-INSTRUCTION_PART = r"(\b(bc1t|bne|bnel|beq|beql|bqez|bnez|bnezl|beqzl|bgez|bgezl|bgtz|bgtzl|blez|blezl|bltz|bltzl|b|slti)\b.*)"
-OPCODE_PATTERN = re.compile(f"{COMMENT_PART}  {INSTRUCTION_PART}")
-
-SLOOP_PROBLEMATIC_FUNCS = [
-    # mbar.c
-    "examNumDisp.s",
-
-    # etc.c
-    "Pcode2Pindex.s"
-
-    # menusub.c
-    "TsRestoreSaveData.s",
-    "TsGetRankingList.s",
-    "TsOption_Draw.s",
-    "TsNAMEINBox_Flow.s",
-    "_TsCELBackObjDraw.s",
-]
-
-def patch_branch_instructions(folder: str, func: str = None) -> None:
-    print(f'(HACK) Applying short loop fix on "{folder}"')
-    for root, dirs, files in os.walk(folder):
-        for filename in files:
-            filepath = os.path.join(root, filename)
-
-            # Only patch branches on a specific function.
-            if func and os.path.splitext(filename)[0] != func:
-                continue
-
-            # Uncomment to only apply the patch on specific functions
-            #
-            # if filename not in SLOOP_PROBLEMATIC_FUNCS:
-            #     continue
-
-            with open(filepath, "r") as file:
-                content = file.read()
-
-            if re.search(OPCODE_PATTERN, content):
-                # print(f"(HACK) Applying short loop fix on file \"{filename}\"")
-
-                # Reference found
-                # Embed the opcode, we have to swap byte order for correct endianness
-                content = re.sub(
-                    OPCODE_PATTERN,
-                    r"/* \1 \2\3\4\5 */  .word      0x\5\4\3\2 /* \6 */",
-                    content,
-                )
-
-                with open(filepath, "w") as file:
-                    file.write(content)
-
-def apply_short_loop_fix():
-    # patch_branch_instructions("asm/nonmatchings/main/scrctrl")
-    patch_branch_instructions("asm/nonmatchings/main/mbar")
-    patch_branch_instructions("asm/nonmatchings/main/etc")
-    patch_branch_instructions("asm/nonmatchings/menu/menusub")
-    patch_branch_instructions("asm/nonmatchings/prlib/render")
-    patch_branch_instructions("asm/nonmatchings/prlib/shape")
-    patch_branch_instructions("asm/nonmatchings/prlib/spadata")
-    patch_branch_instructions("asm/nonmatchings/prlib/menderer")
-
 EUC_HACK_FILENAME_TABLE = ["TsDrawUPacket.s", "_P3MC_SetBrowsInfo.s"]
 def eucjp_convert():
     for root, dirs, files in os.walk("asm/nonmatchings/"):
@@ -427,11 +364,9 @@ def generate_objdiff_configuration(config: dict[str, Any]):
                     continue
 
                 _, subs_type, subs_name = cast(tuple[int, str, str], subsegment)
-
             elif isinstance(subsegment, dict):
                 subs_type = cast(int, subsegment["type"])
                 subs_name = cast(str, subsegment["name"])
-
             else:
                 raise RuntimeError("invalid subsegment type")
 
@@ -511,7 +446,6 @@ def generate_objdiff_configuration(config: dict[str, Any]):
 
 def build_objdiff_objects():
     objdiff_path = Path("objdiff.json")
-
     dummy_path = Path("obj", "dummy").with_suffix(".c.o")
 
     objdiff_conf = json.loads(objdiff_path.read_text())
@@ -521,7 +455,7 @@ def build_objdiff_objects():
     build_jobs: list[tuple[Path, Path]] = []
 
     for unit in units:
-        # name: str = unit["name"]
+
         target_path: Path = Path(unit["target_path"])
         base_path: Path = Path(unit["base_path"])
 
@@ -529,7 +463,6 @@ def build_objdiff_objects():
             continue
 
         asm_path = Path("asm", *target_path.parts[1:]).with_suffix("").with_suffix(".s")
-
         assert asm_path.exists()
 
         build_jobs.append((asm_path, target_path))
@@ -553,24 +486,14 @@ def build_objdiff_objects():
             f"python3 tools/buildtools/elf_patcher.py {target_path} gas"
         )
 
-        # ~~Keep until splat #504 is merged~~
-        # asm_text = asm_path.read_text()
-        # asm_text = re.sub(r" ACC,", " $ACC,", asm_text)
-        # asm_text = re.sub(r" Q, ", " $Q, ", asm_text)
-        # asm_text = re.sub(r", Q\n", ", $Q\n", asm_text)
-        # asm_text = re.sub(r" R, ", " $R, ", asm_text)
-        # asm_text = re.sub(r", R\n", ", $R\n", asm_text)
-        # asm_path.write_text(asm_text)
-
         target_path.parent.mkdir(parents=True, exist_ok=True)
-
         subprocess.run(command, shell=True)
 
 # clangd is stupid and cries about everything
 def fix_compile_commands():
     with open("compile_commands.json", "r") as f:
         data = json.load(f)
-    
+
     fix_eucjp_entry = False
     eucjp_og_file = Path("")
 
@@ -605,7 +528,7 @@ def fix_compile_commands():
             entry["command"] = entry["command"].replace(str(converted_tmp), str(eucjp_og_file))
 
             fix_eucjp_entry = False
-        
+
         #
         # Remove stuff that clangd complains about:
         #  - '-Gx' flag
@@ -652,21 +575,9 @@ if __name__ == "__main__":
         action="store_true",
     )
     parser.add_argument(
-        "-csrc",
-        "--cleansrc",
-        help="Clean the 'src' folder",
-        action="store_true",
-    )
-    parser.add_argument(
         "-noeuc",
         "--no-eucjp-converting",
         help="Do not convert to EUC-JP the disassembly strings",
-        action="store_true",
-    )
-    parser.add_argument(
-        "-nosloopfix",
-        "--no-short-loop-fix",
-        help="Do not patch branch instructions on specific functions to combat an assembler bug",
         action="store_true",
     )
     parser.add_argument(
@@ -683,9 +594,6 @@ if __name__ == "__main__":
             args.noclean = True
         else:
             clean()
-
-    if args.cleansrc:
-        shutil.rmtree("src", ignore_errors=True)
 
     prepare_rom_from_elfs(TARGET_ELFS)
 
@@ -706,12 +614,6 @@ if __name__ == "__main__":
     build_stuff(linker_entries, True, True)
 
     write_permuter_settings()
-
-    if not args.no_short_loop_fix:
-        if args.noclean:
-            print("warning: Not a clean build. Skipping EUC-JP conversion.")
-        else:
-            apply_short_loop_fix()
 
     if not args.no_eucjp_converting:
         if args.noclean:
