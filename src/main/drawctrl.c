@@ -1587,7 +1587,30 @@ int DrawAlphaBlendDisp(void *para_pp, int frame, int first_f, int useDisp, int d
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawMozaikuDisp);
+int DrawMozaikuDisp(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
+    sceGsFrame          *use_pp;
+    sceGsFrame          *draw_pp;
+    sceGifPacket         gifpk;
+    volatile sceGsFrame  sceGsFrameTmp; /* todo: find a way to match without marking as volatile */
+
+    if (first_f == DRPRGF_INIT) {
+        return 0;
+    }
+    if (first_f == DRPRGF_RESET) {
+        return 0;
+    }
+
+    use_pp = DrawGetFrameP(useDisp);
+    draw_pp = DrawGetFrameP(drDisp);
+
+    CmnGifADPacketMake(&gifpk, draw_pp);
+
+    *(u_long*)&sceGsFrameTmp = *(u_int*)draw_pp | ((u_long)0x1f1f1f1f << 32);
+
+    UG_MozaikuDisp(para_pp, use_pp, &gifpk);
+    CmnGifADPacketMakeTrans(&gifpk);
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawFadeDisp);
 
@@ -1667,8 +1690,8 @@ int DrawVramLocalCopy2(void *para_pp, int frame, int first_f, int useDisp, int d
 }
 
 static void drawUseDrDispCheckInit(void) {
-    useDispFlag = 0;
-    drDispFlag = 0;
+    useDispFlag = DNUM_NON;
+    drDispFlag = DNUM_NON;
 }
 
 static int drawDispCheckSub(u_int drD, u_int *dat_pp) {
@@ -1693,7 +1716,53 @@ static int drawDispCheckSub(u_int drD, u_int *dat_pp) {
     return drawDispCheckSub(drD, &drDispFlag);
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawScenectrlReq);
+static int DrawScenectrlReq(SCENECTRL *scenectrl_pp, u_int time) {
+    int ontime_flag;
+    int ret;
+
+    ret = 0;
+
+    ontime_flag = (time >= scenectrl_pp->start_flame);
+    if (time >= scenectrl_pp->end_flame) {
+        ontime_flag = FALSE;
+    }
+
+    if (scenectrl_pp->prg_pp == NULL) {
+        return -1;
+    }
+
+    if (ontime_flag) {
+        int use_num = drawUseDispCheck(scenectrl_pp->useDisp);
+        int dr_num = drawDrDispCheck(scenectrl_pp->drDisp);
+
+        switch (dr_num) {
+        case DNUM_VRAM2:
+            UseGsSetXyOffset(FALSE);
+            break;
+        case DNUM_DRAW:
+            if (oddeven_idx & 1) {
+                UseGsSetXyOffset(FALSE);
+            } else {
+                UseGsSetXyOffset(TRUE);
+            }
+            break;
+        }
+
+        if (!scenectrl_pp->use_flag) {
+            ret = scenectrl_pp->prg_pp(scenectrl_pp->param_pp, time - scenectrl_pp->start_flame, DRPRGF_FIRST, use_num, dr_num);
+            scenectrl_pp->use_flag = TRUE;
+        } else {
+            ret = scenectrl_pp->prg_pp(scenectrl_pp->param_pp, time - scenectrl_pp->start_flame, DRPRGF_TIMES, use_num, dr_num);
+        }
+    } else {
+        if (scenectrl_pp->use_flag) {
+            ret = scenectrl_pp->prg_pp(scenectrl_pp->param_pp, 0, DRPRGF_RESET, DNUM_NON, DNUM_NON);
+            scenectrl_pp->use_flag = FALSE;
+        }
+    }
+
+    return ret;
+}
 
 void MendererCtrlInit(void) {
     men_ctrl_ratio = 0.0f;

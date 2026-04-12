@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 59.069077,
+    "fuzzy_match_percent": 59.215157,
     "total_code": "342284",
-    "matched_code": "202184",
-    "matched_code_percent": 59.06908,
+    "matched_code": "202684",
+    "matched_code_percent": 59.215153,
     "total_data": "26260848",
     "matched_data": "26147980",
     "matched_data_percent": 99.570206,
     "total_functions": 1429,
-    "matched_functions": 1091,
-    "matched_functions_percent": 76.34709,
+    "matched_functions": 1093,
+    "matched_functions_percent": 76.48705,
     "total_units": 70
   },
   "units": [
@@ -3160,16 +3160,16 @@
     {
       "name": "main/drawctrl",
       "measures": {
-        "fuzzy_match_percent": 67.41521,
+        "fuzzy_match_percent": 69.35109,
         "total_code": "25828",
-        "matched_code": "17412",
-        "matched_code_percent": 67.41521,
+        "matched_code": "17912",
+        "matched_code_percent": 69.35109,
         "total_data": "12376",
         "matched_data": "7872",
         "matched_data_percent": 63.606983,
         "total_functions": 98,
-        "matched_functions": 87,
-        "matched_functions_percent": 88.77551,
+        "matched_functions": 89,
+        "matched_functions_percent": 90.81632,
         "total_units": 1
       },
       "sections": [
@@ -3207,7 +3207,7 @@
         {
           "name": ".text",
           "size": "25992",
-          "fuzzy_match_percent": 67.41521,
+          "fuzzy_match_percent": 69.35109,
           "metadata": {}
         }
       ],
@@ -3581,6 +3581,7 @@
         {
           "name": "DrawMozaikuDisp",
           "size": "164",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "16576"
         },
@@ -3654,6 +3655,7 @@
         {
           "name": "DrawScenectrlReq",
           "size": "336",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "19304"
         },
@@ -13638,16 +13640,16 @@
     {
       "id": "main",
       "measures": {
-        "fuzzy_match_percent": 89.60302,
+        "fuzzy_match_percent": 90.00613,
         "total_code": "124036",
-        "matched_code": "111140",
-        "matched_code_percent": 89.60302,
+        "matched_code": "111640",
+        "matched_code_percent": 90.00613,
         "total_data": "142100",
         "matched_data": "105132",
         "matched_data_percent": 73.98451,
         "total_functions": 570,
-        "matched_functions": 550,
-        "matched_functions_percent": 96.49123,
+        "matched_functions": 552,
+        "matched_functions_percent": 96.8421,
         "total_units": 17
       }
     },

@@ -15,6 +15,7 @@
 #define SCREEN_HEIGHT 448
 
 extern int outbuf_idx;
+extern int oddeven_idx;
 
 extern sceGsDBuffDc   DBufDc;
 extern sceGsDrawEnv1* drawEnvP[5];

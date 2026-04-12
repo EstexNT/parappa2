@@ -15,7 +15,9 @@ def save(data, filename):
         json.dump(data, outfile)
 
 def getColor(percentage):
-    if percentage >= 75:
+    if percentage >= 100:
+        return "lime"
+    elif percentage >= 75:
         return "lime"
     elif percentage >= 50:
         return "yellow"

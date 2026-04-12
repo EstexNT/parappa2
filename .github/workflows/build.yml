@@ -1,60 +1,43 @@
 name: build
-
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-
+  workflow_call:
+    secrets:
+      P3_BINARY_TOKEN: { required: true }
+      P3_BINARY_REPO: { required: true }
 jobs:
   build:
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout main repository
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
-        ref: ${{ github.event.pull_request.head.ref }}
-        repository: ${{ github.event.pull_request.head.repo.full_name }}
-
-    - name: Checkout binaries
-      uses: actions/checkout@v3
-      with:
-        repository: polybiusproxy/p3_binaries
-        token: ${{ secrets.BINARY_ACCESS_TOKEN }}
-        path: iso
-
-    - name: Setup Python
-      uses: actions/setup-python@v4
-
-    - name: Upgrade pip
-      run: python3 -m pip install --upgrade pip setuptools wheel
-
-    - name: Decrypt main game (jul12)
-      run: echo ${{ secrets.JUL12_ENCRYPTION_KEY }} | openssl enc -d -aes-256-cbc -pass stdin -pbkdf2 -in iso/jul12/SCPS_150.17.aes -out iso/SCPS_150.17
-    - name: Decrypt WP2 module (jul12)
-      run: echo ${{ secrets.JUL12_ENCRYPTION_KEY }} | openssl enc -d -aes-256-cbc -pass stdin -pbkdf2 -in iso/jul12/WAVE2PS2.IRX.aes -out iso/WAVE2PS2.IRX
-    - name: Decrypt TAPCTRL module (jul12)
-      run: echo ${{ secrets.JUL12_ENCRYPTION_KEY }} | openssl enc -d -aes-256-cbc -pass stdin -pbkdf2 -in iso/jul12/TAPCTRL.IRX.aes -out iso/TAPCTRL.IRX
-
-    - name: Add i686 architecture
-      run: sudo dpkg --add-architecture i386
-
-    - name: Install Ubuntu packages
-      run: sudo apt-get update && sudo apt-get install -y gcc-mipsel-linux-gnu binutils-mips-linux-gnu ninja-build libc6:i386 libstdc++6:i386
-
-    - name: Install Python modules
-      run: python3 -m pip install --upgrade -r requirements.txt
-
-    - name: Configure
-      run: python3 ./configure.py
-
-    - name: Compile
-      run: ninja
-
-    - name: Upload progress report
-      uses: actions/upload-artifact@v4
-      with:
-        name: ntscj_july12_report
-        path: ./progress/report.json
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+      - name: Fetch secrets
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.P3_BINARY_REPO }}
+          token: ${{ secrets.P3_BINARY_TOKEN }}
+          path: iso
+      - name: Decrypt binaries
+        run: ./iso/decrypt.sh
+        env:
+          JUL12_ENCRYPTION_KEY: ${{ secrets.JUL12_ENCRYPTION_KEY }}
+      - name: Setup Python
+        uses: actions/setup-python@v4
+      - name: Upgrade pip
+        run: python3 -m pip install --upgrade pip setuptools wheel
+      - name: Add i686 architecture
+        run: sudo dpkg --add-architecture i386
+      - name: Install Ubuntu packages
+        run: sudo apt-get update && sudo apt-get install -y gcc-mipsel-linux-gnu binutils-mips-linux-gnu ninja-build libc6:i386 libstdc++6:i386
+      - name: Install Python modules
+        run: python3 -m pip install --upgrade -r requirements.txt
+      - name: Configure
+        run: python3 ./configure.py
+      - name: Compile
+        run: ninja
+      - name: Upload progress report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ntscj_july12_report
+          path: ./progress/report.json
