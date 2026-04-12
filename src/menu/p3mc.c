@@ -943,7 +943,151 @@ void P3MC_OpeningCheckEnd(void) {
     pUChkWork = NULL;
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/p3mc", P3MC_OpeningCheck);
+int P3MC_OpeningCheck(void) {
+    int           re;
+    int           flg;
+    int           chk;
+    int           i;
+    GETUSER_WORK *pcw;
+
+    pcw = pUChkWork;
+
+    if (pcw == NULL) {
+        return 1;
+    }
+
+    if (pcw->curState == 0) {
+        re = _P3MC_MemcCheck(3, pcw->dirTable);
+        if (re < 0) {
+            return -1;
+        }
+        if (re == 2 || re == 3) {
+            return -re;
+        }
+
+        P3MC_CheckChangeClear();
+        pcw->curState = 1;
+        return -1;
+    }
+
+    if (pcw->curState == 1) {
+        chk = _P3MC_freesize_chk();
+
+        for (flg = 0, i = 0; i < 80; i++) {
+            if (McReplayFileFlg[i] != 0) {
+                flg++;
+            }
+        }
+
+        if (flg != 0) {
+            chk |= 0x2;
+        }
+
+        if (chk & 0x1) {
+            pcw->curState = 0;
+            return chk;
+        }
+
+        for (flg = 0, i = 0; i < 80; i++) {
+            if (McLogFileFlg[i] != 0) {
+                flg++;
+            }
+        }
+
+        if (flg == 0 || flg >= 4) {
+            if (flg != 0) {
+                chk |= 0x1;
+            }
+
+            pcw->curState = 0;
+            return chk;
+        }
+
+        pcw->curState = 2;
+        pcw->curFno = 0;
+    }
+
+    if (pcw->curState == 2) {
+        int fno, n;
+
+        n = pcw->curFno;
+
+        for (fno = 0; fno < 80; fno++) {
+            if (McLogFileFlg[fno] != 0) {
+                if (n == 0) {
+                    break;
+                }
+
+                n--;
+            }
+        }
+
+        if (fno >= 80) {
+            pcw->curState = 0;
+            return 0;
+        }
+
+        _P3MC_SetUserDirName(1, fno);
+
+        re = memc_port_info(0, &mcmenu_info);
+        if (re != 0) {
+            memc_manager(1);
+            return -1;
+        }
+
+        pcw->curState = 3;
+    }
+
+    if (pcw->curState == 3) {
+        int isErr;
+
+        re = memc_manager(1);
+
+        if (re == 0x10) {
+            return -1;
+        }
+
+        switch (re) {
+        case 0:
+            isErr = FALSE;
+            break;
+        case 5:
+        case 17:
+            isErr = TRUE;
+            break;
+        case 16: /* note: random case to trigger use of jumptable */
+        case 48:
+        default:
+            pcw->curState = 0;
+            return -1;
+        }
+
+        if (!isErr) {
+            int need = 0;
+
+            if (_P3MC_mainfile_chk(-1, UChkSize[0], 1, &need) == -3) {
+                isErr = TRUE;
+            } else {
+                isErr = (mcmenu_info.free < need);
+            }
+
+            if (!isErr) {
+                pcw->curState = 0;
+                return 1;
+            }
+        }
+
+        pcw->curFno++;
+        if (pcw->curFno >= 3) {
+            pcw->curState = 0;
+            return 0;
+        }
+
+        pcw->curState = 2;
+    }
+
+    return -1;
+}
 
 int P3MC_LoadUser(int mode, int fileNo, MCRWDATA_HDL *pdhdl, int flg) {
     P3MC_WORK *pw = &P3MC_Work;

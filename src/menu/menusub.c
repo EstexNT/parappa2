@@ -1733,7 +1733,6 @@ static int MpCityHall_Flow(int flg, u_int tpad, u_int tpad2) {
         break;
     }
 
-    
     fphs_pos_tmp_276 = MpCityHallFPHSMove(MapCHall_tmp_272.curPos, fphs_pos_tmp_276);
 
     switch (state_tmp_270) {
@@ -1758,7 +1757,7 @@ static int MpCityHall_Flow(int flg, u_int tpad, u_int tpad2) {
         if (MapCHall_tmp_272.anmtrg != 0) {
             MpCityHallParaStart(MapCHall_tmp_272.anmtrg);
         }
-    
+
         switch (MapCHall_tmp_272.sndtrg) {
         case 1:
             TSSNDPLAY(VSND_MVCUS_LR);
@@ -1770,7 +1769,7 @@ static int MpCityHall_Flow(int flg, u_int tpad, u_int tpad2) {
             TSSNDPLAY(VSND_CANCEL);
             break;
         }
-    
+
         if (ret != 0) {
             if (ret == 1) {
                 switch (MapCHall_tmp_272.curPos) {

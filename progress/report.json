@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 59.780766,
+    "fuzzy_match_percent": 59.97943,
     "total_code": "342284",
-    "matched_code": "204620",
-    "matched_code_percent": 59.780766,
+    "matched_code": "205300",
+    "matched_code_percent": 59.97943,
     "total_data": "26260848",
     "matched_data": "26147980",
     "matched_data_percent": 99.570206,
     "total_functions": 1429,
-    "matched_functions": 1096,
-    "matched_functions_percent": 76.69699,
+    "matched_functions": 1097,
+    "matched_functions_percent": 76.76697,
     "total_units": 70
   },
   "units": [
@@ -7943,16 +7943,16 @@
     {
       "name": "menu/p3mc",
       "measures": {
-        "fuzzy_match_percent": 74.086716,
+        "fuzzy_match_percent": 79.89075,
         "total_code": "11716",
-        "matched_code": "8680",
-        "matched_code_percent": 74.08672,
+        "matched_code": "9360",
+        "matched_code_percent": 79.89075,
         "total_data": "2524",
         "matched_data": "1088",
         "matched_data_percent": 43.106182,
         "total_functions": 45,
-        "matched_functions": 40,
-        "matched_functions_percent": 88.88889,
+        "matched_functions": 41,
+        "matched_functions_percent": 91.111115,
         "total_units": 1
       },
       "sections": [
@@ -7985,7 +7985,7 @@
         {
           "name": ".text",
           "size": "11792",
-          "fuzzy_match_percent": 74.086716,
+          "fuzzy_match_percent": 79.89075,
           "metadata": {}
         }
       ],
@@ -8221,6 +8221,7 @@
         {
           "name": "P3MC_OpeningCheck",
           "size": "680",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "7696"
         },
@@ -13659,16 +13660,16 @@
     {
       "id": "menu",
       "measures": {
-        "fuzzy_match_percent": 46.922997,
+        "fuzzy_match_percent": 47.515064,
         "total_code": "114852",
-        "matched_code": "53892",
-        "matched_code_percent": 46.922997,
+        "matched_code": "54572",
+        "matched_code_percent": 47.51506,
         "total_data": "93716",
         "matched_data": "45092",
         "matched_data_percent": 48.115585,
         "total_functions": 374,
-        "matched_functions": 276,
-        "matched_functions_percent": 73.79679,
+        "matched_functions": 277,
+        "matched_functions_percent": 74.06417,
         "total_units": 9
       }
     },
