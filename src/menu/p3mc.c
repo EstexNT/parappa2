@@ -596,7 +596,103 @@ static int _P3MCStrNum(char *nstr, int len) {
     return n;
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/p3mc", _P3MC_MemcCheck);
+extern char D_00399868[]; /* .sdata - "LOG" */
+extern char D_00399870[]; /* .sdata - "REP" */
+
+static int _P3MC_MemcCheck(int mode, sceMcTblGetDir *pDirTable) {
+    int re;
+    int err;
+    int i;
+    int fileNo;
+
+    re = memc_manager(1);
+    if (re == 0x10) {
+        return -1;
+    }
+
+    err = 0;
+
+    switch (re) {
+    case 0x01:
+    case 0x06:
+    case 0x30:
+        err = -1;
+        break;
+    case 0x02:
+        P3MC_CheckChangeClear();
+        err = 3;
+        break;
+    case 0x03:
+        err = 2;
+        break;
+    case 0x00:
+        FreeSizeFlg = _P3MC_freesize_chk();
+        break;
+    default:
+        break;
+    }
+
+    if (portCheckFlg != 0 && err != 0) {
+        portCheckFlg = 0;
+        return err;
+    }
+
+    if (portCheckFlg == 0) {
+        if (memc_port_check(0, &mcmenu_info.flag, &mcmenu_info.free) == 0) {
+            portCheckFlg = 1;
+        }
+        FreeSizeFlg = 0;
+    } else if (portCheckFlg == 1) {
+        int flag = mcmenu_info.flag; /* note: variable not in STABS. */
+
+        if (mcmenu_info.flag != 2) {
+            portCheckFlg = 0;
+            return 3;
+        }
+
+        if (memc_getChangeState() != 0) {
+            isFileFlgCash = 0;
+        }
+
+        if (isFileFlgCash != 0) {
+            portCheckFlg = 0;
+            return 0;
+        }
+
+        isFileFlgCash = 0;
+        memset(McLogFileFlg, 0, sizeof(McLogFileFlg));
+        memset(McReplayFileFlg, 0, sizeof(McReplayFileFlg));
+        memset(pDirTable, 0, sizeof(sceMcTblGetDir) * 81);
+
+        if (memc_get_dir(0, _P3MC_GetFilePath(3, -1), pDirTable, 80) == 0) {
+            portCheckFlg = flag;
+        }
+    } else if (portCheckFlg == 2) {
+        for (i = 0; i < 80; i++) {
+            char *name = &pDirTable[i].EntryName[0];
+            char *type = &pDirTable[i].EntryName[12];
+            char *num = &pDirTable[i].EntryName[15];
+
+            if (name[0] == '\0') {
+                break;
+            }
+
+            fileNo = _P3MCStrNum(num, 3);
+            if (fileNo < 80) {
+                if (_P3MCStrCmpLen(type, D_00399868, 3) == 0) {
+                    McLogFileFlg[fileNo] = 1;
+                } else if (_P3MCStrCmpLen(type, D_00399870, 3) == 0) {
+                    McReplayFileFlg[fileNo] = 1;
+                }
+            }
+        }
+
+        portCheckFlg = 0;
+        return 0;
+    }
+
+    return -1;
+}
 
 int P3MC_GetUserStart(int mode, P3MC_USRLST *pUsrLst, int bFirst) {
     GETUSER_WORK *pWork;
@@ -883,7 +979,7 @@ int P3MC_LoadCheck(void) {
     }
 
     if (re != 0) {
-        if (re == 0xb) {
+        if (re == 11) {
             re = 4;
         }
 
@@ -893,7 +989,99 @@ int P3MC_LoadCheck(void) {
     return re;
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/p3mc", _P3MC_loadCheck);
+static int _P3MC_loadCheck(P3MC_WORK *pw, int skip) {
+    int ret;
+    int re;
+
+    ret = -1;
+
+    switch (pw->prg) {
+    case 0x1001:
+        re = memc_loadFirst(0, 0, pw->dhdl->pMemTop, pw->dhdl->rwsize);
+        if (re == 0) {
+            pw->prg = 0x1400;
+        } else {
+            _P3MC_proc(pw->prg);
+        }
+        break;
+    case 0x1002:
+        re = memc_load_file(0, 0, pw->dhdl->pMemTop, pw->dhdl->rwsize);
+        if (re == 0) {
+            pw->prg = 0x1400;
+        } else {
+            _P3MC_proc(pw->prg);
+        }
+        break;
+    case 0x1000:
+        pw->prg = 0x1100;
+        /* fallthrough */
+    case 0x1100:
+        if (skip == 0) {
+            re = memc_port_info(0, &mcmenu_info);
+        } else {
+            re = memc_port_check(0, &mcmenu_info.flag, NULL);
+        }
+
+        if (re == 0) {
+            pw->prg = 0x1200;
+        } else {
+            _P3MC_proc(pw->prg);
+        }
+        break;
+    case 0x1200:
+        pw->prg = _P3MC_proc(pw->prg);
+        if (pw->prg == 0x1400) {
+            memc_load_file(0, 0, pw->dhdl->pMemTop, pw->dhdl->rwsize);
+        }
+        break;
+    case 0x1201:
+        ret = 3;
+        break;
+    case 0x1202:
+        ret = 4;
+        break;
+    case 0x1209:
+        ret = 11;
+        break;
+    case 0x1203:
+        ret = 2;
+        break;
+    case 0x1207:
+    case 0x1211:
+        ret = 1;
+        break;
+    case 0x1210:
+        ret = 5;
+        break;
+    case 0x1231:
+        ret = 6;
+        break;
+    case 0x1400:
+        pw->dstat = 1;
+
+        pw->prg = _P3MC_proc(pw->prg);
+        if (pw->prg != 0x1401) {
+            break;
+        }
+
+        if (pw->data_cfunc != NULL) {
+            if (((P3MCDataCheckFunc)pw->data_cfunc)(pw) != 0) {
+                pw->prg = 0x1231;
+                ret = 6;
+                break;
+            }
+        }
+
+        /* fallthrough */
+    case 0x1401:
+        ret = 0;
+        break;
+    default:
+        break;
+    }
+
+    return ret;
+}
 
 void P3MC_SetUserWorkTime(USER_DATA *puser) {
     int        err;
@@ -941,7 +1129,107 @@ int P3MC_SaveCheck(void) {
     return -3;
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/p3mc", _P3MC_SaveCheck);
+static int _P3MC_SaveCheck(P3MC_WORK *pw) {
+    int ret;
+    int re;
+
+    ret = -1;
+
+    switch (pw->prg) {
+    case 0:
+        re = memc_port_info(0, &mcmenu_info);
+        if (re == 0) {
+            pw->prg = 0x200;
+        } else {
+            _P3MC_proc(pw->prg);
+        }
+        break;
+    case 0x200:
+        pw->prg = _P3MC_proc(pw->prg);
+        if (pw->prg == 0x400) {
+            pw->dstat = 1;
+            if (pw->dhdl->pMemTop != NULL) {
+                memc_save_file(0, 0, pw->dhdl->pMemTop, pw->dhdl->rwsize, pw->prgflag & 0x4);
+            }
+        }
+        break;
+    case 0x201:
+        ret = 3;
+        break;
+    case 0x206:
+        ret = 7;
+        break;
+    case 0x207:
+    case 0x211:
+        ret = 1;
+        break;
+    case 0x210:
+        ret = 5;
+        break;
+    case 0x401:
+        ret = 0;
+        break;
+    case 0x400:
+        pw->prg = _P3MC_proc(pw->prg);
+
+        if (pw->prg == 0x401) {
+            break;
+        }
+        if (pw->prg == 0x400) {
+            break;
+        }
+
+        if (pw->prg == 0x206) {
+            ret = 7;
+        } else {
+            ret = 1;
+        }
+
+        break;
+    case 0x402:
+        pw->prg = _P3MC_proc(pw->prg);
+        break;
+    case 0x410:
+        if (pw->prgflag & 0x1) {
+            memc_port_info(0, &mcmenu_info);
+            pw->prg = 0x411;
+        } else {
+            ret = 8;
+        }
+        break;
+    case 0x411:
+        pw->prg = _P3MC_proc(pw->prg);
+        if (pw->prg == 0x400) {
+            pw->dstat = 1;
+            if (pw->dhdl->pMemTop != NULL) {
+                memc_save_file(0, 0, pw->dhdl->pMemTop, pw->dhdl->rwsize, pw->prgflag & 0x4);
+            }
+        }
+        break;
+    case 0x510:
+        if (pw->prgflag & 0x2) {
+            memc_port_info(0, &mcmenu_info);
+            pw->prg = 0x511;
+        } else {
+            ret = 9;
+        }
+        break;
+    case 0x511:
+        pw->prg = _P3MC_proc(pw->prg);
+        break;
+    case 0x520:
+        pw->dstat = 2;
+        pw->prg = _P3MC_proc(pw->prg);
+        break;
+    case 0x530:
+        ret = 10;
+        break;
+    default:
+        break;
+    }
+
+    return ret;
+}
 
 static u_short _P3MC_proc(u_short prg) {
     u_short    re;
