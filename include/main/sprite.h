@@ -41,6 +41,33 @@ typedef struct { // 0xc
     /* 0x8 */ int posy;
 } LERO_POS_STR;
 
+typedef struct { // 0x8
+    /* 0x0 */ int frame;
+    /* 0x4 */ int alp;
+} FADE_DATA;
+
+typedef struct { // 0xc
+    /* 0x0 */ u_char r;
+    /* 0x1 */ u_char g;
+    /* 0x2 */ u_char b;
+    /* 0x4 */ int fade_data_size;
+    /* 0x8 */ FADE_DATA *fade_data_pp;
+} FADE_STR;
+
+typedef struct { // 0xc
+    /* 0x0 */ int frame;
+    /* 0x4 */ int tim2num;
+    /* 0x8 */ u_char r;
+    /* 0x9 */ u_char g;
+    /* 0xa */ u_char b;
+    /* 0xb */ u_char alp;
+} ALP_INDEX8_DATA;
+
+typedef struct { // 0x8
+    /* 0x0 */ int alp8_size;
+    /* 0x4 */ ALP_INDEX8_DATA *alp8_pp;
+} ALP_INDEX8_STR;
+
 typedef struct { // 0x20
     /* 0x00 */ u_long GsTex0;
     /* 0x08 */ u_long GsTex1;

@@ -280,7 +280,11 @@ static void _P3MC_SetBrowsInfo(int mode, int fileNo, char *name, int stageNo, in
             sprintf(tmps, "%s(ST%1d)", name, stageNo);
         } else {
             r = roundNo + 1;
-            if (r > 99) r = 99;
+
+            if (r > 99) {
+                r = 99;
+            }
+
             sprintf(tmps, "%s(C%2d)", name, r);
         }
         break;
@@ -1519,45 +1523,6 @@ static u_short _P3MC_proc(u_short prg) {
             break;
         }
         break;
-    case 1:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-    case 15:
-    case 19:
-    case 20:
-    case 21:
-    case 22:
-    case 23:
-    case 24:
-    case 25:
-    case 26:
-    case 27:
-    case 28:
-    case 29:
-    case 30:
-    case 31:
-    case 32:
-    case 33:
-    case 34:
-    case 35:
-    case 36:
-    case 37:
-    case 38:
-    case 39:
-    case 40:
-    case 41:
-    case 42:
-    case 43:
-    case 44:
-    case 45:
-    case 46:
-    case 47:
     default:
         if ((prg & 0xff00) == 0x500) {
             re = 0x530;

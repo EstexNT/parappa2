@@ -1590,7 +1590,7 @@ static int targetTimeGet(int line, int time, int codeAll) {
             }
         }
 
-        if (scrrec_pp->job == SCRRJ_SUBJOB && scrrec_pp->sub == 2) {
+        if (scrrec_pp->job == SCRRJ_SUBJOB && scrrec_pp->sub == SCRSUBJ_DRAW_CHANGE) {
             if (pcode_tmp != 0) {
                 ret = scrrec_pp->data;
                 break;
@@ -3024,7 +3024,7 @@ void ScrMoveSetSub(SCORE_INDV_STR *sindv_pp, int Pnum, int sub_job, int sub_time
         printf("file seek\n");
 
         tmp_cdsample = CdctrlSndTime2WP2sample(GetLineTempo(sub_job), goto_time);
-        tmp_cdsample -= GetTimeOfset(goto_job) * 48 / 256;
+        tmp_cdsample -= (GetTimeOfset(goto_job) * 48) / 256;
         if (tmp_cdsample < 0) {
             tmp_cdsample = 0;
         }

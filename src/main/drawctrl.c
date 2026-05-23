@@ -1469,7 +1469,29 @@ void DrawObjStrTapTimeNext(SCENE_OBJDATA *sod_pp) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawObjTapCtrl);
+void DrawObjTapCtrl(SCENE_OBJDATA *sod_pp, DR_TAP_REQ *tap_pp, int tap_num) {
+    int i;
+    int max_num;
+
+    max_num = sod_pp->objactprg_ctrl.num;
+
+    WorkClear(sod_pp->objactprg_ctrl.objactprg[OBJACTPRG_TAP], max_num * sizeof(OBJACTPRG));
+
+    for (i = 0; i < tap_num; i++) {
+        if (tap_pp[i].tap_id == 0xfe || sod_pp->tap_id == tap_pp[i].tap_id) {
+            if (tap_pp[i].req_no >= sod_pp->objtapstr_size) {
+                printf(" TAP REQ Table over!! ID:%d num:%d\n", tap_pp[i].tap_id, tap_pp[i].req_no);
+                continue;
+            }
+
+            DrawObjTapStrTapReq(sod_pp, tap_pp[i].req_no, 0, tap_pp[i].pad_prs_pp);
+        }
+    }
+
+    for (i = 0; i < sod_pp->tapstr_size; i++) {
+        DrawObjStrDispTap(sod_pp, i);
+    }
+}
 
 extern const char D_00399520[]; /* .sdata - "nome_" */
 
@@ -1612,9 +1634,180 @@ int DrawMozaikuDisp(void *para_pp, int frame, int first_f, int useDisp, int drDi
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawFadeDisp);
+int DrawFadeDisp(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
+    sceGsFrame    *draw_pp, *use_pp;
+    sceGifPacket   gifpk;
+    int            alp;
+    int            i;
+    int            stp, endp;
+    int            lngT, lngN;
+    FADE_MAKE_STR  fade_make_str;
+    FADE_STR      *fade_pp = (FADE_STR*)para_pp; /* note: not in STABS. */
 
-INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawPlphaIndex8Disp);
+    if (first_f == DRPRGF_INIT) {
+        return 0;
+    }
+    if (first_f == DRPRGF_RESET) {
+        return 0;
+    }
+
+    draw_pp = DrawGetFrameP(drDisp);
+    use_pp = DrawGetFrameP(useDisp);
+    CmnGifADPacketMake(&gifpk, draw_pp);
+
+    if (drDisp == DNUM_DRAW && useDisp == DNUM_VRAM2) {
+        sceGifPkAddGsAD(&gifpk, SCE_GS_XYOFFSET_1, *(u_long*)&DrawGetDrawEnvP(DNUM_VRAM2)->xyoffset1);
+    } 
+
+    stp = 0;
+    endp = -1;
+
+    for (i = 0; i < fade_pp->fade_data_size; i++) {
+        if (fade_pp->fade_data_pp[i].frame == frame) {
+            stp = i;
+            endp = i;
+            break;
+        }
+
+        if (fade_pp->fade_data_pp[i].frame < frame) {
+            stp = i;
+        }
+
+        if (fade_pp->fade_data_pp[i].frame > frame) {
+            endp = i;
+            break;
+        }
+    }
+
+    if (endp == -1) {
+        endp = stp;
+    }
+
+    lngT = fade_pp->fade_data_pp[endp].frame - fade_pp->fade_data_pp[stp].frame;
+    lngN = frame - fade_pp->fade_data_pp[stp].frame;
+
+    if (lngT == 0) {
+        alp = fade_pp->fade_data_pp[stp].alp;
+    } else {
+        alp = fade_pp->fade_data_pp[endp].alp - fade_pp->fade_data_pp[stp].alp;
+        alp = ((alp * lngN) / lngT) + fade_pp->fade_data_pp[stp].alp;
+    }
+
+    fade_make_str.r = fade_pp->r;
+    fade_make_str.g = fade_pp->g;
+    fade_make_str.b = fade_pp->b;
+    fade_make_str.alp = alp;
+    UG_FadeDisp(&fade_make_str, &gifpk, use_pp);
+
+    CmnGifADPacketMakeTrans(&gifpk);
+    return 0;
+}
+
+int DrawPlphaIndex8Disp(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
+    sceGifPacket    gifpk;
+    sceGsFrame     *use_pp, *draw_pp;
+    int             r_tmp, g_tmp, b_tmp, a_tmp;
+    int             i, stp, endp;
+    int             lngT, lngN;
+    int             useTbp;
+    ALP_INDEX8_STR *alp_pp = (ALP_INDEX8_STR*)para_pp; /* note: not in STABS. */
+
+    if (first_f == DRPRGF_INIT) {
+        return 0;
+    }
+    if (first_f == DRPRGF_RESET) {
+        return 0;
+    }
+
+    use_pp = DrawGetFrameP(useDisp);
+    draw_pp = DrawGetFrameP(drDisp);
+
+    stp = 0;
+    endp = -1;
+
+    for (i = 0; i < alp_pp->alp8_size; i++) {
+        if (alp_pp->alp8_pp[i].frame == frame) {
+            stp = i;
+            endp = i;
+            break;
+        }
+
+        if (alp_pp->alp8_pp[i].frame < frame) {
+            stp = i;
+        }
+
+        if (alp_pp->alp8_pp[i].frame > frame) {
+            endp = i;
+            break;
+        }
+    }
+
+    if (endp == -1) {
+        endp = stp;
+    }
+
+    lngT = alp_pp->alp8_pp[endp].frame - alp_pp->alp8_pp[stp].frame;
+    lngN = frame - alp_pp->alp8_pp[stp].frame;
+
+    if (lngT == 0) {
+        r_tmp = alp_pp->alp8_pp[stp].r;
+        g_tmp = alp_pp->alp8_pp[stp].g;
+        b_tmp = alp_pp->alp8_pp[stp].b;
+        a_tmp = alp_pp->alp8_pp[stp].alp;
+    } else {
+        r_tmp = alp_pp->alp8_pp[endp].r - alp_pp->alp8_pp[stp].r;
+        r_tmp = ((r_tmp * lngN) / lngT) + alp_pp->alp8_pp[stp].r;
+
+        g_tmp = alp_pp->alp8_pp[endp].g - alp_pp->alp8_pp[stp].g;
+        g_tmp = ((g_tmp * lngN) / lngT) + alp_pp->alp8_pp[stp].g;
+
+        b_tmp = alp_pp->alp8_pp[endp].b - alp_pp->alp8_pp[stp].b;
+        b_tmp = ((b_tmp * lngN) / lngT) + alp_pp->alp8_pp[stp].b;
+
+        a_tmp = alp_pp->alp8_pp[endp].alp - alp_pp->alp8_pp[stp].alp;
+        a_tmp = ((a_tmp * lngN) / lngT) + alp_pp->alp8_pp[stp].alp;
+    }
+
+    if (use_pp != NULL) {
+        useTbp = DrawGetFbpPos(useDisp) << 5;
+    } else {
+        useTbp = DrawGetFbpPos(drDisp) << 5;
+    }
+
+    Tim2Trans_TBP_MODE(GetIntAdrsCurrent(alp_pp->alp8_pp[stp].tim2num), useTbp, SCE_GS_PSMT8H);
+
+    CmnGifADPacketMake(&gifpk, draw_pp);
+
+    if (use_pp != NULL) {
+        sceGifPkAddGsAD(&gifpk, SCE_GS_TEX0_1, SCE_GS_SET_TEX0(use_pp->FBP << 5, use_pp->FBW, SCE_GS_PSMCT32, 10, 8, 1, SCE_GS_MODULATE, 0, 0, 0, 0, 0));
+        sceGifPkAddGsAD(&gifpk, SCE_GS_TEX1_1, SCE_GS_SET_TEX1(0, 0, 0, 0, 0, 0, 0));
+    }
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEST_1, SCE_GS_SET_TEST(SCE_GS_TRUE, SCE_GS_ALPHA_NEVER, 0, SCE_GS_AFAIL_RGB_ONLY, SCE_GS_FALSE, 0, SCE_GS_TRUE, SCE_GS_DEPTH_ALWAYS));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_ALPHA_1,
+        (use_pp == NULL)
+        ? SCE_GS_SET_ALPHA(SCE_GS_ALPHA_CS, SCE_GS_ALPHA_CD, SCE_GS_ALPHA_AD, SCE_GS_ALPHA_CD, 0)
+        : SCE_GS_SET_ALPHA(SCE_GS_ALPHA_CS, SCE_GS_ALPHA_CD, SCE_GS_ALPHA_AS, SCE_GS_ALPHA_CD, 0)
+    );
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_RGBAQ, SCE_GS_SET_RGBAQ(r_tmp, g_tmp, b_tmp, a_tmp, 0x00000001));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_PRIM,
+        (use_pp != NULL)
+        ? SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 1, 0, 1, 0, 1, 0, 0)
+        : SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 0, 0, 1, 0, 1, 0, 0)
+    );
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_UV, SCE_GS_SET_UV((0 << 4) | (1 << 3), (0 << 4) | (1 << 3)));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_XYZ2, SCE_GS_SET_XYZ(GS_X_COORD(0), GS_Y_COORD(0), 1));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_UV, SCE_GS_SET_UV((640 << 4) | (1 << 3), (224 << 4) | (1 << 3)));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_XYZ2, SCE_GS_SET_XYZ(GS_X_COORD(640), GS_Y_COORD(224), 1));
+
+    CmnGifADPacketMakeTrans(&gifpk);
+    return 0;
+}
 
 int DrawTim2DIsp(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
     TIM2DISP_STR* tim2disp_pp = (TIM2DISP_STR*)para_pp; /* note: not in STABS. */
@@ -1697,7 +1890,7 @@ static void drawUseDrDispCheckInit(void) {
 static int drawDispCheckSub(u_int drD, u_int *dat_pp) {
     int ret = drD & 0xff;
 
-    if ((drD >> 0x8) & 0xff) {
+    if (((drD >> 0x8) & 0xff) != 0) {
         int v0 = *dat_pp & 0xff;
         if (v0 & drD) {
             ret = (drD >> 0x8) & 0xff;
@@ -2561,6 +2754,7 @@ static void ddbg_tap_check(void) {
         if (scene_objdata_pp->tapstr_size != 0) {
             paddata = pad[0].one;
             tid = scene_objdata_pp->tap_id;
+
             if (paddata & SCE_PADLup) {
                 req_num = ddbg_tap_num;
                 prs_adr = &pad[0].press[2];
@@ -2580,9 +2774,11 @@ static void ddbg_tap_check(void) {
             if (ddbg_tap_num >= scene_objdata_pp->objtapstr_size) {
                 ddbg_tap_num = 0;
             }
+
             if (ddbg_tap_num < 0) {
                 ddbg_tap_num = scene_objdata_pp->objtapstr_size - 1;
             }
+
             if (req_num >= 0) {
                 DrawTapReqTbl(req_num + (tid << 0x8), PINDEX_NONE, prs_adr);
             }
