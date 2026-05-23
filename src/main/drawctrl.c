@@ -689,7 +689,7 @@ void DrawSceneInit(sceGsDrawEnv1 *draw_env, SCENE_OBJDATA *scene_pp, int useDisp
         return;
     }
 
-    if (useDisp != 0) {
+    if (useDisp != DNUM_NON) {
         fbp_tmp = DrawGetFbpPos(useDisp);
     } else {
         fbp_tmp = -1;

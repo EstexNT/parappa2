@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 59.97943,
+    "fuzzy_match_percent": 60.42818,
     "total_code": "342284",
-    "matched_code": "205300",
-    "matched_code_percent": 59.97943,
+    "matched_code": "206836",
+    "matched_code_percent": 60.428185,
     "total_data": "26260848",
     "matched_data": "26147980",
     "matched_data_percent": 99.570206,
     "total_functions": 1429,
-    "matched_functions": 1097,
-    "matched_functions_percent": 76.76697,
+    "matched_functions": 1100,
+    "matched_functions_percent": 76.976906,
     "total_units": 70
   },
   "units": [
@@ -3160,16 +3160,16 @@
     {
       "name": "main/drawctrl",
       "measures": {
-        "fuzzy_match_percent": 69.35109,
+        "fuzzy_match_percent": 75.29813,
         "total_code": "25828",
-        "matched_code": "17912",
-        "matched_code_percent": 69.35109,
+        "matched_code": "19448",
+        "matched_code_percent": 75.29813,
         "total_data": "12376",
         "matched_data": "7872",
         "matched_data_percent": 63.606983,
         "total_functions": 98,
-        "matched_functions": 89,
-        "matched_functions_percent": 90.81632,
+        "matched_functions": 92,
+        "matched_functions_percent": 93.877556,
         "total_units": 1
       },
       "sections": [
@@ -3207,7 +3207,7 @@
         {
           "name": ".text",
           "size": "25992",
-          "fuzzy_match_percent": 69.35109,
+          "fuzzy_match_percent": 75.29813,
           "metadata": {}
         }
       ],
@@ -3542,6 +3542,7 @@
         {
           "name": "DrawObjTapCtrl",
           "size": "252",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "13552"
         },
@@ -3588,12 +3589,14 @@
         {
           "name": "DrawFadeDisp",
           "size": "432",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "16744"
         },
         {
           "name": "DrawPlphaIndex8Disp",
           "size": "852",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "17176"
         },
@@ -13644,16 +13647,16 @@
     {
       "id": "main",
       "measures": {
-        "fuzzy_match_percent": 90.00613,
+        "fuzzy_match_percent": 91.24448,
         "total_code": "124036",
-        "matched_code": "111640",
-        "matched_code_percent": 90.00613,
+        "matched_code": "113176",
+        "matched_code_percent": 91.24448,
         "total_data": "142100",
         "matched_data": "105132",
         "matched_data_percent": 73.98451,
         "total_functions": 570,
-        "matched_functions": 552,
-        "matched_functions_percent": 96.8421,
+        "matched_functions": 555,
+        "matched_functions_percent": 97.368416,
         "total_units": 17
       }
     },
