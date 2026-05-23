@@ -127,6 +127,12 @@ def disassemble_rgbaq(data, name):
 
     return format_macro(name, R, G, B, A, Q_str)
 
+def disassemble_uv(data, name):
+    U = (data >> 0 ) & 0x3fff
+    V = (data >> 16) & 0x3fff
+
+    return format_macro(name, U, V)
+
 def disassemble_xyz(data, name):
     X = (data >> 0 ) & 0xffff
     Y = (data >> 16) & 0xffff
@@ -229,7 +235,7 @@ DISASSEMBLY_FUNCTIONS = {
     'PRIM':       lambda data: disassemble_prim(data, 'PRIM'),
     'RGBAQ':      lambda data: disassemble_rgbaq(data, 'RGBAQ'),
     'ST':         lambda data: disassemble_null(data, 'ST'),
-    'UV':         lambda data: disassemble_null(data, 'UV'),
+    'UV':         lambda data: disassemble_uv(data, 'UV'),
     'XYZF2':      lambda data: disassemble_null(data, 'XYZF2'),
     'XYZ2':       lambda data: disassemble_xyz(data, 'XYZ2'),
     'FOG':        lambda data: disassemble_null(data, 'FOG'),
