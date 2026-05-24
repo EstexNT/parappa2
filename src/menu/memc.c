@@ -1,5 +1,7 @@
 #include "menu/memc.h"
-#include "sifdev.h"
+#include "libmc.h"
+
+#include <sifdev.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -38,7 +40,6 @@ void memc_setSaveTitle(char *name, int nLFPos) {
     }
 
     memcpy(memc_iconsys.TitleName, name, 64);
-
     memc_iconsys.TitleName[length + 1] = '\0';
     memc_iconsys.OffsLF = nLFPos;
 }
@@ -51,7 +52,6 @@ void memc_setIconSysHed(void *pIhData, int IhSize) {
     }
 
     nLF = memc_iconsys.OffsLF;
-
     memcpy(&memc_iconsys, pIhData, IhSize);
     memc_iconsys.OffsLF = nLF;
 }
@@ -60,13 +60,13 @@ void memc_setSaveIcon(int no, void *pIconData, int nIconSize) {
     MEMC_STAT *pmw = &memc_stat;
 
     switch (no) {
-    case 0:
+    case MEMC_ICON_VIEW:
         pmw->iconData1 = pIconData;
         pmw->iconSize1 = nIconSize;
 
         strcpy(memc_iconsys.FnameView, "icon1.ico");
         break;
-    case 1:
+    case MEMC_ICON_COPY:
         if (pIconData == NULL || nIconSize == 0) {
             pmw->iconData2 = 0;
             pmw->iconSize2 = 0;
@@ -79,7 +79,7 @@ void memc_setSaveIcon(int no, void *pIconData, int nIconSize) {
             strcpy(memc_iconsys.FnameCopy, "icon2.ico");
         }
         break;
-    case 2:
+    case MEMC_ICON_DEL:
         if (pIconData == NULL || nIconSize == 0) {
             pmw->iconData3 = 0;
             pmw->iconSize3 = 0;
@@ -98,28 +98,28 @@ void memc_setSaveIcon(int no, void *pIconData, int nIconSize) {
 }
 
 char* memc_getfilename(int no) {
-    char *fbody;
+    char       *fbody;
     extern char tmps0[64];
 
     switch (no) {
-    case -1:
+    case MEMC_FILE_ICON:
         fbody = "icon.sys";
         break;
-    case -2:
+    case MEMC_FILE_ICON1:
         fbody = "icon1.ico";
         break;
-    case -3:
+    case MEMC_FILE_ICON2:
         if (memc_stat.iconData2 == NULL) {
             return NULL;
         }
         /* fallthrough */
-    case -4:
+    case MEMC_FILE_ICON3:
         if (memc_stat.iconData3 == NULL) {
             return NULL;
         }
         /* fallthrough */
     default:
-        if (no >= 2) {
+        if (no >= MEMC_FILE_MAX) {
             return NULL;
         }
 
@@ -189,7 +189,7 @@ static void memc_clearMEMCINFO(MEMC_INFO *info) {
             return;
         }
 
-        memset(info->dirfile, 0, info->dirfileMax * 64);
+        memset(info->dirfile, 0, info->dirfileMax * sizeof(sceMcTblGetDir));
     }
 
     info->savefile = 0;
@@ -204,7 +204,7 @@ sceMcTblGetDir* memc_searchDirTbl(char *name, sceMcTblGetDir *dirTbl, int num, i
     }
 
     for (i = 0; i < num && (flg = FALSE, dirTbl[i].EntryName[0] != '\0'); i++) {
-        for (j = 0; /*None*/; j++) {
+        for (j = 0;; j++) {
             if (name[j] == '\0') {
                 flg = TRUE;
                 break;
@@ -299,7 +299,7 @@ int memc_load_file(int port, int no, char *buf, int size) {
     pmw->size        = size;
 
     pmw->retry       = 0;
-    pmw->isSyncClose = 0;
+    pmw->isSyncClose = FALSE;
     pmw->fileNo      = no;
 
     tmpp = memc_getfilepath(no);
@@ -312,7 +312,7 @@ int memc_load_file(int port, int no, char *buf, int size) {
     re = sceMcGetInfo(pmw->port, pmw->slot, &pmw->type, &pmw->free, &pmw->format);
     if (re == sceMcResSucceed) {
         pmw->cmd = sceMcFuncNoFileInfo;
-        pmw->func = 3;
+        pmw->func = MEMC_FUNC_LOADFILE;
     }
 
     pmw->retry = 0;
@@ -328,7 +328,7 @@ int memc_loadFirst(int port, int no, char *buf, int size) {
     pmw->size        = size;
 
     pmw->retry       = 0;
-    pmw->isSyncClose = 1;
+    pmw->isSyncClose = TRUE;
     pmw->fileNo      = no;
 
     tmpp = memc_getfilepath(no);
@@ -338,8 +338,8 @@ int memc_loadFirst(int port, int no, char *buf, int size) {
         pmw->filename[0] = '\0';
     }
 
-    if (memc_mansub_Open(pmw->filename, SCE_RDONLY) == 0) {
-        pmw->func = 3;
+    if (!memc_mansub_Open(pmw->filename, SCE_RDONLY)) {
+        pmw->func = MEMC_FUNC_LOADFILE;
         return 0;
     }
 
@@ -351,8 +351,8 @@ int memc_save_file(int port, int no, char* buf, int size, int bSysRW) {
     int        n;
     int        isize;
 
-    MEMC_STAT* pmw;
-    char*      tmpp;
+    MEMC_STAT *pmw;
+    char      *tmpp;
 
     pmw = &memc_stat;
 
@@ -377,11 +377,11 @@ int memc_save_file(int port, int no, char* buf, int size, int bSysRW) {
     n = 3;
     isize = (pmw->iconSize1 + 1023) / 1024;
 
-    if (memc_getfilename(-3) != NULL) {
+    if (memc_getfilename(MEMC_FILE_ICON2) != NULL) {
         isize += (pmw->iconSize2 + 1023) / 1024;
         n++;
     }
-    if (memc_getfilename(-4) != NULL) {
+    if (memc_getfilename(MEMC_FILE_ICON3) != NULL) {
         isize += (pmw->iconSize3 + 1023) / 1024;
         n++;
     }
@@ -391,7 +391,7 @@ int memc_save_file(int port, int no, char* buf, int size, int bSysRW) {
     re = sceMcGetInfo(pmw->port, pmw->slot, &pmw->type, &pmw->free, &pmw->format);
     if (re == sceMcResSucceed) {
         pmw->cmd = sceMcFuncNoFileInfo;
-        pmw->func = 4;
+        pmw->func = MEMC_FUNC_SAVEFILE;
     }
 
     return re;
@@ -412,17 +412,16 @@ int memc_save_overwrite(void) {
     int        re;
     int        n;
     int        isize;
-
     MEMC_STAT *pmw = &memc_stat;
 
     n = 2;
     isize = (pmw->iconSize1 + 1023) / 1024;
 
-    if (memc_getfilename(-3) != NULL) {
+    if (memc_getfilename(MEMC_FILE_ICON2) != NULL) {
         isize += (pmw->iconSize2 + 1023) / 1024;
         n++;
     }
-    if (memc_getfilename(-4) != NULL) {
+    if (memc_getfilename(MEMC_FILE_ICON3) != NULL) {
         isize += (pmw->iconSize3 + 1023) / 1024;
         n++;
     }
@@ -432,7 +431,7 @@ int memc_save_overwrite(void) {
     re = sceMcGetInfo(pmw->port, pmw->slot, &pmw->type, &pmw->free, &pmw->format);
     if (re == sceMcResSucceed) {
         pmw->cmd = sceMcFuncNoFileInfo;
-        pmw->func = 14;
+        pmw->func = MEMC_FUNC_OVERWRITE;
     }
 
     return re;
@@ -445,7 +444,7 @@ int memc_port_check(int port, int *type, int *free) {
     re = sceMcGetInfo(port, 0, type, free, &pmw->format);
     if (re == sceMcResSucceed) {
         pmw->cmd = sceMcFuncNoFileInfo;
-        pmw->func = 1;
+        pmw->func = MEMC_FUNC_PORTCHECK;
     }
 
     pmw->retry = 0;
@@ -461,7 +460,7 @@ int memc_format(int port) {
     re = sceMcGetInfo(port, pmw->slot, &pmw->type, &pmw->free, &pmw->format);
     if (re == sceMcResSucceed) {
         pmw->cmd = sceMcFuncNoFileInfo;
-        pmw->func = 7;
+        pmw->func = MEMC_FUNC_FORMAT;
     }
 
     pmw->retry = 0;
@@ -477,7 +476,7 @@ int memc_chg_dir(int port, char *name) {
 
     re = sceMcChdir(port, 0, name, NULL);
     if (re == sceMcResSucceed) {
-        pmw->func = 10;
+        pmw->func = MEMC_FUNC_CHGDIR;
         pmw->cmd = sceMcFuncNoChDir;
     }
 
@@ -488,7 +487,7 @@ int memc_get_dir(int port, char *name, sceMcTblGetDir *dir, int max) {
     int        re;
     MEMC_STAT *pmw = &memc_stat;
 
-    memset(dir, 0, max * 64);
+    memset(dir, 0, max * sizeof(sceMcTblGetDir));
 
     pmw->port = port;
 
@@ -499,7 +498,7 @@ int memc_get_dir(int port, char *name, sceMcTblGetDir *dir, int max) {
 
     re = sceMcGetDir(pmw->port, pmw->slot, pmw->filename, 0, max, dir);
     if (re == sceMcResSucceed) {
-        pmw->func = 9;
+        pmw->func = MEMC_FUNC_GETDIR;
         pmw->cmd = sceMcFuncNoGetDir;
         pmw->retry = 0;
     }
@@ -511,14 +510,14 @@ int memc_get_dir_continue(sceMcTblGetDir *dir, int max) {
     int        re;
     MEMC_STAT *pmw = &memc_stat;
 
-    memset(dir, 0, max * 64);
+    memset(dir, 0, max * sizeof(sceMcTblGetDir));
 
     pmw->size = max;
     pmw->buf = (char*)dir;
 
     re = sceMcGetDir(pmw->port, pmw->slot, pmw->filename, 1, max, dir);
     if (re == sceMcResSucceed) {
-        pmw->func = 9;
+        pmw->func = MEMC_FUNC_GETDIR;
         pmw->cmd = sceMcFuncNoGetDir;
         pmw->retry = 0;
     }
@@ -529,45 +528,46 @@ int memc_get_dir_continue(sceMcTblGetDir *dir, int max) {
 static int memc_mansub_ErrChk(int result) {
     MEMC_STAT *pmw = &memc_stat;
 
-    if (pmw->func == 9 && result >= pmw->size) {
-        return 0x13;
+    if (pmw->func == MEMC_FUNC_GETDIR && result >= pmw->size) {
+        return MEMC_ERR_DIR_TOO_MANY;
     }
 
     if (result >= 0) {
-        pmw->func = 0;
-        return 0;
+        pmw->func = MEMC_FUNC_IDLE;
+        return MEMC_OK;
     }
 
     switch (result) {
-    case -1:
-        pmw->func = 0;
-        pmw->isChange = 1;
-        return 6;
-    case -2:
-        pmw->func = 0;
-        return 3;
-    case -2000:
-        pmw->func = 0;
-        pmw->isChange = 1;
-        return 0x30;
-    case -3:
-        pmw->func = 0;
-        return 4;
+    case sceMcResChangedCard:
+        pmw->func = MEMC_FUNC_IDLE;
+        pmw->isChange = TRUE;
+        return MEMC_ERR_SWAP;
+    case sceMcResNoFormat:
+        pmw->func = MEMC_FUNC_IDLE;
+        return MEMC_ERR_UNFORMATTED;
+    /* Switched to unformatted MC (sceMcGetInfo) */
+    case -2000: /* sceMcResNoFormat */
+        pmw->func = MEMC_FUNC_IDLE;
+        pmw->isChange = TRUE;
+        return MEMC_ERR_SWAP_UNFORMATTED;
+    case sceMcResFullDevice:
+        pmw->func = MEMC_FUNC_IDLE;
+        return MEMC_ERR_FULL;
     case sceMcResNoEntry:
-        pmw->func = 0;
+        pmw->func = MEMC_FUNC_IDLE;
         switch (pmw->cmd) {
         case sceMcFuncNoMkdir:
-            return 0;
+            return MEMC_OK; /* Dir. already exists */
         case sceMcFuncNoGetDir:
-            return 0x11;
+            return MEMC_ERR_DIR_NOT_FOUND;
         case sceMcFuncNoOpen:
         case sceMcFuncNoDelete:
-            return 5;
+            return MEMC_ERR_FILE_NOT_FOUND;
         }
-        return 1;
+        return MEMC_ERR_FILE_INVALID;
     default:
-        pmw->func = 0;
-        return 2;
+        pmw->func = MEMC_FUNC_IDLE;
+        return MEMC_ERR_INVALID;
     }
 }
 
@@ -622,17 +622,16 @@ static int memcsub_fileChk(sceMcTblGetDir *dir, unsigned char *name, int max) {
 static int memc_mansub_GetInfo(int result) {
     MEMC_INFO *info;
     MEMC_STAT *pmw = &memc_stat;
-
-    int re;
+    int        re;
 
     switch (pmw->cmd) {
     case sceMcFuncNoFileInfo:
         if (pmw->type != sceMcTypePS2) {
-            pmw->func = 0;
-            return 2;
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         } else {
             if (result < 0) {
-                pmw->func = 0;
+                pmw->func = MEMC_FUNC_IDLE;
 
                 if (result != sceMcResNoFormat) {
                     re = result;
@@ -643,8 +642,8 @@ static int memc_mansub_GetInfo(int result) {
                 return memc_mansub_ErrChk(re);
             } else {
                 if (!pmw->format) {
-                    pmw->func = 0;
-                    return 3;
+                    pmw->func = MEMC_FUNC_IDLE;
+                    return MEMC_ERR_UNFORMATTED;
                 } else {
                     info = (MEMC_INFO*)pmw->buf;
 
@@ -653,48 +652,48 @@ static int memc_mansub_GetInfo(int result) {
 
                     if (sceMcGetDir(pmw->port, pmw->slot, pmw->filename, 0, info->dirfileMax, info->dirfile) == sceMcResSucceed) {
                         pmw->cmd = sceMcFuncNoGetDir;
-                        return 16;
+                        return MEMC_ERR_BUSY;
                     }
 
-                    return 1;
+                    return MEMC_ERR_FILE_INVALID;
                 }
             }
         }
         break;
     case sceMcFuncNoGetDir:
         if (result < 0) {
-            pmw->func = 0;
+            pmw->func = MEMC_FUNC_IDLE;
             return memc_mansub_ErrChk(result);
         } else {
             info = (MEMC_INFO*)pmw->buf;
 
             info->allfile = result;
-            info->flag |= 1;
+            info->flag |= MEMC_FLAG_DIR;
 
             if (pmw->bChkSys) {
-                if (memcsub_fileChk(info->dirfile, memc_getfilename(-1), result)) {
-                    info->flag |= 2;
+                if (memcsub_fileChk(info->dirfile, memc_getfilename(MEMC_FILE_ICON), result)) {
+                    info->flag |= MEMC_FLAG_ICON;
                 }
-                if (memcsub_fileChk(info->dirfile, memc_getfilename(-2), result)) {
-                    info->flag |= 4;
+                if (memcsub_fileChk(info->dirfile, memc_getfilename(MEMC_FILE_ICON1), result)) {
+                    info->flag |= MEMC_FLAG_ICON1;
                 }
-                if (memcsub_fileChk(info->dirfile, memc_getfilename(-3), result)) {
-                    info->flag |= 8;
+                if (memcsub_fileChk(info->dirfile, memc_getfilename(MEMC_FILE_ICON2), result)) {
+                    info->flag |= MEMC_FLAG_ICON2;
                 }
-                if (memcsub_fileChk(info->dirfile, memc_getfilename(-4), result)) {
-                    info->flag |= 16;
+                if (memcsub_fileChk(info->dirfile, memc_getfilename(MEMC_FILE_ICON3), result)) {
+                    info->flag |= MEMC_FLAG_ICON3;
                 }
-                
+
                 info->savefile  = memcsub_fileChk(info->dirfile, pmw->saveDir, result);
                 info->savefile += memcsub_fileChk(info->dirfile, "SAVE", result);
             }
 
-            pmw->func = 0;
-            return 0;
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_OK;
         }
         break;
     default:
-        return 0;
+        return MEMC_OK;
     }
 }
 
@@ -707,17 +706,17 @@ static int memc_mansub_load(int result) {
             return memc_mansub_ErrChk(result);
         }
 
-        if (pmw->type != 2) {
-            pmw->func = 0;
-            return 2;
+        if (pmw->type != sceMcTypePS2) {
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         }
 
         if (!memc_mansub_Open(pmw->filename, SCE_RDONLY)) {
-            pmw->func = 3;
+            pmw->func = MEMC_FUNC_LOADFILE;
             break;
         }
 
-        return 1;
+        return MEMC_ERR_FILE_INVALID;
     case sceMcFuncNoOpen:
         if (result < 0) {
             return memc_mansub_ErrChk(result);
@@ -726,51 +725,53 @@ static int memc_mansub_load(int result) {
         pmw->fd = result;
         if (!sceMcRead(pmw->fd, pmw->buf, pmw->size)) {
             pmw->cmd = sceMcFuncNoRead;
-            return 16;
+            return MEMC_ERR_BUSY;
         }
 
-        return 16;
+        return MEMC_ERR_BUSY;
     case sceMcFuncNoRead:
         if (result < 0) {
             return memc_mansub_ErrChk(result);
         }
 
         if (memc_mansub_Close()) {
-            return 1;
+            return MEMC_ERR_FILE_INVALID;
         }
 
-        pmw->func = 6;
+        pmw->func = MEMC_FUNC_SKIP;
         if (!pmw->isSyncClose) {
-            return 16;
+            return MEMC_ERR_BUSY;
         }
 
-        pmw->isSyncClose = 0;
-        if (sceMcSync(0, NULL, &result) != 1) {
-            return 16;
+        pmw->isSyncClose = FALSE;
+        if (sceMcSync(0, NULL, &result) != sceMcExecFinish) {
+            return MEMC_ERR_BUSY;
         }
 
         return memc_mansub_ErrChk(result);
     }
 
-    return 16;
+    return MEMC_ERR_BUSY;
 }
 
 static int memc_manager_save(int result) {
-    int re;
-    MEMC_STAT *pmw = &memc_stat;
-    char name[64];
-    char *fname;
-    int i;
-    int iscls;
-    int isfn;
+    int             re;
+    MEMC_STAT      *pmw;
+    char            name[64];
+    char           *fname;
+    int             i;
+    int             iscls;
+    int             isfn;
     sceMcTblGetDir *owDir;
-    int isSysOWrite;
+    int             isSysOWrite;
+
+    pmw = &memc_stat;
 
     switch (pmw->cmd) {
-    case 0xe:
-        if (result == 0) {
+    case sceMcFuncNoFileInfo:
+        if (result == sceMcResSucceed) {
             if (!pmw->format) {
-                result = -2;
+                result = sceMcResNoFormat;
             }
         }
 
@@ -778,31 +779,30 @@ static int memc_manager_save(int result) {
             return memc_mansub_ErrChk(result);
         }
 
-        if (pmw->type != 2) {
-            pmw->func = 0;
-            return 2;
+        if (pmw->type != sceMcTypePS2) {
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         }
 
         strcpy(name, pmw->saveDir);
         strcpy(name + strlen(pmw->saveDir), "/*");
 
-        if (sceMcGetDir(pmw->port, pmw->slot, name, 0, 8, pmw->curDir) == 0) {
-            pmw->cmd = 0xd;
+        if (!sceMcGetDir(pmw->port, pmw->slot, name, 0, PR_ARRAYSIZE(pmw->curDir), pmw->curDir)) {
+            pmw->cmd = sceMcFuncNoGetDir;
         } else {
-            pmw->func = 0;
+            pmw->func = MEMC_FUNC_IDLE;
             pmw->cmd = 0;
         }
 
         break;
-
-    case 0xd:
+    case sceMcFuncNoGetDir:
         if (result == 0) {
             if (!pmw->format) {
-                result = -2;
+                result = sceMcResNoFormat;
             }
         }
 
-        if (result == -4) {
+        if (result == sceMcResNoEntry) {
             result = 0;
         }
 
@@ -810,9 +810,9 @@ static int memc_manager_save(int result) {
             return memc_mansub_ErrChk(result);
         }
 
-        if (pmw->type != 2) {
-            pmw->func = 0;
-            return 2;
+        if (pmw->type != sceMcTypePS2) {
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         }
 
         pmw->oldOWClust = 0;
@@ -824,7 +824,7 @@ static int memc_manager_save(int result) {
 
             for (i = 0; i < result; i++) {
                 if (pmw->curDir[i].EntryName[0] != '.') {
-                    iscls += ((pmw->curDir[i].FileSizeByte + 0x3ff) >> 0xa);
+                    iscls += ((pmw->curDir[i].FileSizeByte + 1023) / 1024);
                     isfn++;
                 }
             }
@@ -832,11 +832,11 @@ static int memc_manager_save(int result) {
             pmw->oldOWClust = (iscls + (isfn / 2)) + 2;
 
             if (pmw->bChkSys ||
-                memc_searchDirTbl(memc_getfilename(-1), pmw->curDir, result, TRUE, sizeof(sceMcIconSys), NULL) == NULL ||
-                memc_searchDirTbl(memc_getfilename(-2), pmw->curDir, result, TRUE, pmw->iconSize1,       NULL) == NULL ||
-                ((fname = memc_getfilename(-3)) != NULL &&
+                memc_searchDirTbl(memc_getfilename(MEMC_FILE_ICON),  pmw->curDir, result, TRUE, sizeof(sceMcIconSys), NULL) == NULL ||
+                memc_searchDirTbl(memc_getfilename(MEMC_FILE_ICON1), pmw->curDir, result, TRUE, pmw->iconSize1,       NULL) == NULL ||
+                ((fname = memc_getfilename(MEMC_FILE_ICON2)) != NULL &&
                     memc_searchDirTbl(fname, pmw->curDir, result, TRUE, pmw->iconSize2, NULL) == NULL) ||
-                ((fname = memc_getfilename(-4)) != NULL &&
+                ((fname = memc_getfilename(MEMC_FILE_ICON3)) != NULL &&
                     memc_searchDirTbl(fname, pmw->curDir, result, TRUE, pmw->iconSize3, NULL) == NULL)) {
                 isSysOWrite = TRUE;
             }
@@ -845,51 +845,50 @@ static int memc_manager_save(int result) {
 
             if ((owDir = memc_searchDirTbl(memc_getfilename(pmw->fileNo), pmw->curDir, result, FALSE, 0, NULL)) != NULL) {
                 pmw->sizeOW = owDir->FileSizeByte;
-                pmw->func = 0xd;
-                return 0x12;
+                pmw->func = MEMC_FUNC_OVERWRITE_CHECK;
+                return MEMC_ERR_FILE_EXISTS;
             }
 
             if (isSysOWrite) {
-                pmw->func = 4;
-                pmw->stat |= 0x3;
-                memc_mansub_Open(memc_getfilepath(-1), SCE_CREAT | SCE_WRONLY);
+                pmw->func = MEMC_FUNC_SAVEFILE;
+                pmw->stat |= (MEMC_STAT_SYS | MEMC_STAT_ICON);
+                memc_mansub_Open(memc_getfilepath(MEMC_FILE_ICON), SCE_CREAT | SCE_WRONLY);
                 break;
             }
 
             re = memc_SaveFileClust();
             if (pmw->free < re) {
-                pmw->func = 0;
-                return 4;
+                pmw->func = MEMC_FUNC_IDLE;
+                return MEMC_ERR_FULL;
             } else {
                 if (memc_mansub_Open(pmw->filename, SCE_CREAT | SCE_WRONLY) == 1) {
-                    pmw->func = 0;
-                    return 4;
+                    pmw->func = MEMC_FUNC_IDLE;
+                    return MEMC_ERR_FULL;
                 }
             }
         } else {
             re = memc_SaveFileClust();
 
             if (pmw->free < (re + pmw->sysFileSize)) {
-                pmw->func = 0;
-                return 4;
+                pmw->func = MEMC_FUNC_IDLE;
+                return MEMC_ERR_FULL;
             } else {
-
-                if (sceMcMkdir(pmw->port, pmw->slot, pmw->saveDir) == 0) {
-                    pmw->cmd = 0xb;
-                    pmw->stat |= 0x1;
+                if (!sceMcMkdir(pmw->port, pmw->slot, pmw->saveDir)) {
+                    pmw->cmd = sceMcFuncNoMkdir;
+                    pmw->stat |= MEMC_STAT_SYS;
                     break;
                 } else {
-                    pmw->func = 0;
-                    return 1;
+                    pmw->func = MEMC_FUNC_IDLE;
+                    return MEMC_ERR_FILE_INVALID;
                 }
             }
         }
 
         break;
-    case 0xb:
-        if (result == 0) {
+    case sceMcFuncNoMkdir:
+        if (result == sceMcResSucceed) {
             if (!pmw->format) {
-                result = -2;
+                result = sceMcResNoFormat;
             }
         }
 
@@ -897,23 +896,23 @@ static int memc_manager_save(int result) {
             return memc_mansub_ErrChk(result);
         }
 
-        if (pmw->type != 2) {
-            pmw->func = 0;
-            return 2;
+        if (pmw->type != sceMcTypePS2) {
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         }
 
         if ((re = memc_mansub_ErrChk(result)) != 0) {
             return re;
         }
 
-        pmw->func = 4;
-        pmw->stat |= 0x2;
-        memc_mansub_Open(memc_getfilepath(-1), SCE_CREAT | SCE_WRONLY);
+        pmw->func = MEMC_FUNC_SAVEFILE;
+        pmw->stat |= MEMC_STAT_ICON;
+        memc_mansub_Open(memc_getfilepath(MEMC_FILE_ICON), SCE_CREAT | SCE_WRONLY);
         break;
-    case 2:
-        if (result == 0) {
+    case sceMcFuncNoOpen:
+        if (result == sceMcResSucceed) {
             if (!pmw->format) {
-                result = -2;
+                result = sceMcResNoFormat;
             }
         }
 
@@ -921,59 +920,58 @@ static int memc_manager_save(int result) {
             return memc_mansub_ErrChk(result);
         }
 
-        if (pmw->type != 2) {
-            pmw->func = 0;
-            return 2;
+        if (pmw->type != sceMcTypePS2) {
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         }
 
         pmw->fd = result;
 
-        if (pmw->stat & 0x10) {
-            if (sceMcWrite(result, pmw->iconData3, pmw->iconSize3) == 0) {
-                pmw->cmd = 6;
+        if (pmw->stat & MEMC_STAT_ICON3) {
+            if (!sceMcWrite(result, pmw->iconData3, pmw->iconSize3)) {
+                pmw->cmd = sceMcFuncNoWrite;
             }
 
             break;
         }
 
-        if (pmw->stat & 0x8) {
-            if (sceMcWrite(result, pmw->iconData2, pmw->iconSize2) == 0) {
-                pmw->cmd = 6;
+        if (pmw->stat & MEMC_STAT_ICON2) {
+            if (!sceMcWrite(result, pmw->iconData2, pmw->iconSize2)) {
+                pmw->cmd = sceMcFuncNoWrite;
             }
 
             break;
         }
 
-        if (pmw->stat & 0x4) {
-            if (sceMcWrite(result, pmw->iconData1, pmw->iconSize1) == 0) {
-                pmw->cmd = 6;
+        if (pmw->stat & MEMC_STAT_ICON1) {
+            if (!sceMcWrite(result, pmw->iconData1, pmw->iconSize1)) {
+                pmw->cmd = sceMcFuncNoWrite;
             }
 
             break;
         }
 
-        if (pmw->stat & 0x2) {
-            if (sceMcWrite(result, &memc_iconsys, sizeof(sceMcIconSys)) == 0) {
-                pmw->cmd = 6;
+        if (pmw->stat & MEMC_STAT_ICON) {
+            if (!sceMcWrite(result, &memc_iconsys, sizeof(sceMcIconSys))) {
+                pmw->cmd = sceMcFuncNoWrite;
             }
 
             break;
         }
 
-        if (sceMcWrite(result, pmw->buf, pmw->size) == 0) {
+        if (!sceMcWrite(result, pmw->buf, pmw->size)) {
             if (pmw->seek > 0) {
                 pmw->cmd = 0x1000e;
             } else {
-                pmw->cmd = 6;
+                pmw->cmd = sceMcFuncNoWrite;
             }
         }
 
         break;
-
     case 0x1000e:
-        if (result == 0) {
+        if (result == sceMcResSucceed) {
             if (!pmw->format) {
-                result = -2;
+                result = sceMcResNoFormat;
             }
         }
 
@@ -981,18 +979,18 @@ static int memc_manager_save(int result) {
             return memc_mansub_ErrChk(result);
         }
 
-        if (pmw->type != 2) {
-            pmw->func = 0;
-            return 2;
+        if (pmw->type != sceMcTypePS2) {
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         }
 
         sceMcSeek(pmw->fd, pmw->seek, 0);
         pmw->cmd = 0x1000f;
         break;
     case 0x1000f:
-        if (result == 0) {
+        if (result == sceMcResSucceed) {
             if (!pmw->format) {
-                result = -2;
+                result = sceMcResNoFormat;
             }
         }
 
@@ -1000,20 +998,20 @@ static int memc_manager_save(int result) {
             return memc_mansub_ErrChk(result);
         }
 
-        if (pmw->type != 2) {
-            pmw->func = 0;
-            return 2;
+        if (pmw->type != sceMcTypePS2) {
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         }
 
-        if (sceMcWrite(pmw->fd, pmw->buf + pmw->size, pmw->size2) == 0) {
-            pmw->cmd = 6;
+        if (!sceMcWrite(pmw->fd, pmw->buf + pmw->size, pmw->size2)) {
+            pmw->cmd = sceMcFuncNoWrite;
         }
 
         break;
-    case 6:
-        if (result == 0) {
+    case sceMcFuncNoWrite:
+        if (result == sceMcResSucceed) {
             if (!pmw->format) {
-                result = -2;
+                result = sceMcResNoFormat;
             }
         }
 
@@ -1021,103 +1019,103 @@ static int memc_manager_save(int result) {
             return memc_mansub_ErrChk(result);
         }
 
-        if (pmw->type != 2) {
-            pmw->func = 0;
-            return 2;
+        if (pmw->type != sceMcTypePS2) {
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_INVALID;
         }
 
         sceMcFlush(pmw->fd);
-        pmw->cmd = 0xa;
+        pmw->cmd = sceMcFuncNoFlush;
         break;
-    case 0xa:
-        if (memc_mansub_Close() == 0) {
-            if (!(pmw->stat & 0x1)) {
-                pmw->func = 6;
+    case sceMcFuncNoFlush:
+        if (!memc_mansub_Close()) {
+            if (!(pmw->stat & MEMC_STAT_SYS)) {
+                pmw->func = MEMC_FUNC_SKIP;
             }
         } else {
-            pmw->func = 0;
-            return 1;
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_FILE_INVALID;
         }
 
         break;
-    case 3:
-        if (result == 0) {
+    case sceMcFuncNoClose:
+        if (result == sceMcResSucceed) {
             char *fname;
 
-            if (!(pmw->stat & 0x4)) {
-                pmw->stat |= 0x4;
-                memc_mansub_Open(memc_getfilepath(-2), SCE_CREAT | SCE_WRONLY);
+            if (!(pmw->stat & MEMC_STAT_ICON1)) {
+                pmw->stat |= MEMC_STAT_ICON1;
+                memc_mansub_Open(memc_getfilepath(MEMC_FILE_ICON1), SCE_CREAT | SCE_WRONLY);
                 break;
             }
 
-            if (!(pmw->stat & 0x8)) {
-                if ((fname = memc_getfilepath(-3)) != NULL) {
-                    pmw->stat |= 0x8;
+            if (!(pmw->stat & MEMC_STAT_ICON2)) {
+                if ((fname = memc_getfilepath(MEMC_FILE_ICON2)) != NULL) {
+                    pmw->stat |= MEMC_STAT_ICON2;
                     memc_mansub_Open(fname, SCE_CREAT | SCE_WRONLY);
                     break;
                 }
             }
 
-            if (!(pmw->stat & 0x10)) {
-                if ((fname = memc_getfilepath(-4)) != NULL) {
-                    pmw->stat |= 0x10;
+            if (!(pmw->stat & MEMC_STAT_ICON3)) {
+                if ((fname = memc_getfilepath(MEMC_FILE_ICON3)) != NULL) {
+                    pmw->stat |= MEMC_STAT_ICON3;
                     memc_mansub_Open(fname, SCE_CREAT | SCE_WRONLY);
                     break;
                 }
             }
 
-            pmw->stat &= ~0x1f;
+            pmw->stat &= ~MEMC_STAT_ALL;
             memc_mansub_Open(pmw->filename, SCE_CREAT | SCE_WRONLY);
         } else {
-            pmw->func = 0;
-            return 1;
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_FILE_INVALID;
         }
 
         break;
     }
 
-    return 0x10;
+    return MEMC_ERR_BUSY;
 }
 
 static int memc_manager_overwrite(int result) {
     MEMC_STAT *pmw = &memc_stat;
-    int size, need;
-    char *fname;
-    int func;
+    int        size, need;
+    char      *fname;
+    int        func;
 
-    if (pmw->cmd != 0xe) {
-        return 0x10;
+    if (pmw->cmd != sceMcFuncNoFileInfo) {
+        return MEMC_ERR_BUSY;
     }
 
     if ((result = memc_mansub_ErrChk(result)) == 0) {
-        func = 4;
+        func = MEMC_FUNC_SAVEFILE;
         size = memc_SaveFileClust() + pmw->sysFileSize;
         need = size - pmw->oldOWClust;
 
         if (pmw->free < need) {
-            pmw->func = 0;
-            return func;
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_FULL;
         }
 
         if (pmw->bChkSys ||
-            memc_searchDirTbl(memc_getfilename(-1), pmw->curDir, 0, 1, sizeof(sceMcIconSys), NULL) == NULL ||
-            memc_searchDirTbl(memc_getfilename(-2), pmw->curDir, 0, 1, pmw->iconSize1,       NULL) == NULL ||
-            ((fname = memc_getfilename(-3)) != NULL &&
-                memc_searchDirTbl(fname, pmw->curDir, 0, 1, pmw->iconSize2, NULL) == NULL) ||
-            ((fname = memc_getfilename(-4)) != NULL &&
-                memc_searchDirTbl(fname, pmw->curDir, 0, 1, pmw->iconSize3, NULL) == NULL)) {
-            pmw->func = 4;
-            pmw->stat |= 0x3;
-            memc_mansub_Open(memc_getfilepath(-1), SCE_CREAT | SCE_WRONLY);
-            return 0x10;
+            memc_searchDirTbl(memc_getfilename(MEMC_FILE_ICON),  pmw->curDir, 0, TRUE, sizeof(sceMcIconSys), NULL) == NULL ||
+            memc_searchDirTbl(memc_getfilename(MEMC_FILE_ICON1), pmw->curDir, 0, TRUE, pmw->iconSize1,       NULL) == NULL ||
+            ((fname = memc_getfilename(MEMC_FILE_ICON2)) != NULL &&
+                memc_searchDirTbl(fname, pmw->curDir, 0, TRUE, pmw->iconSize2, NULL) == NULL) ||
+            ((fname = memc_getfilename(MEMC_FILE_ICON3)) != NULL &&
+                memc_searchDirTbl(fname, pmw->curDir, 0, TRUE, pmw->iconSize3, NULL) == NULL)) {
+            pmw->func = MEMC_FUNC_SAVEFILE;
+            pmw->stat |= (MEMC_STAT_SYS | MEMC_STAT_ICON);
+            memc_mansub_Open(memc_getfilepath(MEMC_FILE_ICON), SCE_CREAT | SCE_WRONLY);
+            return MEMC_ERR_BUSY;
         }
 
         if (memc_mansub_Open(pmw->filename, SCE_CREAT | SCE_WRONLY) == 1) {
-            pmw->func = 0;
-            return 4;
+            pmw->func = MEMC_FUNC_IDLE;
+            return MEMC_ERR_FULL;
         } else {
             pmw->func = func;
-            return 16;
+            return MEMC_ERR_BUSY;
         }
     }
 
@@ -1134,90 +1132,90 @@ static int memc_manager_chk(int mode) {
     re = sceMcSync(mode, NULL, &result);
     if (re == sceMcExecFinish) {
         switch (pmw->func) {
-        case 3:
+        case MEMC_FUNC_LOADFILE:
             return memc_mansub_load(result);
-        case 4:
+        case MEMC_FUNC_SAVEFILE:
             return memc_manager_save(result);
-        case 1:
+        case MEMC_FUNC_PORTCHECK:
             if (result == sceMcResNoFormat) {
                 result = -2000;
             }
             return memc_mansub_ErrChk(result);
-        case 7:
+        case MEMC_FUNC_FORMAT:
             switch (pmw->cmd) {
             case sceMcFuncNoFileInfo:
                 if (result >= 0) {
-                    if (pmw->type != 2) {
-                        pmw->func = 0;
-                        return 2;
+                    if (pmw->type != sceMcTypePS2) {
+                        pmw->func = MEMC_FUNC_IDLE;
+                        return MEMC_ERR_INVALID;
                     }
 
                     re = sceMcFormat(pmw->port, pmw->slot);
-                    if (re == 0) {
+                    if (re == sceMcResSucceed) {
                         pmw->cmd = sceMcFuncNoFormat;
                         break;
                     }
 
-                    pmw->func = 0;
+                    pmw->func = MEMC_FUNC_IDLE;
                     pmw->cmd = 0;
-                    return 1;
+                    return MEMC_ERR_FILE_INVALID;
                 }
 
                 return memc_mansub_ErrChk(result);
             case sceMcFuncNoFormat:
                 if (result >= 0) {
-                    pmw->func = 0;
-                    return 0;
+                    pmw->func = MEMC_FUNC_IDLE;
+                    return MEMC_OK;
                 }
 
                 pmw->retry++;
                 if (pmw->retry >= 30) {
-                    pmw->func = 0;
-                    return 1;
+                    pmw->func = MEMC_FUNC_IDLE;
+                    return MEMC_ERR_FILE_INVALID;
                 }
 
                 sceMcFormat(pmw->port, pmw->slot);
                 break;
             }
             break;
-        case 2:
-        case 6:
-        case 8:
-        case 9:
-        case 10:
+        case MEMC_FUNC_UNK2:
+        case MEMC_FUNC_SKIP:
+        case MEMC_FUNC_UNK8:
+        case MEMC_FUNC_GETDIR:
+        case MEMC_FUNC_CHGDIR:
         case MEMC_FUNC_DELFILE:
             return memc_mansub_ErrChk(result);
         case MEMC_FUNC_GETINFO:
             return memc_mansub_GetInfo(result);
-        case 14:
+        case MEMC_FUNC_OVERWRITE:
             return memc_manager_overwrite(result);
-        case 0:
-        case 5:
+        case MEMC_FUNC_IDLE:
+        case MEMC_FUNC_UNK5:
         default:
-            pmw->func = 0;
+            pmw->func = MEMC_FUNC_IDLE;
             break;
-        case 13:
-            return 0x10;
+        case MEMC_FUNC_OVERWRITE_CHECK:
+            return MEMC_ERR_BUSY;
         }
     }
 
     if (re == sceMcExecIdle) {
-        pmw->func = 0;
-        return 0;
+        pmw->func = MEMC_FUNC_IDLE;
+        return MEMC_OK;
     }
 
-    return 0x10;
+    return MEMC_ERR_BUSY;
 }
 
 int memc_manager(int mode) {
     int re;
 
-    if (mode == 1) {
-        re = memc_manager_chk(1);
+    if (mode == MEMC_MODE_ASYNC) {
+        re = memc_manager_chk(mode);
     } else {
         do {
             re = memc_manager_chk(mode);
-        } while (re == 0x10);
+        } while (re == MEMC_ERR_BUSY);
     }
 
     return re;

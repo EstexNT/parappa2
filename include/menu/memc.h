@@ -6,9 +6,69 @@
 #include <eetypes.h>
 #include <libmc.h>
 
-/* Memory card function types */
-#define MEMC_FUNC_GETINFO (11)
-#define MEMC_FUNC_DELFILE (12)
+#define MEMC_ICON_VIEW (0)
+#define MEMC_ICON_COPY (1)
+#define MEMC_ICON_DEL  (2)
+
+#define MEMC_FILE_ICON    (-1)
+#define MEMC_FILE_ICON1   (-2)
+#define MEMC_FILE_ICON2   (-3)
+#define MEMC_FILE_ICON3   (-4)
+#define MEMC_FILE_SAVEDIR (0)
+#define MEMC_FILE_SAVE    (1)
+#define MEMC_FILE_MAX     (2)
+
+#define MEMC_FLAG_DIR   (1<<0) /* valid dir */
+#define MEMC_FLAG_ICON  (1<<1)
+#define MEMC_FLAG_ICON1 (1<<2)
+#define MEMC_FLAG_ICON2 (1<<3)
+#define MEMC_FLAG_ICON3 (1<<4)
+#define MEMC_FLAG_UNK5  (1<<5)
+#define MEMC_FLAG_UNK6  (1<<6)
+#define MEMC_FLAG_UNK7  (1<<7)
+#define MEMC_FLAG_PS1   (1<<8)
+#define MCMC_FLAG_PS2   (1<<9)
+#define MEMC_FLAG_PDA   (1<<10)
+
+/* stat write flags */
+#define MEMC_STAT_SYS   (1<<0)
+#define MEMC_STAT_ICON  (1<<1)
+#define MEMC_STAT_ICON1 (1<<2)
+#define MEMC_STAT_ICON2 (1<<3)
+#define MEMC_STAT_ICON3 (1<<4)
+#define MEMC_STAT_ALL   (MEMC_STAT_SYS | MEMC_STAT_ICON | MEMC_STAT_ICON1 | MEMC_STAT_ICON2 | MEMC_STAT_ICON3)
+
+#define MEMC_MODE_SYNC  (0)
+#define MEMC_MODE_ASYNC (1)
+
+#define MEMC_FUNC_IDLE            (0)
+#define MEMC_FUNC_PORTCHECK       (1)
+#define MEMC_FUNC_UNK2            (2) /* unused */
+#define MEMC_FUNC_LOADFILE        (3)
+#define MEMC_FUNC_SAVEFILE        (4)
+#define MEMC_FUNC_UNK5            (5) /* unused */
+#define MEMC_FUNC_SKIP            (6)
+#define MEMC_FUNC_FORMAT          (7)
+#define MEMC_FUNC_UNK8            (8) /* unused */
+#define MEMC_FUNC_GETDIR          (9)
+#define MEMC_FUNC_CHGDIR          (10)
+#define MEMC_FUNC_GETINFO         (11)
+#define MEMC_FUNC_DELFILE         (12)
+#define MEMC_FUNC_OVERWRITE_CHECK (13)
+#define MEMC_FUNC_OVERWRITE       (14)
+
+#define MEMC_OK                   (0)
+#define MEMC_ERR_FILE_INVALID     (1)
+#define MEMC_ERR_INVALID          (2) /* unknown err. / invalid card */
+#define MEMC_ERR_UNFORMATTED      (3)
+#define MEMC_ERR_FULL             (4)
+#define MEMC_ERR_FILE_NOT_FOUND   (5)
+#define MEMC_ERR_SWAP             (6)
+#define MEMC_ERR_BUSY             (16)
+#define MEMC_ERR_DIR_NOT_FOUND    (17)
+#define MEMC_ERR_FILE_EXISTS      (18) /* overwrite check */
+#define MEMC_ERR_DIR_TOO_MANY     (19) /* too many files */
+#define MEMC_ERR_SWAP_UNFORMATTED (48)
 
 typedef struct { // 0x340
     /* 0x000 */ u_int flag;
