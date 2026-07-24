@@ -44,12 +44,12 @@
 /* sdata 39953c */ extern int ddbg_bmp_frame; /* static */
 /* data 186248 */ extern DRAW_DBG_STR draw_dbg_str[5/*undef*/]; /* static */
 /* bss 1c6e030 */ extern DR_TAP_REQ dr_tap_req[16]; /* static */
-/* sbss 399a4c */ extern int dr_tap_req_num; /* static */
+static int dr_tap_req_num;
 /* bss 1c6e0f0 */ extern int octst_time[8]; /* static */
 /* bss 1c6e110 */ extern int octst_timeLoad[8]; /* static */
 /* bss 1c6e130 */ extern SCENECTRL scenectrl_outside[8]; /* static */
-/* sbss 399a50 */ extern int scenectrl_outside_cnt; /* static */
-/* sbss 399a54 */ extern int scenectrl_outside_read_cnt; /* static */
+static int scenectrl_outside_cnt;
+static int scenectrl_outside_read_cnt;
 // /* sdata 399550 */ enum ANI_BLUMOVE_ENUM {
 //  BLMV_NONE = 0,
 //  BLMV_BLUR = 1,
@@ -58,18 +58,18 @@
 //  BLMV_MAX = 4
 // };
 /* bss 1c6e230 */ extern BTHROW_CTRL bthrow_ctrl[2]; /* static */
-/* sbss 399a58 */ extern MOZAIKU_POLL_STR *mozaiku_poll_str_current_pp; /* static */
+static MOZAIKU_POLL_STR *mozaiku_poll_str_current_pp;
 /* bss 1c6fe58 */ extern void *tmp_buf_adrs[16]; /* static */
-/* sbss 399a5c */ extern int drawCurrentLine; /* static */
-/* sbss 399a60 */ extern int drawCurrentTime; /* static */
-/* sbss 399a64 */ extern int drawCurrentTimeOld; /* static */
-/* sbss 399a68 */ extern EVENTREC *drawEventrec; /* static */
-/* sbss 399a6c */ extern u_int useDispFlag; /* static */
-/* sbss 399a70 */ extern u_int drDispFlag; /* static */
-/* sbss 399a74 */ extern float men_ctrl_ratio; /* static */
-/* sbss 399a78 */ extern MEN_CTRL_ENUM men_ctrl_enum; /* static */
+static int drawCurrentLine;
+static int drawCurrentTime;
+static int drawCurrentTimeOld;
+static EVENTREC *drawEventrec;
+static u_int useDispFlag;
+static u_int drDispFlag;
+static float men_ctrl_ratio;
+static MEN_CTRL_ENUM men_ctrl_enum;
 /* bss 1c6fe98 */ extern SCENECTRL *check_scenectrl[20]; /* static */
-/* sbss 399a7c */ extern u_char ddbg_pause_f; /* static */
+static u_char ddbg_pause_f;
 
 static void  UseGsRegSet(void);
 static void  UseGsSetXyOffset(int ofs);
@@ -122,7 +122,7 @@ static void UseGsRegSet(void) {
 
 void UseGsSetXyOffset(int ofs) {
     sceGifPacket gifpk;
-    int offsy;
+    int          offsy;
   
     if (ofs) {
         offsy = 0x7908;
@@ -246,8 +246,8 @@ float* bra_ret_GetNext(PR_MODELHANDLE model) {
 }
 
 void XAnimationLinkOption(PR_MODELHANDLE model, PR_ANIMATIONHANDLE animation, int first, int blumove, float time) {
-    PR_ANIMATIONHANDLE anim_tmp;
-    float *tmp_dat;
+    PR_ANIMATIONHANDLE  anim_tmp;
+    float              *tmp_dat;
 
     if (blumove == BLMV_MOVE) {
         first = FALSE;
@@ -419,13 +419,11 @@ void BallThrowTarget(void *mdlh, OBJBTHROW_TYPE thtype, int targetframe) {
 }
 
 void BallThrowPoll(void) {
-    int i, j;
-
+    int          i, j;
     sceGifPacket gifP;
-
-    TIM2INFO info;
-    int w, h;
-    int px, py;
+    TIM2INFO     info;
+    int          w, h;
+    int          px, py;
 
     for (i = 0; i < PR_ARRAYSIZE(bthrow_ctrl); i++) {
         if (bthrow_ctrl[i].frame == 0) {
@@ -1587,7 +1585,87 @@ int DrawVramClear(void *para_pp, int frame, int first_f, int useDisp, int drDisp
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawMoveDispIn);
+int DrawMoveDispIn(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
+    sceGifPacket gifpk;
+    sceGsFrame  *use_pp, *draw_pp; /* note: not in STABS. */
+    int          xp, yp;
+    int          i;
+    int          stp, endp;
+    int          lngT, lngN;
+    MOVEIN_PARA *movein_pp = (MOVEIN_PARA*)para_pp; /* note: not in STABS. */
+
+    if (first_f == DRPRGF_INIT) {
+        return 0;
+    }
+    if (first_f == DRPRGF_RESET) {
+        return 0;
+    }
+
+    use_pp = DrawGetFrameP(useDisp);
+    draw_pp = DrawGetFrameP(drDisp);
+
+    CmnGifADPacketMake(&gifpk, draw_pp);
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEX0_1, SCE_GS_SET_TEX0(use_pp->FBP << 5, use_pp->FBW, 0, 10, 8, 0, SCE_GS_MODULATE, 0, 0, 0, 0, 0));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEX1_1, SCE_GS_SET_TEX1(0, 0, SCE_GS_NEAREST, SCE_GS_NEAREST, 0, 0, 0));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEST_1, SCE_GS_SET_TEST(SCE_GS_FALSE, 0, 0, 0, SCE_GS_FALSE, 0, SCE_GS_TRUE, SCE_GS_DEPTH_ALWAYS));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_PRIM, SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, 1, 0, 0, 0, 1, 0, 0));
+
+    stp = 0;
+    endp = -1;
+
+    for (i = 0; i < movein_pp->movein_data_size; i++) {
+        if (movein_pp->movein_data_pp[i].frame == frame) {
+            stp = i;
+            endp = i;
+            break;
+        }
+
+        if (movein_pp->movein_data_pp[i].frame < frame) {
+            stp = i;
+        }
+
+        if (movein_pp->movein_data_pp[i].frame > frame) {
+            endp = i;
+            break;
+        }
+    }
+
+    if (endp == -1) {
+        endp = stp;
+    }
+
+    lngT = movein_pp->movein_data_pp[endp].frame - movein_pp->movein_data_pp[stp].frame;
+    lngN = frame - movein_pp->movein_data_pp[stp].frame;
+
+    if (lngT == 0) {
+        xp = movein_pp->movein_data_pp[stp].xp << 4;
+        yp = movein_pp->movein_data_pp[stp].yp << 4;
+    } else {
+        xp = movein_pp->movein_data_pp[endp].xp - movein_pp->movein_data_pp[stp].xp;
+        xp = (((xp * lngN) << 4) / lngT) + (movein_pp->movein_data_pp[stp].xp << 4);
+
+        yp = movein_pp->movein_data_pp[endp].yp - movein_pp->movein_data_pp[stp].yp;
+        yp = (((yp * lngN) << 4) / lngT) + (movein_pp->movein_data_pp[stp].yp << 4);
+    }
+
+    xp = (xp + GS_X_COORD(0));
+    yp = (yp + GS_Y_COORD(0));
+    xp &= 0xffff;
+    yp &= 0xffff;
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_UV, SCE_GS_SET_UV(movein_pp->u << 4, movein_pp->v << 4));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_XYZ2, SCE_GS_SET_XYZ(xp, yp, 1));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_UV, SCE_GS_SET_UV((movein_pp->u + movein_pp->w) << 4, (movein_pp->v + movein_pp->h) << 4));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_XYZ2, SCE_GS_SET_XYZ(xp + (movein_pp->w << 4), yp + (movein_pp->h << 4), 1));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEXFLUSH, 0);
+
+    CmnGifADPacketMakeTrans(&gifpk);
+    return 0;
+}
 
 int DrawAlphaBlendDisp(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
     sceGsFrame   *use_pp;
@@ -1657,7 +1735,7 @@ int DrawFadeDisp(void *para_pp, int frame, int first_f, int useDisp, int drDisp)
 
     if (drDisp == DNUM_DRAW && useDisp == DNUM_VRAM2) {
         sceGifPkAddGsAD(&gifpk, SCE_GS_XYOFFSET_1, *(u_long*)&DrawGetDrawEnvP(DNUM_VRAM2)->xyoffset1);
-    } 
+    }
 
     stp = 0;
     endp = -1;
@@ -1780,7 +1858,7 @@ int DrawPlphaIndex8Disp(void *para_pp, int frame, int first_f, int useDisp, int 
 
     if (use_pp != NULL) {
         sceGifPkAddGsAD(&gifpk, SCE_GS_TEX0_1, SCE_GS_SET_TEX0(use_pp->FBP << 5, use_pp->FBW, SCE_GS_PSMCT32, 10, 8, 1, SCE_GS_MODULATE, 0, 0, 0, 0, 0));
-        sceGifPkAddGsAD(&gifpk, SCE_GS_TEX1_1, SCE_GS_SET_TEX1(0, 0, 0, 0, 0, 0, 0));
+        sceGifPkAddGsAD(&gifpk, SCE_GS_TEX1_1, SCE_GS_SET_TEX1(0, 0, SCE_GS_NEAREST, SCE_GS_NEAREST, 0, 0, 0));
     }
 
     sceGifPkAddGsAD(&gifpk, SCE_GS_TEST_1, SCE_GS_SET_TEST(SCE_GS_TRUE, SCE_GS_ALPHA_NEVER, 0, SCE_GS_AFAIL_RGB_ONLY, SCE_GS_FALSE, 0, SCE_GS_TRUE, SCE_GS_DEPTH_ALWAYS));
@@ -1831,7 +1909,51 @@ int DrawTim2DIsp(void *para_pp, int frame, int first_f, int useDisp, int drDisp)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main/drawctrl", DrawNoodlesDisp);
+int DrawNoodlesDisp(void *para_pp, int frame, int first_f, int useDisp, int drDisp) {
+    sceGsFrame   *draw_pp, *use_pp, *col_pp;
+    sceGifPacket  gifpk;
+    NOODLES_STR  *ndl_pp = (NOODLES_STR*)para_pp; /* note: not in STABS. */
+
+    if (first_f == DRPRGF_INIT) {
+        return 0;
+    }
+    if (first_f == DRPRGF_RESET) {
+        return 0;
+    }
+
+    use_pp = DrawGetFrameP(useDisp);
+    draw_pp = DrawGetFrameP(drDisp);
+    col_pp = DrawGetFrameP(DNUM_ZBUFF);
+
+    CmnGifADPacketMake(&gifpk, draw_pp);
+
+    Tim2Trans_TBP_MODE(GetIntAdrsCurrent(ndl_pp->texnum), use_pp->FBP << 5, SCE_GS_PSMT8H);
+    Tim2TransColor_TBP(GetIntAdrsCurrent(ndl_pp->texnum), col_pp->FBP << 5);
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEX0_1, SCE_GS_SET_TEX0(use_pp->FBP << 5, use_pp->FBW, SCE_GS_PSMT8H, 10, 8, 1, SCE_GS_MODULATE, col_pp->FBP << 5, SCE_GS_PSMCT16, 0, 0, 1));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEX1_1, SCE_GS_SET_TEX1(0, 0, SCE_GS_NEAREST, SCE_GS_NEAREST, 0, 0, 0));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEST_1, SCE_GS_SET_TEST(SCE_GS_TRUE, SCE_GS_ALPHA_NEVER, 0, SCE_GS_AFAIL_RGB_ONLY, SCE_GS_FALSE, 0, SCE_GS_TRUE, 1));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_ALPHA_1, SCE_GS_SET_ALPHA(SCE_GS_ALPHA_CS, SCE_GS_ALPHA_CD, SCE_GS_ALPHA_AS, SCE_GS_ALPHA_CD, 0));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEXA, SCE_GS_SET_TEXA(0, 1, 64));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_PRIM, SCE_GS_SET_PRIM(SCE_GS_PRIM_SPRITE, 0, SCE_GS_TRUE, SCE_GS_FALSE, SCE_GS_TRUE, SCE_GS_FALSE, 1, 0, 0));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_FRAME_1, *(u_long*)use_pp);
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_UV, SCE_GS_SET_UV(0, 0));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_XYZ2, SCE_GS_SET_XYZ(GS_X_COORD(0), GS_Y_COORD(0), 1));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_UV, SCE_GS_SET_UV(640 << 4, 224 << 4));
+    sceGifPkAddGsAD(&gifpk, SCE_GS_XYZ2, SCE_GS_SET_XYZ(GS_X_COORD(640), GS_Y_COORD(224), 1));
+
+    sceGifPkAddGsAD(&gifpk, SCE_GS_TEXFLUSH, 0);
+    sceGifPkAddGsAD(&gifpk, SCE_GS_FRAME_1, *(u_long*)draw_pp);
+
+    UG_NoodlesDisp(ndl_pp, use_pp, &gifpk, frame);
+
+    CmnGifADPacketMakeTrans(&gifpk);
+    return 0;
+}
 
 extern const char D_00393300[]; /* "local vram copy\n" */
 
@@ -2734,12 +2856,12 @@ static void ddbg_event_sub_bmp(void) {
 }
 
 static void ddbg_tap_check(void) {
-    SCENECTRL *scenectrl_pp;
+    SCENECTRL     *scenectrl_pp;
     SCENE_OBJDATA *scene_objdata_pp;
-    int tid;
-    int req_num;
-    u_short paddata;
-    u_char *prs_adr;
+    int            tid;
+    int            req_num;
+    u_short        paddata;
+    u_char        *prs_adr;
 
     req_num = -1;
     prs_adr = NULL;
@@ -2855,9 +2977,9 @@ void ddbg_tctrl_sub(void) {
 
 static void DrawCtrlMainDebug(void *x) {
     u_short paddata;
-    int sel_pos;
-    int i;
-    char msg_buff[32];
+    int     sel_pos;
+    int     i;
+    char    msg_buff[32];
 
     sel_pos = 0;
 
