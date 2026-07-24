@@ -196,6 +196,19 @@ typedef struct { // 0x20
     /* 0x1c */ int *frame_ppP;
 } GUIMAP;
 
+enum {
+    GUIME_COUNTER = 0,
+    GUIME_HARI_L = 1,
+    GUIME_HARI_M = 2,
+    GUIME_HARI_R = 3,
+    GUIME_JIMAKU = 4,
+    GUIME_JIMAKU_SER = 5,
+    GUIME_BXY = 6,
+    GUIME_NEW_OTEHON = 7,
+    GUIME_VS_SCORE1P = 8,
+    GUIME_VS_SCORE2P = 9
+};
+
 void examCharSet(EX_CHAR_DISP *ecd_pp, sceGifPacket *gifpk_pp);
 
 void MbarMemberClear(int stg);

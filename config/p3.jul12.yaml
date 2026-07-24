@@ -357,7 +357,7 @@ segments:
         - [0x299518, sdata, main/drawctrl]
         - [0x299558, sdata, main/mbar]
         - [0x299588, .sdata, main/etc]
-        - [0x299598, sdata, main/wipe]
+        - [0x299598, .sdata, main/wipe]
         - [0x2995D0, .sdata, main/main]
         - [0x2996E0, .sdata, main/p3str]
 
@@ -407,8 +407,8 @@ segments:
         - { type: .sbss, vram: 0x00399a38, name: main/scrctrl         }
         - { type: .sbss, vram: 0x00399a44, name: main/sprite          }
         - { type: .sbss, vram: 0x00399a48, name: main/subt            }
-        - { type: sbss,  vram: 0x00399a4c, name: main/drawctrl        }
-        - { type: sbss,  vram: 0x00399a80, name: main/mbar            }
+        - { type: .sbss, vram: 0x00399a4c, name: main/drawctrl        }
+        - { type: .sbss, vram: 0x00399a80, name: main/mbar            }
         - { type: .sbss, vram: 0x00399a98, name: main/wipe            }
         - { type: .sbss, vram: 0x00399aa0, name: main/mcctrl          }
         - { type: .sbss, vram: 0x00399aac, name: main/p3str           }
