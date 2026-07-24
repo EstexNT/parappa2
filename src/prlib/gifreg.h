@@ -36,7 +36,7 @@ public:
     PrGifPackedAd m_strip[16];
     int m_strip_len;
     bool m_frozen;
-    char unk128[0x8];
+    PR_PADDING(unk128, 0x8);
 };
 
 enum PrSetGifRegisterMode {

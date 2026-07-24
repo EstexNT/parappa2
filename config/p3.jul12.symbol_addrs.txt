@@ -871,9 +871,9 @@ mbar_ctrl_stage_selT                = 0x00399a8c;
 guime_hdl                           = 0x00399a90;
 guime_camera_hdl                    = 0x00399a94;
 
+tp_tmp_72                           = 0x01c6ffc0; // size:0x60
 exam_global_ply                     = 0x01c70030; // size:0x10
 exam_global_ply_current_ply         = 0x01c70040; // size:0x10
-tp_tmp_72                           = 0x01c6ffc0; // size:0x60
 metFrameCnt                         = 0x01c70050; // size:0xc
 metFrameCntLight                    = 0x01c70060; // size:0xc
 scr_tenmetu_col_dat                 = 0x01c70070; // size:0xc
@@ -882,7 +882,7 @@ vsScoreMove                         = 0x01c70090; // size:0x10
 vsScoreAni                          = 0x01c700a0; // size:0x10
 vs_scr_ctrl                         = 0x01c700b0; // size:0x60
 mbar_req_str                        = 0x01c70110; // size:0xb4
-
+mbarNiko_gif_tmp_301                = 0x01c70020; // size:0x10
 mbar_gif                            = 0x01c701c8; // size:0x10
 
 // main/pack.c

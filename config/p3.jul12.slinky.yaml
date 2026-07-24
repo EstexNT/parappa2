@@ -765,7 +765,7 @@ segments:
       - { path: asm/data/main/mbar.sdata.s.o }
       - { path: src/main/pack.c.o }
       - { path: src/main/etc.c.o }
-      - { path: asm/data/main/wipe.sdata.s.o }
+      - { path: src/main/wipe.c.o }
       - { path: src/main/mcctrl.c.o }
       - { path: src/main/main.c.o }
       - { path: src/main/cmnfile.c.o }
@@ -873,9 +873,9 @@ segments:
       - { path: src/main/sprite.c.o }
       - { path: src/main/fadectrl.c.o }
       - { path: src/main/subt.c.o }
-      - { path: asm/data/main/drawctrl.sbss.s.o }
+      - { path: src/main/drawctrl.c.o }
       - { path: src/main/effect.c.o }
-      - { path: asm/data/main/mbar.sbss.s.o }
+      - { path: src/main/mbar.c.o }
       - { path: src/main/pack.c.o }
       - { path: src/main/etc.c.o }
       - { path: src/main/wipe.c.o }

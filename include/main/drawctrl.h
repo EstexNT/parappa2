@@ -313,6 +313,21 @@ typedef struct { // 0xc
     /* 0x8 */ void (*msg_pp)(char *buf);
 } DRAW_DBG_STR;
 
+typedef struct { // 0xc
+    /* 0x0 */ int frame;
+    /* 0x4 */ int xp;
+    /* 0x8 */ int yp;
+} MOVEIN_DATA;
+
+typedef struct { // 0x10
+    /* 0x0 */ short u;
+    /* 0x2 */ short v;
+    /* 0x4 */ short w;
+    /* 0x6 */ short h;
+    /* 0x8 */ int movein_data_size;
+    /* 0xc */ MOVEIN_DATA *movein_data_pp;
+} MOVEIN_PARA;
+
 void outsideDrawSceneClear(void);
 int outsideDrawSceneReq(int (*prg_pp)(void *para_pp, int frame, int first_f, int useDisp, int drDisp), u_char pri, u_int useF, u_int drawF, void *param);
 

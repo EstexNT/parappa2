@@ -11,6 +11,9 @@ p3.json
 permuter_settings.toml
 
 *.ld
+*.lst
+*.o
+
 .cache/
 .vscode/
 __pycache__/
@@ -22,3 +25,7 @@ iso/
 obj/
 tools/ccc/
 .venv/
+
+src/data/tmp/
+symdump_eud/
+tools/ovldumper

@@ -3048,7 +3048,7 @@ int TsCELBackDraw(TsUSERPKT *UPacket, SPR_PRM *spr, int dispSw, int colNo) {
 
     pk = &pkt;
 
-    if (dispSw != 0 && (colNo >= 0 && colNo < 3)) {
+    if (dispSw != 0 && (colNo >= 0 && colNo <= 2)) {
         if (HOSIObj == NULL) {
             TsCELBackInit();
             if (HOSIObj == NULL) {
