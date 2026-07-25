@@ -6,8 +6,10 @@
 #include "menu/menudata.h"
 #include "menu/menufont.h"
 #include "menu/menu_mdl.h"
+#include "menu/mntm2hed.h"
 #include "menu/p3mc.h"
 
+#include "os/cmngifpk.h"
 #include "os/syssub.h"
 #include "os/system.h"
 #include "os/tim2.h"
@@ -105,7 +107,7 @@
 // /* data 18c420 */ static int PopRnkPos_No[0][9];
 // /* data 18c4b0 */ static int PopBubblePat_No[0][9];
 // /* data 18c540 */ static PTPOS POPWZoom_CXY[0];
-// /* data 18c588 */ static PTPOS JUKEBOX_Pos[0];
+/* data 18c588 */ extern PTPOS JUKEBOX_Pos[]; /* static */
 // /* data 18c5b0 */ static PATPOS JUKEJKT_Pat[0];
 // /* data 18c628 */ static float JUKEWAV_INITBL[0];
 // /* data 18c650 */ static PATPOS JUKEJKT_PatS[0];
@@ -151,9 +153,9 @@
 /* bss 1c7c210 */ extern MN_SCENE MNS_StgCounter[2]; /* static */
 /* bss 1c7e4b8 */ extern MN_SCENE MNS_JimakuBak; /* static */
 /* sbss 399b24 */ extern int CurMapOldFlg; /* static */
-// /* sbss 399b28 */ static int CurMapNo;
+/* sbss 399b28 */ extern int CurMapNo; /* static */
 /* sbss 399b2c */ extern int CurMapBakFlg; /* static */
-// /* sbss 399b30 */ static int CurMapState;
+/* sbss 399b30 */ extern int CurMapState; /* static */
 /* sbss 399b34 */ extern USER_DATA *UserWork; /* static */
 /* sbss 399b38 */ extern P3MC_STAGERANK *pCStageRank; /* static */
 // /* bss 1c7f610 */ static P3MC_RANKSCORE CurRankScore;
@@ -192,24 +194,24 @@ static void  tsBGMONEPlay(int no);
 static void  tsBGMONEStop(int no);
 static void  tsBGMONEVol(int no, int vol);
 static void  tsBGMONETop(int no, int vol);
-/* static */ void  tsBGMONEflow(void);
+static void  tsBGMONEflow(void);
 static void  tsBGMONEPause(int flg);
 /* static */ void  TsBGMInit(void);
 /* static */ void  TsBGMPlay(int no, int time);
 static void  TsBGMStop(int time);
-/* static */ void  TsBGMMute(int time);
+static void  TsBGMMute(int time);
 static int   TsBGMLoadCheck(void);
-/* static */ void  TsBGMPause(int flg);
+static void  TsBGMPause(int flg);
 /* static */ void  TsBGMPoll(void);
-/* static */ void* TsCmnPkOpen(sceGifPacket *pgifpk);
-/* static */ void  TsCmnPkClose(sceGifPacket *pgifpk, void *pk, int pri);
+static void* TsCmnPkOpen(sceGifPacket *pgifpk);
+static void  TsCmnPkClose(sceGifPacket *pgifpk, void *pk, int pri);
 static void  TsClearMenuPad(int no);
 static void  TsGetMenuPad(int no, u_int *getpad);
 static void  TsSndFlow(int flg);
 /* static */ int   TSNumMov(int cn, int dn, int scale);
 static int   TSLOOP(int no, int max);
 static int   TSLIMIT(int no, int min, int max);
-/* static */ int   TsMENU_GetMapNo(int *psize);
+static int   TsMENU_GetMapNo(int *psize);
 static void  TsMENU_GetMapTimeState(int flg);
 /* static */ void  TsSetScene_Map(MN_SCENE *pScene, int mapNo, int tflg, int bFocus);
 static void  TsSet_ParappaCapColor(void);
@@ -257,7 +259,7 @@ static int   TsANIME_GetRate(ANIME_WK *wk, float *rt0, float *rt1, float *rt2);
 /* static */ void  TsPopMenu_Draw(SPR_PKT pk, SPR_PRM *spr);
 /* static */ int   TsSaveMenu_Flow(int flg, u_int tpad);
 /* static */ void  TsSaveMenu_Draw(SPR_PKT pk, SPR_PRM *spr);
-/* static */ void  TSJukeCDObj_Init(JUKECDOBJ *pw, int pno);
+static void  TSJukeCDObj_Init(JUKECDOBJ *pw, int pno);
 /* static */ void  _TsJkJacketPut(SPR_PKT pk, SPR_PRM *spr, JUKECDOBJ *pw, int px, int py, float zx, float rot, u_int abgr, u_int abgrs);
 /* static */ void  _TsJkRecordPut(SPR_PKT pk, SPR_PRM *spr, JUKECDOBJ *pw, int px, int py, float zr, float rrot, u_int abgr, u_int abgrs);
 /* static */ void  TSJukeCDObj_Draw(SPR_PKT pk, SPR_PRM *spr, JUKECDOBJ *pw, int px, int py, int anmtime);
@@ -287,7 +289,7 @@ static int   TsUserList_TagChangeAble(USERLIST_MENU *pfw, int *pno);
 /* static */ int   TsUserList_SetCurTag(USERLIST_MENU *pfw, int no);
 /* static */ int   TsUserList_Flow(int flg, u_int tpad, u_int tpad2);
 /* static */ void  TsUserList_Draw(SPR_PKT pk, SPR_PRM *spr);
-/* static */ void  NameSpaceCut(u_char *dst, u_char *src);
+static void  NameSpaceCut(u_char *dst, u_char *src);
 /* static */ void  TsUser_PanelDraw(SPR_PKT pk, SPR_PRM *spr, USER_DATA *user, int px, int py, int pflg, int isLog);
 /* static */ void  TsNAMEINBox_SetName(NAMEINW *pfw, u_char *name);
 static void  TsNAMEINBox_GetName(NAMEINW *pfw, u_char *name);
@@ -445,7 +447,27 @@ static void tsBGMONETop(int no, int vol) {
     MenuVoicePlayVol(mpbgm->chan, mpbgm->tapNo, vol);
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", tsBGMONEflow);
+static void tsBGMONEflow(void) {
+    BGMONE *wbgm = TsBGMState.wbgm;
+    int     i;
+
+    for (i = 0; i < 11; i++, wbgm++) {
+        if (wbgm->bPause || wbgm->pbgm == NULL) {
+            continue;
+        }
+
+        if (--wbgm->tim > 0) {
+            continue;
+        }
+        if (wbgm->pbgm->lpTime == 0) {
+            continue;
+        }
+
+        wbgm->tim = wbgm->pbgm->lpTime;
+        MenuVoicePlayVol(wbgm->pbgm->chan, wbgm->pbgm->tapNo, wbgm->vol);
+    }
+}
+
 
 static void tsBGMONEPause(int flg) {
     BGMONE *wbgm = TsBGMState.wbgm;
@@ -470,7 +492,7 @@ static void TsBGMStop(int time) {
         pbgm->ttim0 = 0;
         pbgm->ttim = 0;
 
-        if (time >= 1) {
+        if (time > 0) {
             pbgm->state = 3;
             pbgm->vol = 0x100;
 
@@ -494,13 +516,44 @@ static void TsBGMStop(int time) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsBGMMute);
+static void TsBGMMute(int time) {
+    BGMSTATE *pbgm = &TsBGMState;
+
+    if (pbgm->state != 0) {
+        pbgm->chgReq = 0;
+        pbgm->cstate = 0;
+        pbgm->ctim = 0;
+
+        if (time > 0) {
+            pbgm->state = 11;
+            pbgm->vol = 0x100;
+            pbgm->ttim0 = time;
+            pbgm->ttim = 0;
+        } else {
+            pbgm->state = 9;
+            pbgm->vol = 0;
+            pbgm->ttim0 = 0;
+            pbgm->ttim = 0;
+        }
+
+        tsBGMONEVol(pbgm->sndno, pbgm->vol);
+    }
+}
 
 static int TsBGMLoadCheck(void) {
     return MenuVoiceBankSet(-1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsBGMPause);
+static void TsBGMPause(int flg) {
+    BGMSTATE *pbgm = &TsBGMState;
+
+    if (pbgm->state != 0) {
+        pbgm->chgReq = 0;
+        pbgm->cstate = 0;
+        pbgm->ctim = 0;
+        tsBGMONEPause(flg);
+    }
+}
 
 void TsBGMChangePos(int no) {
     BGMSTATE *pbgm = &TsBGMState;
@@ -518,9 +571,29 @@ void TsBGMChangePos(int no) {
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsBGMPoll);
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsCmnPkOpen);
+static void* TsCmnPkOpen(sceGifPacket *pgifpk) {
+    CmnGifOpenCmnPk(pgifpk);
 
+    sceGifPkAddGsAD(pgifpk, SCE_GS_PABE, 0);
+    sceGifPkAddGsAD(pgifpk, SCE_GS_FBA_1, 0);
+    sceGifPkAddGsAD(pgifpk, SCE_GS_TEST_1, 0x30000);
+
+    sceGifPkCloseGifTag(pgifpk);
+    return pgifpk->pCurrent;
+}
+
+#if 1
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsCmnPkClose);
+#else
+/* Needs .rodata match */
+static void TsCmnPkClose(sceGifPacket *pgifpk, void *pk, int pri) {
+    u_long giftag[2] = { 0x1000000000008000, 0xe };
+
+    pgifpk->pCurrent = pk;
+    sceGifPkOpenGifTag(pgifpk, *(u_long128*)giftag);
+    CmnGifCloseCmnPk(pgifpk, pri);
+}
+#endif
 
 int _P3DATA_SIZE(int mode) {
     u_int size;
@@ -540,9 +613,43 @@ int _P3DATA_SIZE(int mode) {
     return size;
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsGetTm2Tex);
+void TsGetTm2Tex(void *ptim2, TSTEX_INF *tex) {
+    TIM2INFO info;
+    int      ptw, pth;
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsGetTm2HedTex);
+    GetTim2Info(ptim2, &info, 1);
+
+    tex->w = info.picturH->ImageWidth;
+    tex->h = info.picturH->ImageHeight;
+    tex->tex0 = info.picturH->GsTex0;
+
+    ptw = (((int*)&tex->tex0)[0] >> 0x1a) & 0xf; /* TW */
+    pth = (((u_int*)&tex->tex0)[0] >> 0x1e) | ((((u_int*)&tex->tex0)[1] & 0x3) << 0x2); /* TH */
+
+    tex->rUsize = 1.0f / (1 << ptw);
+    tex->rVsize = 1.0f / (1 << pth);
+
+    ((u_int*)&tex->tex0)[1] |= 0x4; /* TCC = 1 */
+}
+
+void TsGetTm2HedTex(int no, TSTEX_INF *tex) {
+    int           ptw, pth;
+    MENU_TM2_HED *ptm2h;
+
+    ptm2h = TsGetTM2Hed(no);
+
+    tex->w = ptm2h->w;
+    tex->h = ptm2h->h;
+    tex->tex0 = ptm2h->GsTex0;
+
+    ptw = (((int*)&ptm2h->GsTex0)[0] >> 0x1a) & 0xf; /* TW */
+    pth = (((u_int*)&ptm2h->GsTex0)[0] >> 0x1e) | ((((u_int*)&ptm2h->GsTex0)[1] & 0x3) << 0x2); /* TH */
+
+    tex->rUsize = 1.0f / (1 << ptw);
+    tex->rVsize = 1.0f / (1 << pth);
+
+    ((u_int*)&tex->tex0)[1] |= 0x4; /* TCC = 1 */
+}
 
 static void TsClearMenuPad(int no) {
     if (no >= 2) {
@@ -679,7 +786,16 @@ static void TsSndFlow(int flg) {
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TSNumMov);
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TSNumRBack);
+float TSNumRBack(float rt, float bkrt) {
+    float hrt = bkrt + 1.0f;
+
+    rt *= (bkrt * 2.0f) + 1.0f;
+    if (rt > hrt) {
+        rt = (hrt * 2.0f) - rt;
+    }
+
+    return rt;
+}
 
 static int TSLOOP(int no, int max) {
     return (no + max) % max;
@@ -695,14 +811,50 @@ static int TSLIMIT(int no, int min, int max) {
     return no;
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsMENU_GetMapNo);
+static int TsMENU_GetMapNo(int *psize) {
+    int mn;
+    int size;
+    int flg;
 
+    mn = 9;
+
+    if (pP3GameState->pLog->nRound <= 0) {
+        flg = pP3GameState->pLog->clrFlg[0];
+        for (mn = 1; flg != 0; mn++) {
+            flg >>= 1;
+        }
+
+        if (mn > 9) {
+            mn = 9;
+        }
+    }
+
+    if (mn == 0) {
+        size = 0;
+    } else if (mn < 2) {
+        size = 1;
+    } else if (mn < 4) {
+        size = 2;
+    } else if (mn < 5) {
+        size = 3;
+    } else {
+        size = 4;
+    }
+
+    if (psize != NULL) {
+        *psize = size;
+    }
+
+    return mn;
+}
+
+/* Inline required to match. */
 static inline int PrBcdInt(u_int n) {
     return (((n / 16) * 10) + (n % 16));
 }
 
 static void TsMENU_GetMapTimeState(int flg) {
-    /* sdata 3997d4 */ extern int nTim;
+    /* sdata 3997d4 */ extern int nTim; /* static */
     int         err;
     short       hour;
     short       state;
@@ -725,6 +877,7 @@ static void TsMENU_GetMapTimeState(int flg) {
     if (nTim > 0) {
         return;
     }
+
     nTim = 30;
 
     err = sceCdReadClock(&clock);
@@ -736,7 +889,7 @@ static void TsMENU_GetMapTimeState(int flg) {
         mptim->date_day = clock.day;
         mptim->date_month = clock.month;
         mptim->date_year = clock.year + 0x2000;
-        flg = 0;
+        flg = FALSE;
     } else {
         mptim->date_second = 0x0;
         mptim->date_minute = 0x0;
@@ -744,7 +897,7 @@ static void TsMENU_GetMapTimeState(int flg) {
         mptim->date_day = 0x1; /*      though it still works. */
         mptim->date_month = 0x1;
         mptim->date_year = 0x2000;
-        flg = 1;
+        flg = TRUE;
     }
 
     state = CurMapBakFlg;
@@ -841,7 +994,15 @@ void TsMENU_InitSystem(void) {
     CurFileInfo.repFileNo = -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsMENU_EndSystem);
+void TsMENU_EndSystem(void) {
+    if (pCStageRank != NULL) {
+        free(pCStageRank);
+    }
+
+    if (UserWork != NULL) {
+        free(UserWork);
+    }
+}
 
 void TsMenu_RankingClear(void) {
     int             i;
@@ -991,7 +1152,22 @@ int TsMenuMemcChk_Flow(void) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsMenu_Flow);
+int TsMenu_Flow(void) {
+    u_int tpad, tpad2;
+    int   ret;
+
+    TsGetMenuPad(0, &tpad);
+    TsGetMenuPad(1, &tpad2);
+
+    ret = TsMap_Flow(0, tpad, tpad2);
+
+    TsMCAMes_Flow(tpad);
+    TsSCFADE_Flow(0, 0);
+    TsBGMPoll();
+    TsSndFlow(0);
+
+    return ret;
+}
 
 void TsMenu_Draw(void) {
     SPR_PRM    SprPrm;
@@ -1103,7 +1279,14 @@ INCLUDE_ASM("asm/nonmatchings/menu/menusub", GetRankScoreID);
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsRanking_Set);
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsMENU_SetMapScreen);
+void TsMENU_SetMapScreen(int mapNo) {
+    CurMapNo = mapNo;
+    CurMapOldFlg = CurMapBakFlg;
+
+    TsSetScene_Map(&MNS_StageMap, mapNo, CurMapBakFlg, 1);
+
+    CurMapState = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsCheckTimeMapChange);
 
@@ -2578,9 +2761,35 @@ INCLUDE_ASM("asm/nonmatchings/menu/menusub", _TsSortSetRanking);
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsGetRankingList);
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsPopCusAOff);
+void TsPopCusAOff(POPCTIM *pfw) {
+    POPCOFF *poff;
+    int      i;
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsPopCusDim);
+    poff = pfw->offinf;
+
+    for (i = 0; i < 16; i++, poff++) {
+        if (i == pfw->onTNo) {
+            poff->cltm = 0xf;
+        }
+
+        if (poff->bCur != 0) {
+            poff->bCur = 0;
+            poff->time = 0xf;
+        } else {
+            poff->time = 0;
+            poff->bCur = 0;
+            poff->cltm = 0;
+        }
+    }
+}
+
+void TsPopCusDim(POPCTIM *pfw, int n, int flg) {
+    if (n >= 16u) {
+        return;
+    }
+
+    pfw->bDim[n] = flg;
+}
 
 void TsPopCusInit(POPCTIM *pfw,  int curIdx) {
     memset(pfw, 0, sizeof(*pfw));
@@ -2632,7 +2841,11 @@ INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsSaveMenu_Flow);
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsSaveMenu_Draw);
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TSJukeCDObj_Init);
+static void TSJukeCDObj_Init(JUKECDOBJ *pw, int pno) {
+    memset(pw, 0, sizeof(*pw));
+    pw->patPos = &JUKEBOX_Pos[pno];
+    pw->patNo = pno;
+}
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", _TsJkJacketPut);
 
@@ -2790,7 +3003,34 @@ INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsUserList_Flow);
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsUserList_Draw);
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", NameSpaceCut);
+static void NameSpaceCut(u_char *dst, u_char *src) {
+    int     i, l;
+    u_char *ps;
+    u_char  c;
+
+    ps = src;
+
+    while (*ps == ' ') {
+        ps++;
+    }
+
+    l = 0;
+
+    while ((c = *ps++) != '\0') {
+        dst[l] = c;
+        l++;
+    }
+
+    dst[l] = '\0';
+
+    for (i = l - 1; i > 0; i--) {
+        if (dst[i] != ' ') {
+            break;
+        }
+
+        dst[i] = '\0';
+    }
+}
 
 INCLUDE_RODATA("asm/nonmatchings/menu/menusub", D_00396120);
 

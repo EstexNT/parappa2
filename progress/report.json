@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 61.80248,
+    "fuzzy_match_percent": 62.24305,
     "total_code": "342284",
-    "matched_code": "211540",
-    "matched_code_percent": 61.802483,
+    "matched_code": "213048",
+    "matched_code_percent": 62.24305,
     "total_data": "26260848",
     "matched_data": "26148056",
     "matched_data_percent": 99.570496,
     "total_functions": 1429,
-    "matched_functions": 1109,
-    "matched_functions_percent": 77.60672,
+    "matched_functions": 1124,
+    "matched_functions_percent": 78.6564,
     "total_units": 70
   },
   "units": [
@@ -6828,16 +6828,16 @@
     {
       "name": "menu/menusub",
       "measures": {
-        "fuzzy_match_percent": 23.582188,
+        "fuzzy_match_percent": 25.632103,
         "total_code": "73564",
-        "matched_code": "17348",
-        "matched_code_percent": 23.582188,
+        "matched_code": "18856",
+        "matched_code_percent": 25.632101,
         "total_data": "51456",
         "matched_data": "38576",
         "matched_data_percent": 74.9689,
         "total_functions": 165,
-        "matched_functions": 78,
-        "matched_functions_percent": 47.272728,
+        "matched_functions": 93,
+        "matched_functions_percent": 56.363636,
         "total_units": 1
       },
       "sections": [
@@ -6875,7 +6875,7 @@
         {
           "name": ".text",
           "size": "73904",
-          "fuzzy_match_percent": 23.582188,
+          "fuzzy_match_percent": 25.632103,
           "metadata": {}
         }
       ],
@@ -6960,6 +6960,7 @@
         {
           "name": "tsBGMONEflow",
           "size": "132",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "960"
         },
@@ -6993,6 +6994,7 @@
         {
           "name": "TsBGMMute",
           "size": "100",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "1736"
         },
@@ -7006,6 +7008,7 @@
         {
           "name": "TsBGMPause",
           "size": "44",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "1872"
         },
@@ -7025,6 +7028,7 @@
         {
           "name": "TsCmnPkOpen",
           "size": "96",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2832"
         },
@@ -7044,12 +7048,14 @@
         {
           "name": "TsGetTm2Tex",
           "size": "180",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "3072"
         },
         {
           "name": "TsGetTm2HedTex",
           "size": "172",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "3256"
         },
@@ -7083,6 +7089,7 @@
         {
           "name": "TSNumRBack",
           "size": "52",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "4496"
         },
@@ -7103,6 +7110,7 @@
         {
           "name": "TsMENU_GetMapNo",
           "size": "140",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "4632"
         },
@@ -7148,6 +7156,7 @@
         {
           "name": "TsMENU_EndSystem",
           "size": "52",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "7520"
         },
@@ -7188,6 +7197,7 @@
         {
           "name": "TsMenu_Flow",
           "size": "112",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "9008"
         },
@@ -7244,6 +7254,7 @@
         {
           "name": "TsMENU_SetMapScreen",
           "size": "64",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "13496"
         },
@@ -7495,12 +7506,14 @@
         {
           "name": "TsPopCusAOff",
           "size": "80",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "35160"
         },
         {
           "name": "TsPopCusDim",
           "size": "28",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "35240"
         },
@@ -7564,6 +7577,7 @@
         {
           "name": "TSJukeCDObj_Init",
           "size": "80",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "43880"
         },
@@ -7756,6 +7770,7 @@
         {
           "name": "NameSpaceCut",
           "size": "176",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "62224"
         },
@@ -13675,16 +13690,16 @@
     {
       "id": "menu",
       "measures": {
-        "fuzzy_match_percent": 47.515064,
+        "fuzzy_match_percent": 48.828056,
         "total_code": "114852",
-        "matched_code": "54572",
-        "matched_code_percent": 47.51506,
+        "matched_code": "56080",
+        "matched_code_percent": 48.828056,
         "total_data": "93716",
         "matched_data": "45092",
         "matched_data_percent": 48.115585,
         "total_functions": 374,
-        "matched_functions": 277,
-        "matched_functions_percent": 74.06417,
+        "matched_functions": 292,
+        "matched_functions_percent": 78.07487,
         "total_units": 9
       }
     },
