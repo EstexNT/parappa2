@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 62.24305,
+    "fuzzy_match_percent": 62.35173,
     "total_code": "342284",
-    "matched_code": "213048",
-    "matched_code_percent": 62.24305,
+    "matched_code": "213420",
+    "matched_code_percent": 62.351734,
     "total_data": "26260848",
     "matched_data": "26148056",
     "matched_data_percent": 99.570496,
     "total_functions": 1429,
-    "matched_functions": 1124,
-    "matched_functions_percent": 78.6564,
+    "matched_functions": 1126,
+    "matched_functions_percent": 78.796364,
     "total_units": 70
   },
   "units": [
@@ -6828,16 +6828,16 @@
     {
       "name": "menu/menusub",
       "measures": {
-        "fuzzy_match_percent": 25.632103,
+        "fuzzy_match_percent": 26.137785,
         "total_code": "73564",
-        "matched_code": "18856",
-        "matched_code_percent": 25.632101,
+        "matched_code": "19228",
+        "matched_code_percent": 26.137785,
         "total_data": "51456",
         "matched_data": "38576",
         "matched_data_percent": 74.9689,
         "total_functions": 165,
-        "matched_functions": 93,
-        "matched_functions_percent": 56.363636,
+        "matched_functions": 95,
+        "matched_functions_percent": 57.575756,
         "total_units": 1
       },
       "sections": [
@@ -6875,7 +6875,7 @@
         {
           "name": ".text",
           "size": "73904",
-          "fuzzy_match_percent": 25.632103,
+          "fuzzy_match_percent": 26.137785,
           "metadata": {}
         }
       ],
@@ -7184,6 +7184,7 @@
         {
           "name": "TsMenu_InitFlow",
           "size": "180",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "8720"
         },
@@ -7461,6 +7462,7 @@
         {
           "name": "TsCMPMes_Draw",
           "size": "192",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "33464"
         },
@@ -13690,16 +13692,16 @@
     {
       "id": "menu",
       "measures": {
-        "fuzzy_match_percent": 48.828056,
+        "fuzzy_match_percent": 49.15195,
         "total_code": "114852",
-        "matched_code": "56080",
-        "matched_code_percent": 48.828056,
+        "matched_code": "56452",
+        "matched_code_percent": 49.15195,
         "total_data": "93716",
         "matched_data": "45092",
         "matched_data_percent": 48.115585,
         "total_functions": 374,
-        "matched_functions": 292,
-        "matched_functions_percent": 78.07487,
+        "matched_functions": 294,
+        "matched_functions_percent": 78.60963,
         "total_units": 9
       }
     },

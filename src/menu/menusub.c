@@ -216,7 +216,7 @@ static void  TsMENU_GetMapTimeState(int flg);
 /* static */ void  TsSetScene_Map(MN_SCENE *pScene, int mapNo, int tflg, int bFocus);
 static void  TsSet_ParappaCapColor(void);
 /* static */ void  TsClearSet(P3GAMESTATE *pstate);
-/* static */ void  TsCheckEnding(P3GAMESTATE *pstate);
+static void  TsCheckEnding(P3GAMESTATE *pstate);
 /* static */ void  TsSetRankingName(P3MC_STAGERANK *pRankTop, u_char *name);
 /* static */ void  TsSetRanking2UData(USER_DATA *puser, P3MC_STAGERANK *wkRank);
 /* static */ void  TsSetSaveData(MCRWDATA_HDL *pDataW, int mode, USER_DATA *puser);
@@ -248,7 +248,7 @@ static int   TsMCAMes_GetSelect(void);
 static int   TsMCAMes_IsON(void);
 /* static */ void  TsMCAMes_Flow(u_int tpad);
 /* static */ void  TsMCAMes_Draw(SPR_PKT pk, SPR_PRM *spr);
-/* static */ void  TsCMPMes_Draw(SPR_PKT pk, SPR_PRM *spr);
+static void  TsCMPMes_Draw(SPR_PKT pk, SPR_PRM *spr);
 static void  TsANIME_Init(ANIME_WK *wk);
 /* static */ int   TsANIME_Poll(ANIME_WK *wk);
 static void  TsANIME_Start(ANIME_WK *wk, int state, int tim);
@@ -960,7 +960,51 @@ INCLUDE_RODATA("asm/nonmatchings/menu/menusub", D_00395F30);
 
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsClearSet);
 
+#ifndef NON_MATCHING
 INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsCheckEnding);
+#else
+static void TsCheckEnding(/* !a0 4 */ P3GAMESTATE *pstate) {
+    /* !a2 6 */ int nRound;
+    /* !t3 11 */ int nStage;
+    /* !a2 6 */ int i;
+    /* !a3 7 */ int flg;
+
+    int *pClrCount;
+
+    nRound = pstate->pLog->nRound;
+    nStage = pstate->nStage - 1;
+
+    if (pstate->nMode != 0) {
+        pstate->endingGame = 0;
+        return;
+    }
+
+    flg = 0;
+    pClrCount = pstate->pLog->clrCount;
+    for (i = 0; i < PR_ARRAYSIZE(pstate->pLog->clrCount); i++) {
+        if (pClrCount[i] >= (nRound + 1)) {
+            flg++;
+        }
+    }
+
+    pstate->endingGame = 0;
+
+    if ((flg % 2) != 0) {
+        if (pClrCount[nStage] < (nRound + 1)) {
+            pstate->endingGame = (flg / 2) + 2;
+            if (pstate->endingGame > 4) {
+                pstate->endingGame = 4;
+            }
+        }
+    }
+
+    if (flg == 7) {
+        if (pClrCount[nStage] < (nRound + 1)) {
+            pstate->endingGame = 1;
+        }
+    }
+}
+#endif
 
 void TsMENU_InitSystem(void) {
     int i;
@@ -1134,7 +1178,27 @@ void TsMenu_End(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsMenu_InitFlow);
+void TsMenu_InitFlow(P3GAMESTATE *pstate) {
+    pP3GameState = pstate;
+
+    pstate->pAutoMove = NULL;
+    pstate->curRecJacket = 0;
+
+    TsSet_ParappaCapColor();
+
+    switch (pstate->endFlg) {
+    case 0:
+        TsMap_Flow(1, 3, 0);
+        break;
+    case 1:
+        TsClearSet(pP3GameState);
+        TsMap_Flow(1, 2, 0);
+        break;
+    case 2:
+        TsMap_Flow(1, 1, 0);
+        break;
+    }
+}
 
 int TsMenuMemcChk_Flow(void) {
     u_int tpad, tpad2;
@@ -2699,7 +2763,20 @@ void TsCMPMes_SetMes(int no) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/menu/menusub", TsCMPMes_Draw);
+static void TsCMPMes_Draw(SPR_PKT pk, SPR_PRM *spr) {
+    CMPMES_WORK *pmesw = &CmpMesWork;
+
+    if (pmesw->backSw != 0) {
+        MNScene_DispSw(&MNS_JimakuBak, 1);
+        MNScene_Draw(&MNS_JimakuBak);
+    } else {
+        MNScene_DispSw(&MNS_JimakuBak, 0);
+    }
+
+    if (pmesw->mesflg < 0x1000u) {
+        _PkSubMsgPut(pk, spr, pmesw->mesflg & 0xffff, pmesw->px, pmesw->py, 0x807f7f7f);
+    }
+}
 
 void TsANIME_Init(ANIME_WK *wk) {
     memset(wk, 0, sizeof(*wk));
@@ -2767,7 +2844,7 @@ void TsPopCusAOff(POPCTIM *pfw) {
 
     poff = pfw->offinf;
 
-    for (i = 0; i < 16; i++, poff++) {
+    for (i = 0; i < PR_ARRAYSIZE(pfw->offinf); i++, poff++) {
         if (i == pfw->onTNo) {
             poff->cltm = 0xf;
         }
@@ -2784,7 +2861,7 @@ void TsPopCusAOff(POPCTIM *pfw) {
 }
 
 void TsPopCusDim(POPCTIM *pfw, int n, int flg) {
-    if (n >= 16u) {
+    if (n >= PR_ARRAYSIZEU(pfw->bDim)) {
         return;
     }
 
