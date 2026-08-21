@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 62.455738,
+    "fuzzy_match_percent": 62.476772,
     "total_code": "342284",
-    "matched_code": "213776",
-    "matched_code_percent": 62.455738,
+    "matched_code": "213848",
+    "matched_code_percent": 62.476772,
     "total_data": "26260848",
     "matched_data": "26148056",
     "matched_data_percent": 99.570496,
     "total_functions": 1429,
-    "matched_functions": 1131,
-    "matched_functions_percent": 79.146255,
+    "matched_functions": 1132,
+    "matched_functions_percent": 79.21623,
     "total_units": 70
   },
   "units": [
@@ -13400,9 +13400,14 @@
     {
       "name": "prlib/animation",
       "measures": {
+        "fuzzy_match_percent": 100.0,
         "total_code": "72",
+        "matched_code": "72",
+        "matched_code_percent": 100.0,
         "matched_data_percent": 100.0,
         "total_functions": 1,
+        "matched_functions": 1,
+        "matched_functions_percent": 100.0,
         "complete_data_percent": 100.0,
         "total_units": 1
       },
@@ -13420,6 +13425,7 @@
         {
           "name": ".text",
           "size": "72",
+          "fuzzy_match_percent": 100.0,
           "metadata": {}
         }
       ],
@@ -13427,6 +13433,7 @@
         {
           "name": "Initialize__13SpaFileHeader",
           "size": "72",
+          "fuzzy_match_percent": 100.0,
           "metadata": {
             "demangled_name": "SpaFileHeader::Initialize"
           },
@@ -13729,16 +13736,16 @@
     {
       "id": "prlib",
       "measures": {
-        "fuzzy_match_percent": 22.27138,
+        "fuzzy_match_percent": 22.35889,
         "total_code": "82276",
-        "matched_code": "18324",
-        "matched_code_percent": 22.27138,
+        "matched_code": "18396",
+        "matched_code_percent": 22.35889,
         "total_data": "27692",
         "matched_data": "23416",
         "matched_data_percent": 84.558716,
         "total_functions": 360,
-        "matched_functions": 148,
-        "matched_functions_percent": 41.11111,
+        "matched_functions": 149,
+        "matched_functions_percent": 41.38889,
         "total_units": 33
       }
     }
