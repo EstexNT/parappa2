@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 62.35173,
+    "fuzzy_match_percent": 62.455738,
     "total_code": "342284",
-    "matched_code": "213420",
-    "matched_code_percent": 62.351734,
+    "matched_code": "213776",
+    "matched_code_percent": 62.455738,
     "total_data": "26260848",
     "matched_data": "26148056",
     "matched_data_percent": 99.570496,
     "total_functions": 1429,
-    "matched_functions": 1126,
-    "matched_functions_percent": 78.796364,
+    "matched_functions": 1131,
+    "matched_functions_percent": 79.146255,
     "total_units": 70
   },
   "units": [
@@ -9990,16 +9990,16 @@
     {
       "name": "prlib/prlib",
       "measures": {
-        "fuzzy_match_percent": 38.294575,
+        "fuzzy_match_percent": 52.09302,
         "total_code": "2580",
-        "matched_code": "988",
-        "matched_code_percent": 38.294575,
+        "matched_code": "1344",
+        "matched_code_percent": 52.09302,
         "total_data": "56",
         "matched_data": "52",
         "matched_data_percent": 92.85714,
         "total_functions": 80,
-        "matched_functions": 31,
-        "matched_functions_percent": 38.75,
+        "matched_functions": 36,
+        "matched_functions_percent": 45.0,
         "total_units": 1
       },
       "sections": [
@@ -10028,7 +10028,7 @@
         {
           "name": ".text",
           "size": "2656",
-          "fuzzy_match_percent": 38.294575,
+          "fuzzy_match_percent": 52.09302,
           "metadata": {}
         }
       ],
@@ -10113,6 +10113,7 @@
         {
           "name": "PrInitializeAnimation",
           "size": "168",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "640"
         },
@@ -10131,6 +10132,7 @@
         {
           "name": "PrCleanupAnimation",
           "size": "164",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "1024"
         },
@@ -10182,6 +10184,7 @@
         {
           "name": "PrSetAnimationUserData",
           "size": "8",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "1536"
         },
@@ -10200,6 +10203,7 @@
         {
           "name": "PrGetAnimationUserData",
           "size": "8",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "1560"
         },
@@ -10458,6 +10462,7 @@
         {
           "name": "PrGetAnimationName",
           "size": "8",
+          "fuzzy_match_percent": 100.0,
           "metadata": {},
           "address": "2384"
         },
@@ -13724,16 +13729,16 @@
     {
       "id": "prlib",
       "measures": {
-        "fuzzy_match_percent": 21.83869,
+        "fuzzy_match_percent": 22.27138,
         "total_code": "82276",
-        "matched_code": "17968",
-        "matched_code_percent": 21.838688,
+        "matched_code": "18324",
+        "matched_code_percent": 22.27138,
         "total_data": "27692",
         "matched_data": "23416",
         "matched_data_percent": 84.558716,
         "total_functions": 360,
-        "matched_functions": 143,
-        "matched_functions_percent": 39.72222,
+        "matched_functions": 148,
+        "matched_functions_percent": 41.11111,
         "total_units": 33
       }
     }
