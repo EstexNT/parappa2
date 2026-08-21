@@ -25,8 +25,9 @@ public:
     PrLinkedList<SpaFileHeader> m_list;
     PrObjectSet<SpaFileHeader> *m_obj_set;
     void *m_user_data;
-    int unk4C;
-    SpaNodeAnimation **unk50;
+    u_int m_node_num;
+    SpaNodeAnimation **m_nodes;
+    SpaNodeAnimation *m_nodes_list[0];
 
 public:
     void Initialize();
@@ -34,6 +35,20 @@ public:
     bool IsNodeVisible(SpmNode *arg0, float arg1) const;
 
     void ChangePointer();
+
+    template <typename T>
+    T* CalculatePointer(T *offset) {
+        if (!offset) {
+            return NULL;
+        }
+        return reinterpret_cast<T*>(reinterpret_cast<int>(this) + reinterpret_cast<int>(offset));
+    }
+
+    template <typename T>
+    T* CalculatePointerUnsafe(T *offset) {
+        return reinterpret_cast<T*>(reinterpret_cast<int>(this) + reinterpret_cast<int>(offset));
+    }
+    
 };
 
 #endif /* PRLIB_ANIMATION_H */

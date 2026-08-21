@@ -1,15 +1,15 @@
 {
   "measures": {
-    "fuzzy_match_percent": 62.476772,
+    "fuzzy_match_percent": 62.52936,
     "total_code": "342284",
-    "matched_code": "213848",
-    "matched_code_percent": 62.476772,
+    "matched_code": "214028",
+    "matched_code_percent": 62.52936,
     "total_data": "26260848",
     "matched_data": "26148056",
     "matched_data_percent": 99.570496,
     "total_functions": 1429,
-    "matched_functions": 1132,
-    "matched_functions_percent": 79.21623,
+    "matched_functions": 1133,
+    "matched_functions_percent": 79.28621,
     "total_units": 70
   },
   "units": [
@@ -10561,14 +10561,14 @@
     {
       "name": "prlib/setpointer",
       "measures": {
-        "fuzzy_match_percent": 54.025425,
+        "fuzzy_match_percent": 63.559322,
         "total_code": "1888",
-        "matched_code": "1020",
-        "matched_code_percent": 54.025425,
+        "matched_code": "1200",
+        "matched_code_percent": 63.559322,
         "total_data": "32",
         "total_functions": 5,
-        "matched_functions": 3,
-        "matched_functions_percent": 60.000004,
+        "matched_functions": 4,
+        "matched_functions_percent": 80.0,
         "total_units": 1
       },
       "sections": [
@@ -10590,7 +10590,7 @@
         {
           "name": ".text",
           "size": "1896",
-          "fuzzy_match_percent": 54.025425,
+          "fuzzy_match_percent": 63.559322,
           "metadata": {}
         }
       ],
@@ -10616,6 +10616,7 @@
         {
           "name": "ChangePointer__13SpaFileHeader",
           "size": "180",
+          "fuzzy_match_percent": 100.0,
           "metadata": {
             "demangled_name": "SpaFileHeader::ChangePointer"
           },
@@ -13736,16 +13737,16 @@
     {
       "id": "prlib",
       "measures": {
-        "fuzzy_match_percent": 22.35889,
+        "fuzzy_match_percent": 22.577665,
         "total_code": "82276",
-        "matched_code": "18396",
-        "matched_code_percent": 22.35889,
+        "matched_code": "18576",
+        "matched_code_percent": 22.577665,
         "total_data": "27692",
         "matched_data": "23416",
         "matched_data_percent": 84.558716,
         "total_functions": 360,
-        "matched_functions": 149,
-        "matched_functions_percent": 41.38889,
+        "matched_functions": 150,
+        "matched_functions_percent": 41.666664,
         "total_units": 33
       }
     }

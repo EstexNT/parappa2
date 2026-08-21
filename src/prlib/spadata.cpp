@@ -90,7 +90,7 @@ bool SpaNodeAnimation::IsVisible(float arg0) const {
 }
 
 bool SpaFileHeader::IsNodeVisible(SpmNode *arg0, float arg1) const {
-    SpaNodeAnimation *a0 = this->unk50[arg0->unk150];
+    SpaNodeAnimation *a0 = m_nodes[arg0->unk150];
     SpmNode *a2 = arg0->unk164;
 
     if (a0 != NULL && a0->unk4 == NULL) {

@@ -9,6 +9,5 @@ void SpaFileHeader::Initialize() {
         if (m_list.prev != NULL) {
             m_list.prev = NULL;
         }
-        
     }
 }
